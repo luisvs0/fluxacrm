@@ -9,7 +9,9 @@ import {
   User, 
   Sparkles,
   Medal,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
+  Target
 } from 'lucide-react';
 
 interface RankItem {
@@ -37,81 +39,100 @@ const Ranking: React.FC = () => {
   ];
 
   const RenderMetricCard = ({ title, icon, items }: { title: string, icon: React.ReactNode, items: RankItem[] }) => (
-    <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col space-y-5">
-      <div className="flex items-center gap-2 text-blue-600">
-        {icon}
-        <h3 className="text-base font-bold text-[#1e293b]">{title}</h3>
+    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col space-y-6 hover:shadow-md transition-all group">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
+            {icon}
+          </div>
+          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">{title}</h3>
+        </div>
+        <button className="text-slate-300 hover:text-slate-900 transition-colors">
+          <TrendingUp size={18} />
+        </button>
       </div>
       
       <div className="space-y-3">
         {items.map((item, idx) => (
           <div 
             key={idx} 
-            className={`relative flex items-center gap-3 p-3 rounded-2xl transition-all ${
+            className={`relative flex items-center justify-between p-4 rounded-[1.5rem] transition-all overflow-hidden ${
               item.isWinner 
-                ? 'bg-gradient-to-r from-[#2c1e12] to-[#4d3620] text-white shadow-lg shadow-amber-900/10' 
-                : 'bg-gray-50/50 border border-gray-100 text-gray-700'
+                ? 'bg-slate-900 text-white shadow-xl shadow-slate-200' 
+                : 'bg-slate-50/50 border border-slate-100 text-slate-700 hover:bg-slate-50'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className={`p-1.5 rounded-lg ${item.isWinner ? 'text-amber-400' : 'text-gray-300'}`}>
-                {item.isWinner ? <Trophy size={18} /> : <Medal size={18} />}
+            {item.isWinner && (
+              <div className="absolute top-0 right-0 p-2 opacity-10">
+                <Trophy size={40} />
               </div>
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border ${
-                item.isWinner ? 'bg-[#432e1a] border-[#5d4037] text-amber-200' : 'bg-white border-gray-200 text-gray-400'
+            )}
+            
+            <div className="flex items-center gap-4 relative z-10">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border-2 ${
+                item.isWinner ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-100 text-slate-400 shadow-sm'
               }`}>
                 {item.initial}
               </div>
+              <div>
+                <p className={`text-sm font-bold truncate ${item.isWinner ? 'text-white' : 'text-slate-800'}`}>
+                  {item.name}
+                </p>
+                <p className={`text-[10px] font-black uppercase tracking-widest ${item.isWinner ? 'text-blue-400' : 'text-slate-400'}`}>
+                  Nível {item.level}
+                </p>
+              </div>
             </div>
 
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-bold truncate ${item.isWinner ? 'text-white' : 'text-gray-700'}`}>
-                {item.name}
-              </p>
-              <p className={`text-[10px] font-bold ${item.isWinner ? 'text-amber-400/80' : 'text-gray-400'}`}>
-                Lv. {item.level}
-              </p>
-            </div>
-
-            <div className={`text-xl font-bold ${item.isWinner ? 'text-amber-400' : 'text-gray-400'}`}>
-              {item.value}
+            <div className="flex items-center gap-3 relative z-10">
+              <div className={`text-xl font-black tracking-tighter ${item.isWinner ? 'text-white' : 'text-slate-900'}`}>
+                {item.value}
+              </div>
+              {item.isWinner ? <Trophy size={16} className="text-amber-400" /> : <Medal size={16} className="text-slate-200" />}
             </div>
           </div>
         ))}
       </div>
+      
+      <button className="w-full py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">
+        Ver Ranking Completo
+      </button>
     </div>
   );
 
   return (
-    <div className="min-h-full bg-[#f8fafc] p-6 lg:p-10 space-y-10 animate-in fade-in duration-500 pb-24">
+    <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
       
-      {/* Empty Squad State Card */}
-      <div className="bg-white border border-gray-100 rounded-3xl p-16 shadow-sm flex flex-col items-center justify-center text-center space-y-6">
-        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
-          <Users size={32} strokeWidth={1.5} />
+      {/* SaaS Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Leaderboard</h2>
+          <p className="text-slate-500 font-medium mt-1">Gamificação e performance comercial em tempo real.</p>
         </div>
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-[#1e293b]">Nenhum squad cadastrado</h3>
-          <p className="text-sm text-gray-400 font-medium">
-            Crie squads em <span className="text-blue-600 font-bold">Comercial → Squads</span> para ver o ranking por equipe
-          </p>
+
+        <div className="flex items-center gap-3">
+          <div className="flex bg-white border border-slate-200 rounded-full p-1 shadow-sm">
+             <button className="px-5 py-2 bg-slate-900 text-white rounded-full text-xs font-bold shadow-md">Semana</button>
+             <button className="px-5 py-2 text-slate-500 text-xs font-bold">Mês</button>
+             <button className="px-5 py-2 text-slate-500 text-xs font-bold">Geral</button>
+          </div>
         </div>
       </div>
 
       {/* Metrics Ranking Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <RenderMetricCard 
           title="Prospecções" 
           icon={<PhoneCall size={18} />} 
           items={prospeccoes} 
         />
         <RenderMetricCard 
-          title="Reuniões Agendadas" 
+          title="Reuniões" 
           icon={<CalendarDays size={18} />} 
           items={reunioes} 
         />
         <RenderMetricCard 
-          title="Conversões" 
+          title="Vendas" 
           icon={<Trophy size={18} />} 
           items={conversoes} 
         />
@@ -119,51 +140,61 @@ const Ranking: React.FC = () => {
 
       {/* Individual Statistics Section */}
       <div className="space-y-6">
-        <div className="flex items-center gap-2 text-blue-600">
-          <User size={18} />
-          <h3 className="text-base font-bold text-[#1e293b]">Estatísticas Individuais</h3>
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Seu Perfil de Atleta</h3>
+          <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">Status: Em Evolução</span>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm relative group overflow-hidden">
-          <div className="flex items-center gap-8">
-            {/* Large Avatar with Badge */}
+        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm relative group overflow-hidden hover:border-blue-100 transition-all">
+          <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
+            <Target size={300} />
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
+            {/* Avatar Profile */}
             <div className="relative">
-              <div className="w-24 h-24 bg-white border-4 border-gray-50 rounded-full flex items-center justify-center text-2xl font-black text-gray-900 shadow-inner">
+              <div className="w-32 h-32 bg-slate-50 border-4 border-white rounded-[2.5rem] flex items-center justify-center text-4xl font-black text-slate-900 shadow-xl group-hover:shadow-blue-200/50 transition-all duration-500">
                 K
               </div>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 border-4 border-white rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 border-4 border-white rounded-2xl flex items-center justify-center text-white text-sm font-black shadow-lg">
                 1
               </div>
             </div>
 
-            {/* Profile Info */}
-            <div className="flex-1 space-y-6">
-              <div className="space-y-1">
-                <h4 className="text-2xl font-bold text-[#1e293b]">Kyros</h4>
-                <div className="flex items-center gap-1.5 text-blue-600 font-bold">
-                  <Star size={14} className="fill-current" />
-                  <span className="text-xs uppercase tracking-wider">Novato (Nível 1)</span>
+            {/* Profile Info & XP */}
+            <div className="flex-1 w-full space-y-8">
+              <div className="text-center md:text-left space-y-1">
+                <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Kyros</h4>
+                <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600 font-bold">
+                  <Star size={16} className="fill-blue-600" />
+                  <span className="text-xs uppercase tracking-widest font-black">Novato da Temporada (Lv. 1)</span>
                 </div>
               </div>
 
               {/* XP Progress Bar */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">XP</span>
-                  <span className="text-xs font-bold text-gray-900">1 / 500</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest">XP de Performance</span>
+                    <span className="p-1 bg-slate-50 rounded text-[9px] font-bold text-slate-400 border border-slate-100">PROX: 500 XP</span>
+                  </div>
+                  <span className="text-sm font-black text-slate-900">1 / 500</span>
                 </div>
-                <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
-                  <div className="h-full w-[0.2%] bg-blue-600 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.4)]"></div>
+                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-50">
+                  <div className="h-full w-[1%] bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-1000"></div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* AI / Sparkle Feature Button Overlay Area */}
-          <div className="absolute bottom-6 right-6">
-             <button className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm hover:bg-blue-100 transition-all active:scale-95">
-               <Sparkles size={22} className="fill-blue-600/10" />
-             </button>
+            {/* AI Action Button */}
+            <div className="shrink-0">
+               <button className="flex flex-col items-center gap-3 group/ai">
+                 <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center shadow-sm group-hover/ai:bg-blue-600 group-hover/ai:text-white group-hover/ai:scale-105 transition-all duration-300">
+                   <Sparkles size={32} />
+                 </div>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover/ai:text-blue-600 transition-colors">AI Mentor</span>
+               </button>
+            </div>
           </div>
         </div>
       </div>

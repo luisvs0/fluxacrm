@@ -8,145 +8,142 @@ import {
   User, 
   DollarSign, 
   AlertCircle,
-  Building2
+  Building2,
+  MoreVertical,
+  ArrowUpRight,
+  Filter
 } from 'lucide-react';
 import NewCardModal from './NewCardModal';
 
 const Cards: React.FC = () => {
   const [isNewCardModalOpen, setIsNewCardModalOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('Todos');
+
+  const mockCards = [
+    { id: 1, name: 'Visa Corporate', last4: '4412', type: 'Empresa', limit: 'R$ 50.000', used: 'R$ 12.400', status: 'Ativo', color: 'bg-slate-900' },
+    { id: 2, name: 'Nubank Platinum', last4: '8821', type: 'Pessoal', limit: 'R$ 15.000', used: 'R$ 2.100', status: 'Ativo', color: 'bg-purple-700' },
+  ];
 
   return (
-    <div className="min-h-full bg-[#f8fafc] p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
+    <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
       
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* SaaS Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-2xl font-bold text-[#1e293b] tracking-tight">Cartões</h2>
-          <p className="text-sm text-gray-500 font-medium">Gerencie cartões da empresa e pessoais</p>
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Cartões</h2>
+          <p className="text-slate-500 font-medium mt-1">Gestão centralizada de meios de pagamento corporativos e pessoais.</p>
         </div>
         
         <button 
           onClick={() => setIsNewCardModalOpen(true)}
-          className="flex items-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
         >
-          <Plus size={20} />
-          Novo cartão
+          <Plus size={18} />
+          Novo Cartão
         </button>
       </div>
 
-      {/* Summary Stat Cards */}
+      {/* Summary Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Cartões Empresa */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex justify-between items-center group hover:border-blue-200 transition-all">
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Cartões Empresa</p>
-            <p className="text-2xl font-bold text-blue-700">0 ativos</p>
-          </div>
-          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-            <Building2 size={22} />
-          </div>
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Cartões Ativos</p>
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">04</h3>
+          <p className="text-xs text-slate-400 font-medium mt-1">2 empresa / 2 pessoal</p>
         </div>
-
-        {/* Cartões Pessoais */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex justify-between items-center group hover:border-orange-200 transition-all">
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Cartões Pessoais</p>
-            <p className="text-2xl font-bold text-orange-400">0 ativos</p>
-          </div>
-          <div className="w-12 h-12 bg-orange-50 text-orange-400 rounded-xl flex items-center justify-center">
-            <User size={22} />
-          </div>
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Gasto Mensal (Corp)</p>
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">R$ 14.580,00</h3>
+          <p className="text-xs text-rose-500 font-semibold mt-1 flex items-center gap-1">
+            <ArrowUpRight size={14} /> +8% vs mês ant.
+          </p>
         </div>
-
-        {/* Gasto Empresa */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex justify-between items-center group hover:border-emerald-200 transition-all">
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Gasto Empresa</p>
-            <p className="text-2xl font-bold text-emerald-500">R$ 0,00</p>
-            <p className="text-[10px] text-gray-400 font-medium mt-1">Impacta o financeiro</p>
-          </div>
-          <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center font-bold text-lg">
-            $
-          </div>
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Limite Disponível</p>
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">R$ 82.000,00</h3>
+          <p className="text-xs text-emerald-500 font-semibold mt-1">Margem segura</p>
         </div>
-
-        {/* Gasto Pessoal */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex justify-between items-center group hover:border-gray-300 transition-all">
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Gasto Pessoal</p>
-            <p className="text-2xl font-bold text-gray-500">R$ 0,00</p>
-            <p className="text-[10px] text-gray-400 font-medium mt-1">Não impacta o financeiro</p>
-          </div>
-          <div className="w-12 h-12 bg-gray-50 text-gray-300 rounded-xl flex items-center justify-center">
-            <AlertCircle size={22} />
-          </div>
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Próximo Vencimento</p>
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">15 Fev</h3>
+          <p className="text-xs text-slate-400 font-medium mt-1">Fatura Visa Corporate</p>
         </div>
       </div>
 
-      {/* Filter Section */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Tipo</label>
-            <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700">
-                <option>Todos</option>
-                <option>Empresa</option>
-                <option>Pessoal</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Status</label>
-            <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700">
-                <option>Todos</option>
-                <option>Ativo</option>
-                <option>Inativo</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Data inicial</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                defaultValue="01/02/2026"
-                className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:border-blue-500 text-gray-700"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Data final</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                defaultValue="28/02/2026"
-                className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:border-blue-500 text-gray-700"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            </div>
-          </div>
+      {/* Control Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-3xl shadow-sm">
+        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-[1.25rem]">
+          {['Todos', 'Empresa', 'Pessoal'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setSelectedTab(tab)}
+              className={`px-6 py-2 rounded-[1rem] text-xs font-bold transition-all ${selectedTab === tab ? 'bg-white text-slate-900 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 pr-2">
+           <button className="p-2.5 text-slate-400 hover:text-slate-900 transition-all"><Filter size={18}/></button>
+           <button className="p-2.5 text-slate-400 hover:text-slate-900 transition-all"><Calendar size={18}/></button>
         </div>
       </div>
 
-      {/* Main Empty State Content Area */}
-      <div className="flex-1 bg-white border-2 border-dashed border-gray-200 rounded-3xl min-h-[400px] flex flex-col items-center justify-center p-12 text-center transition-all hover:border-gray-300">
-        <p className="text-gray-400 font-medium text-lg tracking-tight">Nenhum cartão cadastrado</p>
+      {/* Cards Visualization Area */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {mockCards.map(card => (
+          <div key={card.id} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex justify-between items-start mb-10">
+              <div className={`w-14 h-10 ${card.color} rounded-lg flex items-center justify-center text-white/20 overflow-hidden relative`}>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <CreditCard size={24} className="relative z-10 text-white" />
+              </div>
+              <button className="text-slate-300 hover:text-slate-900"><MoreVertical size={20}/></button>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-lg font-bold text-slate-900 tracking-tight">{card.name}</h4>
+                <p className="text-xs text-slate-400 font-mono tracking-widest">•••• •••• •••• {card.last4}</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  <span>Uso do Limite</span>
+                  <span className="text-slate-900">{card.used} / {card.limit}</span>
+                </div>
+                <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-600 rounded-full" style={{ width: '25%' }}></div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${card.type === 'Empresa' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                  {card.type}
+                </span>
+                <span className="text-[10px] font-black bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full uppercase tracking-widest">
+                  {card.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Empty State / Add Card Placeholder */}
+        <button 
+          onClick={() => setIsNewCardModalOpen(true)}
+          className="border-2 border-dashed border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center gap-4 hover:bg-slate-50 transition-all group min-h-[320px]"
+        >
+          <div className="w-16 h-16 bg-white border border-slate-100 rounded-3xl flex items-center justify-center text-slate-300 group-hover:text-blue-600 transition-all shadow-sm">
+            <Plus size={32} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900">Vincular Novo Cartão</p>
+            <p className="text-xs text-slate-400 font-medium">Adicione cartões para conciliação automática</p>
+          </div>
+        </button>
       </div>
 
-      {/* New Card Modal */}
-      <NewCardModal 
-        isOpen={isNewCardModalOpen} 
-        onClose={() => setIsNewCardModalOpen(false)} 
-      />
-
+      <NewCardModal isOpen={isNewCardModalOpen} onClose={() => setIsNewCardModalOpen(false)} />
     </div>
   );
 };

@@ -12,7 +12,9 @@ import {
   UserPlus,
   ChevronLeft,
   ChevronRight,
-  Filter
+  Filter,
+  MoreVertical,
+  Target
 } from 'lucide-react';
 import NewLeadModal from './NewLeadModal';
 
@@ -42,9 +44,9 @@ const Pipeline: React.FC = () => {
   const columns: Column[] = [
     {
       id: 'lead',
-      label: 'Lead',
+      label: 'Novo Lead',
       count: 0,
-      color: '#4F46E5', // Indigo
+      color: 'bg-indigo-500',
       leads: []
     },
     {
@@ -52,14 +54,14 @@ const Pipeline: React.FC = () => {
       label: 'Contato Iniciado',
       count: 1,
       totalValue: 'R$ 397,00',
-      color: '#8B5CF6', // Violet
+      color: 'bg-blue-500',
       leads: [
         {
           id: '1',
           name: 'ANDRE GOMES',
           company: 'Agência de marketing digital',
           value: 'R$ 397,00',
-          assignedTo: 'Lucca H...',
+          assignedTo: 'Lucca H.',
           assignedAvatar: 'LU',
           origin: 'Outbound'
         }
@@ -70,7 +72,7 @@ const Pipeline: React.FC = () => {
       label: 'Reunião Marcada',
       count: 2,
       totalValue: 'R$ 994,00',
-      color: '#D946EF', // Fuchsia
+      color: 'bg-purple-500',
       leads: [
         {
           id: '2',
@@ -83,7 +85,7 @@ const Pipeline: React.FC = () => {
         },
         {
           id: '3',
-          name: 'Gustavo dos Reis Costas',
+          name: 'Gustavo dos Reis',
           company: 'Subido Pro',
           value: 'R$ 497,00',
           assignedTo: 'Luis Venx',
@@ -96,62 +98,53 @@ const Pipeline: React.FC = () => {
       id: 'proposta',
       label: 'Proposta Enviada',
       count: 0,
-      color: '#F472B6', // Pink
+      color: 'bg-rose-500',
       leads: []
     },
     {
       id: 'fechado',
-      label: 'Fechado',
+      label: 'Fechamento',
       count: 0,
-      color: '#FACC15', // Yellow
+      color: 'bg-emerald-500',
       leads: []
     }
   ];
 
   return (
-    <div className="min-h-full bg-[#f8fafc] animate-in fade-in duration-500 overflow-hidden flex flex-col">
+    <div className="min-h-full bg-[#fcfcfd] flex flex-col animate-in fade-in duration-700 overflow-hidden">
       
-      {/* Page Header */}
+      {/* Premium Header */}
       <div className="px-8 pt-8 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-[#1e293b] tracking-tight">Pipeline</h2>
-          <p className="text-sm text-gray-400 font-medium">122 leads • R$ 1.391,00 em potencial</p>
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Pipeline de Vendas</h2>
+          <div className="flex items-center gap-3 mt-1">
+             <span className="text-slate-400 text-sm font-medium">122 leads ativos</span>
+             <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
+             <span className="text-emerald-600 text-sm font-bold tracking-tight">R$ 1.340.000 em potencial</span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Main Tabs */}
-          <div className="flex bg-[#f1f5f9] p-1 rounded-xl border border-gray-100 mr-4">
+          <div className="flex bg-white border border-slate-200 rounded-full p-1 shadow-sm">
             <button 
               onClick={() => setActiveTab('Pipeline')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'Pipeline' ? 'bg-[#0047AB] text-white shadow-md' : 'text-gray-500 hover:text-gray-900'}`}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all ${activeTab === 'Pipeline' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
             >
               <BarChart size={14} className="rotate-90" />
-              Pipeline
+              Quadro
             </button>
             <button 
               onClick={() => setActiveTab('Follow-ups')}
-              className={`flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'Follow-ups' ? 'bg-white text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full text-xs font-bold transition-all ${activeTab === 'Follow-ups' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
             >
               <PhoneCall size={14} />
               Follow-ups
             </button>
           </div>
 
-          <div className="relative">
-            <div className="flex items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm min-w-[200px] cursor-pointer group">
-              <Users size={16} className="text-gray-400 mr-2" />
-              <span className="text-sm font-bold text-gray-700 flex-1">Todos os leads</span>
-              <ChevronDown size={14} className="text-gray-400 group-hover:text-gray-900" />
-            </div>
-          </div>
-
-          <button className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-gray-900 transition-colors shadow-sm">
-            <Settings2 size={18} />
-          </button>
-
           <button 
             onClick={() => setIsNewLeadModalOpen(true)}
-            className="bg-[#0047AB] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
           >
             <Plus size={20} />
             Novo Lead
@@ -159,114 +152,105 @@ const Pipeline: React.FC = () => {
         </div>
       </div>
 
-      {/* Second Filter Bar */}
-      <div className="px-8 pb-4 flex items-center gap-4">
-        <div className="p-2 bg-white border border-gray-200 rounded-lg text-gray-400">
-           <Filter size={14} />
-        </div>
-        
-        <div className="relative">
-          <select className="bg-white border border-gray-200 rounded-xl py-1.5 pl-4 pr-10 text-xs font-bold text-gray-700 appearance-none focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm min-w-[160px]">
-            <option>Todos os squads</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+      {/* Toolbar / Filters */}
+      <div className="px-8 pb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <select className="bg-white border border-slate-200 rounded-2xl py-2 pl-4 pr-10 text-xs font-bold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer shadow-sm min-w-[160px]">
+              <option>Todos os squads</option>
+              <option>Squad Alpha</option>
+              <option>Squad Beta</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+          </div>
+          <div className="relative">
+            <select className="bg-white border border-slate-200 rounded-2xl py-2 pl-4 pr-10 text-xs font-bold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer shadow-sm min-w-[160px]">
+              <option>Todas as origens</option>
+              <option>Inbound</option>
+              <option>Outbound</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+          </div>
+          <button className="p-2.5 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all shadow-sm">
+            <Filter size={18} />
+          </button>
         </div>
 
-        <div className="relative">
-          <select className="bg-white border border-gray-200 rounded-xl py-1.5 pl-4 pr-10 text-xs font-bold text-gray-700 appearance-none focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm min-w-[160px]">
-            <option>Todas as origens</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+        <div className="flex items-center gap-2">
+           <button className="p-2 text-slate-300 hover:text-slate-900"><ChevronLeft size={20}/></button>
+           <button className="p-2 text-slate-300 hover:text-slate-900"><ChevronRight size={20}/></button>
         </div>
       </div>
 
-      {/* Horizontal Scroll Progress Bar Indicator */}
-      <div className="px-8 mb-6">
-        <div className="h-2 bg-white border border-gray-100 rounded-full flex items-center px-1 group cursor-pointer overflow-hidden relative">
-          <div className="absolute left-10 w-44 h-1 bg-blue-600/50 rounded-full"></div>
-          <button className="absolute left-1 bg-white border border-gray-100 rounded shadow-sm p-0.5 text-gray-400 z-10"><ChevronLeft size={10} /></button>
-          <button className="absolute right-1 bg-white border border-gray-100 rounded shadow-sm p-0.5 text-gray-400 z-10"><ChevronRight size={10} /></button>
-        </div>
-      </div>
-
-      {/* Kanban Board Area */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden px-8 pb-8 no-scrollbar">
+      {/* Kanban Board Container */}
+      <div className="flex-1 overflow-x-auto overflow-y-hidden px-8 pb-10 no-scrollbar">
         <div className="flex gap-6 h-full min-w-max">
           {columns.map((column) => (
-            <div key={column.id} className="w-[340px] flex flex-col h-full">
+            <div key={column.id} className="w-[320px] flex flex-col h-full group">
               {/* Column Header */}
-              <div 
-                className="bg-white rounded-t-xl border-t-2 shadow-sm overflow-hidden flex flex-col"
-                style={{ borderTopColor: column.color }}
-              >
-                <div className="p-5 flex items-center justify-between">
+              <div className="mb-4 flex flex-col gap-1 px-1">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-gray-900">{column.label}</span>
-                    <span className="text-xs font-bold text-gray-400">{column.count}</span>
+                    <div className={`w-1.5 h-4 ${column.color} rounded-full`}></div>
+                    <span className="text-sm font-bold text-slate-900 tracking-tight">{column.label}</span>
                   </div>
-                  <button 
-                    onClick={() => setIsNewLeadModalOpen(true)}
-                    className="p-1 hover:bg-gray-50 rounded text-gray-400 transition-colors"
-                  >
-                    <Plus size={18} />
-                  </button>
+                  <span className="text-[10px] font-black bg-slate-100 text-slate-400 px-2 py-0.5 rounded-lg uppercase tracking-widest">{column.count}</span>
                 </div>
                 {column.totalValue && (
-                  <div className="px-5 pb-4">
-                    <span className="text-xs font-bold text-gray-400">{column.totalValue}</span>
-                  </div>
+                  <span className="text-[11px] font-bold text-slate-400 pl-3.5 tracking-tight">{column.totalValue}</span>
                 )}
               </div>
 
-              {/* Column Content Area */}
-              <div className="flex-1 bg-gray-50/50 border-x border-b border-gray-200/60 rounded-b-xl p-4 space-y-4 overflow-y-auto">
+              {/* Column Dropzone Area */}
+              <div className="flex-1 bg-slate-50/40 rounded-[2rem] border border-dashed border-slate-200 p-3 space-y-4 overflow-y-auto no-scrollbar group-hover:bg-slate-50/80 transition-all">
                 {column.leads.map((lead) => (
-                  <div key={lead.id} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group">
+                  <div key={lead.id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group/card relative overflow-hidden">
                     <div className="space-y-4">
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-bold text-gray-900 uppercase">{lead.name}</h4>
-                        <div className="flex items-center gap-1.5 text-gray-400">
-                          <Building2 size={12} />
-                          <span className="text-[11px] font-medium truncate">{lead.company}</span>
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 max-w-[80%]">
+                          <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight line-clamp-1">{lead.name}</h4>
+                          <div className="flex items-center gap-1.5 text-slate-400">
+                            <Building2 size={10} />
+                            <span className="text-[10px] font-bold truncate tracking-tight">{lead.company}</span>
+                          </div>
                         </div>
+                        <button className="text-slate-200 hover:text-slate-900 transition-colors opacity-0 group-hover/card:opacity-100">
+                          <MoreVertical size={14} />
+                        </button>
                       </div>
 
-                      <div className="flex items-center gap-1 text-blue-600 font-bold text-sm">
-                        <DollarSign size={14} />
+                      <div className="flex items-center gap-1 text-blue-600 font-bold text-sm tracking-tighter">
                         <span>{lead.value}</span>
                       </div>
 
-                      <div className="pt-2 flex items-center justify-between border-t border-gray-50">
+                      <div className="pt-3 flex items-center justify-between border-t border-slate-50">
                         <div className="flex items-center gap-2">
-                           <div className="w-6 h-6 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-[9px] font-bold">
+                           <div className="w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-[8px] font-black shadow-sm">
                              {lead.assignedAvatar}
                            </div>
-                           <span className="text-[11px] font-bold text-gray-500">{lead.assignedTo}</span>
-                           <UserPlus size={12} className="text-blue-500" />
+                           <span className="text-[10px] font-bold text-slate-400">{lead.assignedTo}</span>
                         </div>
-                        <div className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                        <span className="text-[9px] font-black bg-slate-50 text-slate-400 px-2 py-0.5 rounded uppercase tracking-widest border border-slate-100">
                           {lead.origin}
-                        </div>
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))}
                 
-                {column.count === 0 && (
-                  <div className="h-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    {/* Placeholder for empty state within column */}
-                  </div>
-                )}
+                <button 
+                  onClick={() => setIsNewLeadModalOpen(true)}
+                  className="w-full py-4 border border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-300 hover:text-blue-500 hover:border-blue-200 hover:bg-white transition-all group/add"
+                >
+                  <Plus size={20} className="group-hover/add:scale-110 transition-transform" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <NewLeadModal 
-        isOpen={isNewLeadModalOpen} 
-        onClose={() => setIsNewLeadModalOpen(false)} 
-      />
+      <NewLeadModal isOpen={isNewLeadModalOpen} onClose={() => setIsNewLeadModalOpen(false)} />
     </div>
   );
 };

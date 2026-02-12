@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, ChevronDown, Building2 } from 'lucide-react';
+import { X, ChevronDown, Building2, CreditCard, Info, Plus } from 'lucide-react';
 
 interface NewCardModalProps {
   isOpen: boolean;
@@ -16,81 +16,106 @@ const NewCardModal: React.FC<NewCardModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       />
       
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[440px] rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 p-7">
+      <div className="relative bg-white w-full max-w-[500px] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-slate-100">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[19px] font-bold text-[#1e293b]">Novo cartão</h2>
+        <div className="p-8 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <CreditCard size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Vincular Novo Cartão</h2>
+              <p className="text-xs text-slate-400 font-medium">Configure um novo meio de pagamento</p>
+            </div>
+          </div>
           <button 
             onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-300 hover:text-slate-900"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="space-y-5">
+        <div className="p-8 pt-4 space-y-6">
           {/* Nome do cartão */}
           <div className="space-y-2">
-            <label className="text-[15px] font-medium text-gray-700">Nome do cartão *</label>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Identificação do Cartão</label>
             <input 
               type="text" 
-              placeholder="Ex: Nubank Empresa"
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all placeholder:text-gray-400"
+              placeholder="Ex: Visa Corporate Gold, Nubank Empresa..."
+              className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+              autoFocus
             />
           </div>
 
-          {/* Tipo */}
-          <div className="space-y-2">
-            <label className="text-[15px] font-medium text-gray-700">Tipo *</label>
-            <div className="relative">
-              <div className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] py-3.5 px-4 text-[14px] flex items-center gap-3 text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors">
-                <Building2 size={18} className="text-gray-700" />
-                <span className="flex-1">Cartão Empresa</span>
-                <ChevronDown size={18} className="text-gray-400" />
+          <div className="grid grid-cols-2 gap-4">
+            {/* Tipo */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tipo de Uso</label>
+              <div className="relative">
+                <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                  <option>Cartão Empresa</option>
+                  <option>Cartão Pessoal</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
               </div>
+            </div>
+
+            {/* Final do Cartão */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Últimos 4 dígitos</label>
+              <input 
+                type="text" 
+                placeholder="0000"
+                maxLength={4}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+              />
             </div>
           </div>
 
-          {/* Info Box */}
-          <div className="bg-[#eef2ff] border border-[#dbeafe] rounded-[14px] p-5 flex gap-4">
-            <Building2 size={20} className="text-[#1e293b] mt-0.5 shrink-0" />
-            <p className="text-[14px] text-[#3b5998] leading-relaxed">
-              Cartão empresa <span className="font-bold">impacta</span> o financeiro. Gastos entram no caixa, Dashboard e Centros de Custo.
+          <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 flex gap-4">
+            <Info size={18} className="text-blue-600 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-blue-700 font-semibold leading-relaxed">
+              Cartão empresa <span className="font-bold">impacta</span> o financeiro. Gastos entram no fluxo de caixa, dashboards e centros de custo.
             </p>
           </div>
 
-          {/* Status Toggle */}
-          <div className="flex items-center justify-between bg-white border border-[#e2e8f0] rounded-[14px] p-4">
-            <span className="text-[15px] font-medium text-gray-700">Cartão ativo</span>
+          {/* Toggle Ativo */}
+          <div className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-2xl">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Cartão Ativo</p>
+              <p className="text-[11px] text-slate-400 font-medium">Habilitar para novos lançamentos</p>
+            </div>
             <button 
               type="button"
               onClick={() => setIsActive(!isActive)}
-              className={`w-12 h-6 rounded-full relative transition-all duration-200 ${isActive ? 'bg-[#1d4ed8]' : 'bg-gray-200'}`}
+              className={`w-11 h-6 rounded-full relative transition-all duration-300 ${isActive ? 'bg-blue-600 shadow-md shadow-blue-200' : 'bg-slate-200'}`}
             >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${isActive ? 'left-[26px]' : 'left-1'}`} />
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${isActive ? 'left-[22px]' : 'left-1'}`} />
             </button>
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
+          <div className="flex items-center gap-3 pt-4">
             <button 
               type="button" 
               onClick={onClose}
-              className="px-6 py-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] text-[15px] font-medium text-gray-700 hover:bg-gray-100 transition-all"
+              className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"
             >
               Cancelar
             </button>
             <button 
               type="button" 
-              className="px-8 py-3 bg-[#1d4ed8] text-white rounded-[14px] text-[15px] font-medium hover:bg-[#1e40af] transition-all shadow-sm"
+              className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2"
             >
-              Criar
+              <Plus size={18} />
+              Criar Cartão
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, ChevronDown, Calendar } from 'lucide-react';
+import { X, ChevronDown, Calendar, Target, Info, Plus } from 'lucide-react';
 
 interface NewGoalModalProps {
   isOpen: boolean;
@@ -12,139 +12,111 @@ const NewGoalModal: React.FC<NewGoalModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[460px] max-h-[95vh] overflow-y-auto rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-8">
+      <div className="relative bg-white w-full max-w-[500px] max-h-[90vh] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-slate-100 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Nova Meta</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
+        <div className="p-8 pb-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <Target size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Nova Meta</h2>
+              <p className="text-xs text-slate-400 font-medium">Defina objetivos quantitativos de performance</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-300 hover:text-slate-900">
             <X size={20} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <div className="space-y-5">
-          {/* Nome da Meta */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Nome da Meta</label>
-            <input 
-              type="text" 
-              placeholder="Ex: Meta de leads Q1"
-              className="w-full bg-[#f8fafc] border-2 border-blue-600 rounded-[14px] py-3.5 px-4 text-[14px] focus:outline-none text-gray-700 transition-all placeholder:text-gray-400 font-medium shadow-sm shadow-blue-500/10"
-              autoFocus
-            />
-          </div>
-
-          {/* Tipo e Período */}
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 overflow-y-auto p-8 pt-4 no-scrollbar">
+          <div className="space-y-6">
+            {/* Nome da Meta */}
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Tipo</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                  <option>Empresa</option>
-                  <option>Individual</option>
-                  <option>Squad</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Período</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                  <option>Mensal</option>
-                  <option>Trimestral</option>
-                  <option>Semestral</option>
-                  <option>Anual</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-          </div>
-
-          {/* Métrica */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Métrica</label>
-            <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                <option>Leads Criados</option>
-                <option>Reuniões Marcadas</option>
-                <option>Propostas Enviadas</option>
-                <option>Vendas Concluídas</option>
-                <option>Valor em Vendas (R$)</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-            </div>
-          </div>
-
-          {/* Valor da Meta e Alerta */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Valor da Meta</label>
-              <input 
-                type="number" 
-                defaultValue="0"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Alerta (%)</label>
-              <input 
-                type="number" 
-                defaultValue="80"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Data de Início e Término */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Data de Início</label>
-            <div className="relative">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Identificação da Meta</label>
               <input 
                 type="text" 
-                defaultValue="12/02/2026"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
+                placeholder="Ex: Meta de Vendas - Q1 2026"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                autoFocus
               />
-              <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-[#1e293b]" size={16} />
             </div>
-            <p className="text-[13px] text-gray-400 font-medium ml-1">Término: 09/03/2026</p>
-          </div>
 
-          {/* Descrição */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Descrição (opcional)</label>
-            <textarea 
-              rows={4}
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all resize-none shadow-sm"
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Escopo</label>
+                <div className="relative">
+                  <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                    <option>Empresa</option>
+                    <option>Individual</option>
+                    <option>Squad</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Métrica</label>
+                <div className="relative">
+                  <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                    <option>Valor em Vendas (R$)</option>
+                    <option>Leads Criados</option>
+                    <option>Reuniões Marcadas</option>
+                    <option>Vendas Concluídas</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
+                </div>
+              </div>
+            </div>
 
-          {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="px-8 py-3 bg-white border border-[#e2e8f0] rounded-[14px] text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="px-10 py-3 bg-[#1d4ed8] text-white rounded-[14px] text-[14px] font-bold hover:bg-[#1e40af] transition-all shadow-md shadow-blue-500/20 active:scale-95"
-            >
-              Criar
-            </button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Target (Valor)</label>
+                <input 
+                  type="text" 
+                  placeholder="0,00"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Período</label>
+                <div className="relative">
+                  <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                    <option>Mensal</option>
+                    <option>Trimestral</option>
+                    <option>Anual</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
+              <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />
+              <p className="text-[11px] text-blue-700 font-semibold leading-relaxed">
+                As metas serão exibidas no dashboard comercial e utilizadas para calcular a performance individual dos consultores.
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Footer Buttons */}
+        <div className="p-8 pt-4 flex items-center gap-3 shrink-0">
+          <button 
+            type="button" 
+            onClick={onClose}
+            className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <Plus size={18} />
+            Criar Meta
+          </button>
         </div>
       </div>
     </div>

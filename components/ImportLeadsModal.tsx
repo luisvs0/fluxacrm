@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Upload, FileText, ChevronDown, Download, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Upload, FileText, ChevronDown, Download, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 interface ImportLeadsModalProps {
   isOpen: boolean;
@@ -8,109 +8,103 @@ interface ImportLeadsModalProps {
 }
 
 const ImportLeadsModal: React.FC<ImportLeadsModalProps> = ({ isOpen, onClose }) => {
-  const [file, setFile] = useState<File | null>(null);
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[500px] rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 p-8">
+      <div className="relative bg-white w-full max-w-[550px] max-h-[90vh] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-slate-100 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Importar Leads</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
+        <div className="p-8 pb-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <Upload size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Importação em Massa</h2>
+              <p className="text-xs text-slate-400 font-medium">Sincronize sua base de leads rapidamente</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-300 hover:text-slate-900">
             <X size={20} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <div className="space-y-6">
-          <p className="text-sm text-gray-500 leading-relaxed">
-            Selecione um arquivo CSV ou Excel para importar seus leads em massa para o pipeline.
+        <div className="flex-1 overflow-y-auto p-8 pt-4 no-scrollbar space-y-8">
+          <p className="text-sm text-slate-500 font-medium leading-relaxed">
+            Selecione um arquivo <span className="text-slate-900 font-bold">CSV ou Excel</span> para importar seus leads. Seus leads entrarão automaticamente na fase inicial do pipeline.
           </p>
 
-          {/* Upload Zone */}
-          <div className="border-2 border-dashed border-blue-100 bg-blue-50/20 rounded-[18px] p-10 flex flex-col items-center justify-center text-center gap-4 group cursor-pointer hover:bg-blue-50/40 transition-all">
+          {/* Drag & Drop Zone */}
+          <div className="border-2 border-dashed border-blue-100 bg-blue-50/20 rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center gap-4 group cursor-pointer hover:bg-blue-50/40 transition-all">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
               <Upload size={24} />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-bold text-[#1e293b]">Arraste seu arquivo aqui</p>
-              <p className="text-xs text-gray-400 font-medium">ou clique para procurar no computador</p>
+              <p className="text-sm font-bold text-slate-900">Arraste seu arquivo aqui</p>
+              <p className="text-xs text-slate-400 font-medium">XLSX, CSV ou Google Sheets Export</p>
             </div>
             <input type="file" className="hidden" />
           </div>
 
-          {/* Download Template Link */}
-          <button className="flex items-center gap-2 text-[13px] font-bold text-blue-600 hover:text-blue-800 transition-colors">
-            <Download size={16} />
-            Baixar modelo de planilha
+          <button className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-800 transition-colors mx-auto">
+            <Download size={14} />
+            Baixar Template Estruturado
           </button>
 
-          {/* Configurations */}
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Origem dos Leads *</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Origem dos Dados *</label>
               <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer">
-                  <option>Selecione a origem</option>
+                <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
                   <option>Planilha Externa</option>
-                  <option>Google Maps</option>
-                  <option>LinkedIn</option>
-                  <option>Outros</option>
+                  <option>Google Maps Export</option>
+                  <option>LinkedIn Navigator</option>
+                  <option>Mailing Comprado</option>
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Atribuir ao Squad</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Atribuição Inteligente</label>
               <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer">
-                  <option>Nenhum (Livre)</option>
+                <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                  <option>Round Robin (Distribuição igual)</option>
                   <option>Squad Alpha</option>
                   <option>Squad Beta</option>
+                  <option>Apenas Reservar (Sem responsável)</option>
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
               </div>
             </div>
           </div>
 
-          {/* Help Info */}
-          <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
-            <AlertCircle size={16} className="text-gray-400 mt-0.5 shrink-0" />
-            <p className="text-[12px] text-gray-500 leading-tight">
-              Os leads serão importados para a fase inicial do seu pipeline por padrão.
+          <div className="flex items-start gap-3 bg-amber-50/50 p-5 rounded-2xl border border-amber-100">
+            <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-amber-700 font-semibold leading-relaxed">
+              O sistema fará a <span className="font-bold">desduplicação</span> automática baseada no e-mail e CNPJ dos leads importados.
             </p>
           </div>
+        </div>
 
-          {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="px-7 py-3.5 bg-white border border-[#e2e8f0] rounded-[12px] text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-all"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="px-9 py-3.5 bg-[#1d4ed8] text-white rounded-[12px] text-[14px] font-bold hover:bg-[#1e40af] transition-all shadow-md shadow-blue-500/20 active:scale-95 flex items-center gap-2"
-            >
-              <CheckCircle2 size={18} />
-              Importar
-            </button>
-          </div>
+        {/* Footer Buttons */}
+        <div className="p-8 pt-4 flex items-center justify-end gap-3 shrink-0">
+          <button 
+            type="button" 
+            onClick={onClose}
+            className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <CheckCircle2 size={18} />
+            Iniciar Importação
+          </button>
         </div>
       </div>
     </div>

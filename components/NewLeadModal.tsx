@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown, UserPlus, Info, Building2, Mail, Phone, DollarSign } from 'lucide-react';
 
 interface NewLeadModalProps {
   isOpen: boolean;
@@ -14,160 +14,139 @@ const NewLeadModal: React.FC<NewLeadModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       />
       
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[500px] max-h-[95vh] overflow-y-auto rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-8">
+      <div className="relative bg-white w-full max-w-[600px] max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 no-scrollbar border border-slate-100">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Novo Lead</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
+        <div className="p-8 pb-4 flex items-center justify-between sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <UserPlus size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Capturar Novo Lead</h2>
+              <p className="text-xs text-slate-400 font-medium">Inicie um novo ciclo de venda no pipeline</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-300 hover:text-slate-900">
             <X size={20} />
           </button>
         </div>
 
         {/* Form Body */}
-        <div className="space-y-6">
-          {/* Nome */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Nome *</label>
-            <input 
-              type="text" 
-              placeholder="Nome do contato"
-              className="w-full bg-[#f8fafc] border-2 border-blue-600 rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none text-gray-700 transition-all placeholder:text-gray-400 font-medium shadow-sm shadow-blue-500/10"
-              autoFocus
-            />
-          </div>
-
-          {/* Empresa */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Empresa</label>
-            <input 
-              type="text" 
-              placeholder="Nome da empresa"
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all placeholder:text-gray-400"
-            />
-          </div>
-
-          {/* Website */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Website</label>
-            <input 
-              type="text" 
-              placeholder="https://exemplo.com.br"
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all placeholder:text-gray-400"
-            />
-          </div>
-
-          {/* Email & Telefone */}
-          <div className="grid grid-cols-2 gap-4">
+        <div className="p-8 pt-4 space-y-8">
+          {/* Nome e Empresa */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Email</label>
-              <input 
-                type="email" 
-                placeholder="email@exemplo.com"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Telefone</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nome do Contato *</label>
               <input 
                 type="text" 
-                placeholder="(11) 99999-9999"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all"
+                placeholder="Ex: João Silva"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Empresa</label>
+              <input 
+                type="text" 
+                placeholder="Razão Social / Fantasia"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
               />
             </div>
           </div>
 
-          {/* Origem & Valor Estimado */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Contato */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Origem</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">E-mail Corporativo</label>
               <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-500 cursor-pointer">
-                  <option>Selecione a origem</option>
+                <input 
+                  type="email" 
+                  placeholder="joao@empresa.com"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 pl-12 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">WhatsApp / Telefone</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="(00) 00000-0000"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 pl-12 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+              </div>
+            </div>
+          </div>
+
+          {/* Valor e Origem */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Valor Estimado (R$)</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="0,00"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 pl-12 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                />
+                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Origem do Lead</label>
+              <div className="relative">
+                <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                  <option>Inbound (Site/Ads)</option>
+                  <option>Outbound (Prospecção)</option>
                   <option>Indicação</option>
-                  <option>Inbound</option>
-                  <option>Outbound</option>
+                  <option>Eventos</option>
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Valor Estimado (R$)</label>
-              <input 
-                type="text" 
-                placeholder="0"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all"
-              />
             </div>
           </div>
 
-          {/* Fase */}
+          {/* Atribuição */}
           <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Fase</label>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Atribuir ao Consultor / Squad</label>
             <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer">
-                <option>Lead</option>
-                <option>Qualificação</option>
-                <option>Proposta</option>
-                <option>Fechamento</option>
+              <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                <option>Selecione um responsável</option>
+                <option>Gabriel Dantras (Alpha)</option>
+                <option>Luis Venx (Beta)</option>
+                <option>Kyros (Financial Ops)</option>
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
             </div>
           </div>
 
-          {/* Responsável & Squad */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Responsável</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-500 cursor-pointer">
-                  <option>Selecione</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Squad</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-500 cursor-pointer">
-                  <option>Selecione</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-          </div>
-
-          {/* Observações */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Observações</label>
-            <textarea 
-              rows={4}
-              placeholder="Informações adicionais sobre o lead..."
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all resize-none placeholder:text-gray-400"
-            />
+          <div className="flex items-start gap-3 bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
+            <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />
+            <p className="text-[11px] text-blue-700 font-semibold leading-relaxed">
+              Leads recém-criados entram automaticamente na fase de <span className="font-bold">Prospecção</span>. Ative lembretes para follow-up após a criação.
+            </p>
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
+          <div className="flex items-center gap-3 pt-4 pb-4">
             <button 
               type="button" 
               onClick={onClose}
-              className="px-7 py-3 bg-white border border-[#e2e8f0] rounded-[12px] text-[14px] font-bold text-gray-700 hover:bg-gray-50 transition-all"
+              className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"
             >
               Cancelar
             </button>
             <button 
               type="button" 
-              className="px-9 py-3 bg-[#1d4ed8] text-white rounded-[12px] text-[14px] font-bold hover:bg-[#1e40af] transition-all shadow-md shadow-blue-500/20 active:scale-95"
+              className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
             >
-              Criar Lead
+              Confirmar Entrada
             </button>
           </div>
         </div>

@@ -9,6 +9,8 @@ import {
   Filter,
   MoreVertical
 } from 'lucide-react';
+import NewLeadModal from './NewLeadModal';
+import ImportLeadsModal from './ImportLeadsModal';
 
 interface LeadRow {
   id: string;
@@ -24,6 +26,8 @@ interface LeadRow {
 
 const Leads: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const leads: LeadRow[] = [
     {
@@ -105,11 +109,17 @@ const Leads: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 border border-gray-200 bg-white rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm">
+          <button 
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 border border-gray-200 bg-white rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
+          >
             <Upload size={18} className="text-gray-400" />
             Importar
           </button>
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20">
+          <button 
+            onClick={() => setIsNewLeadModalOpen(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20"
+          >
             <Plus size={20} />
             Novo Lead
           </button>
@@ -189,6 +199,16 @@ const Leads: React.FC = () => {
         </div>
       </div>
 
+      {/* Modals */}
+      <NewLeadModal 
+        isOpen={isNewLeadModalOpen} 
+        onClose={() => setIsNewLeadModalOpen(false)} 
+      />
+
+      <ImportLeadsModal 
+        isOpen={isImportModalOpen} 
+        onClose={() => setIsImportModalOpen(false)} 
+      />
     </div>
   );
 };

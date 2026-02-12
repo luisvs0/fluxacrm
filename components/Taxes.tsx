@@ -11,9 +11,11 @@ import {
   CreditCard,
   Receipt
 } from 'lucide-react';
+import NewTaxModal from './NewTaxModal';
 
 const Taxes: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tributos');
+  const [isNewTaxModalOpen, setIsNewTaxModalOpen] = useState(false);
 
   return (
     <div className="min-h-full bg-[#f8fafc] p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
@@ -50,7 +52,10 @@ const Taxes: React.FC = () => {
           </div>
         </div>
         
-        <button className="flex items-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20">
+        <button 
+          onClick={() => setIsNewTaxModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20"
+        >
           <Plus size={20} />
           Novo Tributo
         </button>
@@ -110,7 +115,7 @@ const Taxes: React.FC = () => {
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Status</label>
             <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700">
+              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700 font-medium">
                 <option>Todos</option>
                 <option>Pago</option>
                 <option>Pendente</option>
@@ -122,7 +127,7 @@ const Taxes: React.FC = () => {
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider ml-1">Tipo</label>
             <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700">
+              <select className="w-full bg-[#f8fafc] border border-gray-200 rounded-xl py-2.5 px-4 text-sm appearance-none focus:outline-none focus:border-blue-500 cursor-pointer text-gray-700 font-medium">
                 <option>Todos</option>
                 <option>Federal</option>
                 <option>Estadual</option>
@@ -162,6 +167,12 @@ const Taxes: React.FC = () => {
       <div className="bg-white border border-gray-100 rounded-2xl min-h-[160px] flex items-center justify-center p-12 text-center shadow-sm">
         <p className="text-gray-400 font-medium text-lg tracking-tight">Nenhum tributo cadastrado.</p>
       </div>
+
+      {/* New Tax Modal Integration */}
+      <NewTaxModal 
+        isOpen={isNewTaxModalOpen} 
+        onClose={() => setIsNewTaxModalOpen(false)} 
+      />
 
     </div>
   );

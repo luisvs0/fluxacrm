@@ -12,9 +12,11 @@ import {
   Building2,
   ChevronRight
 } from 'lucide-react';
+import NewGoalModal from './NewGoalModal';
 
 const Metas: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'empresa' | 'individuais' | 'squads'>('empresa');
+  const [isNewGoalModalOpen, setIsNewGoalModalOpen] = useState(false);
 
   const stats = [
     { label: 'Total de Metas', value: '0', subtitle: '0 metas de empresa ativas', icon: <Target size={20} />, color: 'text-gray-400' },
@@ -44,7 +46,10 @@ const Metas: React.FC = () => {
             <Sparkles size={18} className="text-blue-500" />
             Gerar Sugeridas
           </button>
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20">
+          <button 
+            onClick={() => setIsNewGoalModalOpen(true)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20"
+          >
             <Plus size={20} />
             Nova Meta
           </button>
@@ -103,11 +108,20 @@ const Metas: React.FC = () => {
         </div>
         <h3 className="mt-6 text-base font-bold text-gray-900 tracking-tight">Nenhuma meta cadastrada.</h3>
         
-        <button className="mt-6 flex items-center gap-2 px-8 py-3 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+        <button 
+          onClick={() => setIsNewGoalModalOpen(true)}
+          className="mt-6 flex items-center gap-2 px-8 py-3 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+        >
           <Plus size={18} />
           Criar Meta
         </button>
       </div>
+
+      {/* New Goal Modal Integration */}
+      <NewGoalModal 
+        isOpen={isNewGoalModalOpen} 
+        onClose={() => setIsNewGoalModalOpen(false)} 
+      />
 
     </div>
   );

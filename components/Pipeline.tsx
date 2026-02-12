@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Filter
 } from 'lucide-react';
+import NewLeadModal from './NewLeadModal';
 
 interface LeadCard {
   id: string;
@@ -36,6 +37,7 @@ interface Column {
 
 const Pipeline: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Pipeline');
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
 
   const columns: Column[] = [
     {
@@ -147,7 +149,10 @@ const Pipeline: React.FC = () => {
             <Settings2 size={18} />
           </button>
 
-          <button className="bg-[#0047AB] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+          <button 
+            onClick={() => setIsNewLeadModalOpen(true)}
+            className="bg-[#0047AB] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
+          >
             <Plus size={20} />
             Novo Lead
           </button>
@@ -199,7 +204,10 @@ const Pipeline: React.FC = () => {
                     <span className="text-sm font-bold text-gray-900">{column.label}</span>
                     <span className="text-xs font-bold text-gray-400">{column.count}</span>
                   </div>
-                  <button className="p-1 hover:bg-gray-50 rounded text-gray-400 transition-colors">
+                  <button 
+                    onClick={() => setIsNewLeadModalOpen(true)}
+                    className="p-1 hover:bg-gray-50 rounded text-gray-400 transition-colors"
+                  >
                     <Plus size={18} />
                   </button>
                 </div>
@@ -255,6 +263,10 @@ const Pipeline: React.FC = () => {
         </div>
       </div>
 
+      <NewLeadModal 
+        isOpen={isNewLeadModalOpen} 
+        onClose={() => setIsNewLeadModalOpen(false)} 
+      />
     </div>
   );
 };

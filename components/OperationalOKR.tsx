@@ -9,119 +9,116 @@ import {
   AlertTriangle,
   Building2,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  ArrowUpRight,
+  Filter,
+  Search,
+  Zap,
+  MoreVertical
 } from 'lucide-react';
 
 const OperationalOKR: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('Todos os tipos');
   const [statusFilter, setStatusFilter] = useState('Ativo');
-  const [periodFilter, setPeriodFilter] = useState('Todos os períodos');
-
-  const metrics = [
-    { label: 'Objetivos', value: '0', icon: <Target size={20} />, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-    { label: 'Key Results', value: '0', icon: <KeyRound size={20} />, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-    { label: 'Progresso Médio', value: '0%', icon: <TrendingUp size={20} />, color: 'text-emerald-500', bgColor: 'bg-emerald-50' },
-    { label: 'Em Risco', value: '0', icon: <AlertTriangle size={20} />, color: 'text-orange-500', bgColor: 'bg-orange-50' },
+  
+  const stats = [
+    { label: 'Objetivos Ativos', value: '12', trend: '85% progresso', icon: <Target size={18}/>, color: 'text-blue-600' },
+    { label: 'Key Results', value: '48', trend: '6 pendentes', icon: <KeyRound size={18}/>, color: 'text-indigo-500' },
+    { label: 'Progresso Médio', value: '74.2%', trend: '+4.1% vs jan', icon: <TrendingUp size={18}/>, color: 'text-emerald-500' },
+    { label: 'Em Risco', value: '2', trend: 'Ação necessária', icon: <AlertTriangle size={18}/>, color: 'text-rose-500' },
   ];
 
   return (
-    <div className="min-h-full bg-[#f8fafc] p-6 lg:p-10 space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
       
-      {/* Header Area */}
+      {/* SaaS Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
-            <CircleDot size={20} />
+          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
+            <CircleDot size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#1e293b] tracking-tight">OKR – Objectives & Key Results</h2>
-            <p className="text-sm text-gray-400 font-medium">Defina objetivos ambiciosos e acompanhe resultados-chave</p>
+            <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Objectives & Key Results</h2>
+            <p className="text-slate-500 font-medium mt-1">Gestão estratégica por resultados de alto impacto.</p>
           </div>
         </div>
 
-        <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0047AB] text-white rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg shadow-blue-500/20">
+        <button className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">
           <Plus size={20} />
           Novo Objetivo
         </button>
       </div>
 
-      {/* Metrics Row */}
+      {/* OKR KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((m, i) => (
-          <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex items-start gap-4 hover:border-gray-200 transition-all group">
-            <div className={`w-12 h-12 ${m.bgColor} ${m.color} rounded-xl flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity`}>
-              {m.icon}
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              <div className={`p-2 bg-slate-50 ${stat.color} rounded-xl group-hover:scale-110 transition-transform`}>
+                {stat.icon}
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{m.label}</p>
-              <p className="text-3xl font-bold text-[#1e293b]">{m.value}</p>
-            </div>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>
+            <p className="text-xs text-slate-400 font-medium mt-1 uppercase tracking-widest font-black text-[9px]">{stat.trend}</p>
           </div>
         ))}
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-            <Building2 size={16} />
-          </div>
-          <select 
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-white border border-gray-100 rounded-xl py-2.5 pl-11 pr-10 text-xs font-bold text-gray-700 appearance-none focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm min-w-[160px]"
-          >
-            <option>Todos os tipos</option>
-            <option>Empresa</option>
-            <option>Squad</option>
-            <option>Individual</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" size={14} />
+      {/* Advanced Filters */}
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-3xl shadow-sm">
+        <div className="flex items-center gap-2 ml-2">
+           <div className="relative">
+              <select className="bg-slate-50 border-none rounded-xl py-2 pl-4 pr-10 text-[10px] font-black uppercase text-slate-500 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer min-w-[160px] tracking-widest">
+                <option>Q1 - 2026</option>
+                <option>Q2 - 2026</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={14} />
+           </div>
+           <div className="relative">
+              <select className="bg-slate-50 border-none rounded-xl py-2 pl-4 pr-10 text-[10px] font-black uppercase text-slate-500 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer min-w-[140px] tracking-widest">
+                <option>Todos os tipos</option>
+                <option>Empresa</option>
+                <option>Squad</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={14} />
+           </div>
         </div>
 
-        <div className="relative group">
-          <select 
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white border border-gray-100 rounded-xl py-2.5 px-6 text-xs font-bold text-gray-700 appearance-none focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm min-w-[120px]"
-          >
-            <option>Ativo</option>
-            <option>Finalizado</option>
-            <option>Pausado</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" size={14} />
-        </div>
-
-        <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-            <Calendar size={16} />
+        <div className="flex items-center gap-2 pr-2">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+            <input 
+              type="text" 
+              placeholder="Buscar objetivo..." 
+              className="bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-blue-100 w-64"
+            />
           </div>
-          <select 
-            value={periodFilter}
-            onChange={(e) => setPeriodFilter(e.target.value)}
-            className="bg-white border border-gray-100 rounded-xl py-2.5 pl-11 pr-10 text-xs font-bold text-gray-700 appearance-none focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm min-w-[180px]"
-          >
-            <option>Todos os períodos</option>
-            <option>Q1 - 2026</option>
-            <option>Q2 - 2026</option>
-            <option>Q3 - 2026</option>
-            <option>Q4 - 2026</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" size={14} />
+          <button className="p-2.5 text-slate-400 hover:text-slate-900 transition-all"><Filter size={18}/></button>
         </div>
       </div>
 
-      {/* Main Content Area - Empty State */}
-      <div className="flex-1 min-h-[500px] flex flex-col items-center justify-center text-center p-12">
-        <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-8">
-          <CircleDot size={48} strokeWidth={1.5} />
+      {/* Objectives Canvas */}
+      <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm min-h-[500px] flex flex-col items-center justify-center p-12 text-center group relative overflow-hidden transition-all hover:border-blue-100">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
+          <Zap size={250} />
         </div>
-        
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-[#1e293b]">Nenhum objetivo encontrado</h3>
-          <p className="text-sm text-gray-400 font-medium max-w-sm mx-auto">
-            Crie seu primeiro objetivo para começar a acompanhar seus OKRs
-          </p>
+
+        <div className="relative z-10 flex flex-col items-center space-y-6">
+          <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all duration-500 shadow-sm border border-slate-100">
+            <CircleDot size={48} strokeWidth={1.5} />
+          </div>
+          
+          <div className="max-w-sm">
+            <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">Acelerando Resultados</h3>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+              Crie objetivos ambiciosos e quebre-os em resultados-chave mensuráveis para alinhar toda a operação ao crescimento.
+            </p>
+          </div>
+
+          <button className="px-10 py-4 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95">
+            Definir Primeiro OKR
+          </button>
         </div>
       </div>
 

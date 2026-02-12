@@ -31,6 +31,7 @@ import SettingsView from './components/SettingsView';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [activeView, setActiveView] = useState('Dashboard');
 
   const renderView = () => {
@@ -73,10 +74,12 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] text-[#111827] relative">
+    <div className="min-h-screen bg-[#fcfcfd] text-[#111827] relative">
       <Sidebar 
         isOpen={isSidebarOpen} 
+        isCollapsed={isSidebarCollapsed}
         toggleSidebar={() => setIsSidebarOpen(false)} 
+        toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         onNavigate={(view) => {
           setActiveView(view);
           setIsSidebarOpen(false);
@@ -91,7 +94,8 @@ const App: React.FC = () => {
         />
       )}
 
-      <div className="flex flex-col min-h-screen">
+      {/* Main Content Area - Padding dinâmico baseado no estado do menu lateral */}
+      <div className={`flex flex-col min-h-screen transition-all duration-500 ease-in-out ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
         <Header onMenuClick={() => setIsSidebarOpen(true)} title={activeView} />
         <main className="flex-1 overflow-x-hidden">
           {renderView()}

@@ -39,11 +39,9 @@ interface SidebarProps {
   toggleSidebar: () => void;
   onNavigate: (view: string) => void;
   activeView: string;
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, activeView, isDarkMode, toggleDarkMode }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, activeView }) => {
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Financeiro', 'Comercial', 'Marketing', 'Operacional']);
 
   const toggleMenu = (id: string) => {
@@ -116,17 +114,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, ac
 
   return (
     <aside 
-      className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-[#111827] border-r border-gray-200 dark:border-[#1e293b] shadow-2xl transition-all duration-300 ease-in-out transform flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      className={`fixed top-0 left-0 bottom-0 z-50 w-72 bg-white border-r border-gray-200 shadow-2xl transition-transform duration-300 ease-in-out transform flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
     >
       {/* Header Fixo */}
-      <div className="p-5 flex items-center justify-between border-b border-gray-100 dark:border-[#1e293b] bg-white dark:bg-[#111827] shrink-0">
+      <div className="p-5 flex items-center justify-between border-b border-gray-100 bg-white shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold italic text-white shadow-lg shadow-blue-500/20">S</div>
-          <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white">STRICT</span>
+          <span className="font-bold text-lg tracking-tight text-gray-900">STRICT</span>
         </div>
         <button 
           onClick={toggleSidebar} 
-          className="p-2 hover:bg-gray-100 dark:hover:bg-[#1e293b] rounded-lg transition-colors text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
         >
           <X size={20} />
         </button>
@@ -138,9 +136,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, ac
           <div key={item.id} className="mb-2">
             <button 
               onClick={() => handleNavClick(item.id, !!item.subItems)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${activeView.includes(item.id) || expandedMenus.includes(item.id) ? 'bg-gray-100 dark:bg-[#1e293b] text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1e293b]/50'}`}
+              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${activeView.includes(item.id) || expandedMenus.includes(item.id) ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
             >
-              <span className={`${(item.subItems && expandedMenus.includes(item.id)) || activeView === item.id || (item.subItems?.some(s => activeView.startsWith(s.id))) ? 'text-blue-600' : 'group-hover:text-gray-900 dark:group-hover:text-white'}`}>{item.icon}</span>
+              <span className={`${(item.subItems && expandedMenus.includes(item.id)) || activeView === item.id || (item.subItems?.some(s => activeView.startsWith(s.id))) ? 'text-blue-600' : 'group-hover:text-gray-900'}`}>{item.icon}</span>
               <span className="flex-1 text-left text-sm font-semibold tracking-tight">{item.label}</span>
               {item.subItems && (
                 <span className="text-gray-400">
@@ -150,12 +148,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, ac
             </button>
             
             {item.subItems && expandedMenus.includes(item.id) && (
-              <div className="ml-4 mt-1 border-l border-gray-100 dark:border-[#1e293b] pl-3 space-y-1">
+              <div className="ml-4 mt-1 border-l border-gray-100 pl-3 space-y-1">
                 {item.subItems.map(sub => (
                   <button 
                     key={sub.id} 
                     onClick={() => onNavigate(sub.id)}
-                    className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-[13px] font-medium transition-all ${activeView === sub.id ? 'bg-[#0047AB] text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1e293b]/30'}`}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-lg text-[13px] font-medium transition-all ${activeView === sub.id ? 'bg-[#0047AB] text-white shadow-md' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
                   >
                     <span className={activeView === sub.id ? 'text-white' : 'text-gray-400'}>{sub.icon}</span>
                     <span>{sub.label}</span>
@@ -168,26 +166,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, ac
       </div>
 
       {/* Rodapé Fixo e "Flutuante" */}
-      <div className="p-4 border-t border-gray-100 dark:border-[#1e293b] bg-white dark:bg-[#111827] shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+      <div className="p-4 border-t border-gray-100 bg-white shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
         {/* Card do Usuário */}
-        <div className="bg-gray-50 dark:bg-[#1e293b]/50 p-3 rounded-2xl mb-4 flex items-center justify-between border border-gray-100 dark:border-[#1e293b]">
+        <div className="bg-gray-50 p-3 rounded-2xl mb-4 flex items-center justify-between border border-gray-100">
           <div className="flex flex-col">
             <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Admin</span>
-            <span className="text-xs text-gray-700 dark:text-gray-200 font-bold truncate max-w-[140px]">kyroossx@gmail.com</span>
+            <span className="text-xs text-gray-700 font-bold truncate max-w-[140px]">kyroossx@gmail.com</span>
           </div>
-          <div className="flex items-center gap-1 bg-white dark:bg-[#111827] p-1 rounded-xl border border-gray-100 dark:border-[#1e293b] shadow-sm">
-            <button 
-              onClick={toggleDarkMode}
-              className={`p-1.5 rounded-md transition-all ${isDarkMode ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-400 hover:text-blue-600'}`}
-            >
-              <Moon size={12} />
-            </button>
-            <button 
-              onClick={toggleDarkMode}
-              className={`p-1.5 rounded-md transition-all ${!isDarkMode ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-gray-400 hover:text-orange-500'}`}
-            >
-              <Sun size={12} />
-            </button>
+          <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100 shadow-sm">
+            <button className="p-1.5 hover:text-blue-600 text-gray-400 transition-colors"><Moon size={12} /></button>
+            <button className="p-1.5 text-blue-600 bg-gray-50 rounded-lg transition-colors"><Sun size={12} /></button>
           </div>
         </div>
         
@@ -195,20 +183,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onNavigate, ac
         <div className="space-y-1">
           <button 
             onClick={() => onNavigate('Usuários')} 
-            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-bold ${activeView === 'Usuários' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1e293b]'}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-bold ${activeView === 'Usuários' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
           >
             <Users size={18} />
             <span>Usuários</span>
           </button>
           <button 
             onClick={() => onNavigate('Configurações')} 
-            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-bold ${activeView === 'Configurações' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1e293b]'}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm font-bold ${activeView === 'Configurações' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
           >
             <Settings size={18} />
             <span>Configurações</span>
           </button>
           <button 
-            className="w-full flex items-center gap-3 p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all text-sm font-bold mt-1"
+            className="w-full flex items-center gap-3 p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all text-sm font-bold mt-1"
           >
             <LogOut size={18} />
             <span>Sair</span>

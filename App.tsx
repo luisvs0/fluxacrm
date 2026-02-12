@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -32,22 +32,6 @@ import SettingsView from './components/SettingsView';
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState('Dashboard');
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('strict-theme');
-    return saved === 'dark';
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('strict-theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('strict-theme', 'light');
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const renderView = () => {
     switch (activeView) {
@@ -58,14 +42,20 @@ const App: React.FC = () => {
       case 'Cartões': return <Cards />;
       case 'Impostos': return <Taxes />;
       case 'Contábil': return <Accounting />;
+      
+      // Comercial routes
       case 'Comercial-Dashboard': return <Crm />; 
       case 'Pipeline': return <Pipeline />; 
       case 'Leads': return <Leads />; 
       case 'Metas': return <Metas />; 
       case 'Ranking': return <Ranking />; 
       case 'Squads': return <Squads />; 
+      
+      // Marketing routes
       case 'Marketing-Dashboard': return <Marketing />;
       case 'Marketing-Kanbans': return <MarketingKanbans />;
+      
+      // Operacional routes
       case 'Operacional': return <Operational />;
       case 'Operacional-Clientes': return <OperationalClientes />;
       case 'Operacional-Contratos': return <OperationalContratos />;
@@ -75,6 +65,7 @@ const App: React.FC = () => {
       case 'Operacional-OKR': return <OperationalOKR />;
       case 'Operacional-Equipe': return <OperationalEquipe />;
       case 'Operacional-Ferramentas': return <OperationalFerramentas />;
+
       case 'Usuários': return <UsersManagement />;
       case 'Configurações': return <SettingsView />;
       default: return <Dashboard />;
@@ -82,7 +73,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] dark:bg-[#0b0f19] text-[#111827] dark:text-[#f1f5f9] transition-colors duration-300 relative">
+    <div className="min-h-screen bg-[#f9fafb] text-[#111827] relative">
       <Sidebar 
         isOpen={isSidebarOpen} 
         toggleSidebar={() => setIsSidebarOpen(false)} 
@@ -91,13 +82,11 @@ const App: React.FC = () => {
           setIsSidebarOpen(false);
         }}
         activeView={activeView}
-        isDarkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
       />
       
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

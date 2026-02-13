@@ -38,13 +38,13 @@ const Pipeline: React.FC<PipelineProps> = ({ user }) => {
   }, [user]);
 
   const columns = [
-    { id: 'lead', label: 'Novo Lead', color: 'bg-slate-400' },
-    { id: 'qualificacao', label: 'Qualificação', color: 'bg-indigo-400' },
-    { id: 'contato', label: 'Contato', color: 'bg-blue-500' },
-    { id: 'reuniao', label: 'Reunião', color: 'bg-purple-500' },
-    { id: 'proposta', label: 'Proposta', color: 'bg-orange-500' },
-    { id: 'negociacao', label: 'Negociação', color: 'bg-rose-500' },
-    { id: 'fechado', label: 'Fechado', color: 'bg-emerald-500' }
+    { id: 'lead', label: 'Novo Lead', color: 'bg-slate-400', border: 'border-slate-400' },
+    { id: 'qualificacao', label: 'Qualificação', color: 'bg-indigo-400', border: 'border-indigo-400' },
+    { id: 'contato', label: 'Contato', color: 'bg-blue-500', border: 'border-blue-500' },
+    { id: 'reuniao', label: 'Reunião', color: 'bg-purple-500', border: 'border-purple-500' },
+    { id: 'proposta', label: 'Proposta', color: 'bg-orange-500', border: 'border-orange-500' },
+    { id: 'negociacao', label: 'Negociação', color: 'bg-rose-500', border: 'border-rose-500' },
+    { id: 'fechado', label: 'Fechado', color: 'bg-emerald-500', border: 'border-emerald-500' }
   ];
 
   const formatCurrency = (val: number) => {
@@ -97,7 +97,7 @@ const Pipeline: React.FC<PipelineProps> = ({ user }) => {
 
         <button 
           onClick={() => setIsNewLeadModalOpen(true)}
-          className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl md:rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
         >
           <Plus size={18} /> Novo Lead
         </button>
@@ -135,13 +135,13 @@ const Pipeline: React.FC<PipelineProps> = ({ user }) => {
                     </span>
                   </div>
 
-                  <div className="flex-1 bg-slate-50/30 rounded-[1.5rem] border border-dashed border-slate-200 p-2.5 space-y-3 overflow-y-auto no-scrollbar group-hover:bg-slate-50/80 transition-all">
+                  <div className={`flex-1 bg-slate-50/30 rounded-[1.5rem] border-2 border-dashed ${column.border.replace('border-', 'border-').concat('/20')} p-2.5 space-y-3 overflow-y-auto no-scrollbar group-hover:bg-slate-50/80 transition-all`}>
                     {columnLeads.map((lead) => (
                       <div 
                         key={lead.id} 
                         draggable
                         onDragStart={(e) => handleDragStart(e, lead.id)}
-                        className={`bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing group/card relative ${draggedId === lead.id ? 'opacity-40 grayscale scale-95' : ''}`}
+                        className={`bg-white border-2 ${column.border.replace('border-', 'border-').concat('/50')} hover:border-blue-500 rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all cursor-grab active:cursor-grabbing group/card relative border-l-[5px] ${draggedId === lead.id ? 'opacity-40 grayscale scale-95' : ''}`}
                       >
                         <div className="space-y-4">
                           <div className="flex justify-between items-start">
@@ -154,7 +154,7 @@ const Pipeline: React.FC<PipelineProps> = ({ user }) => {
                           
                           <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                              <span className="text-[10px] font-black text-blue-600 tracking-tighter">{formatCurrency(lead.value || 0)}</span>
-                             <div className="w-6 h-6 bg-slate-900 text-white rounded-lg flex items-center justify-center text-[8px] font-black italic shadow-sm uppercase">
+                             <div className={`w-6 h-6 bg-slate-900 text-white rounded-lg flex items-center justify-center text-[8px] font-black italic shadow-sm uppercase border ${column.border.replace('border-', 'border-').concat('/30')}`}>
                                {String(lead.assigned_to || '?').substring(0, 1)}
                              </div>
                           </div>
@@ -164,7 +164,7 @@ const Pipeline: React.FC<PipelineProps> = ({ user }) => {
                     
                     <button 
                       onClick={() => setIsNewLeadModalOpen(true)}
-                      className="w-full py-3 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-blue-500 hover:border-blue-200 hover:bg-white transition-all group/add"
+                      className="w-full py-4 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-blue-500 hover:border-blue-400/50 hover:bg-white transition-all group/add shadow-inner"
                     >
                       <Plus size={16} className="group-hover/add:scale-110 transition-transform" />
                     </button>

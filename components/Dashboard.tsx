@@ -114,7 +114,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <p className="text-[12px] text-slate-400 font-medium">Visão geral das suas finanças</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={fetchDashboardData} className="p-2 border border-slate-100 rounded-lg text-slate-300 hover:text-blue-600 transition-all">
+          <button onClick={fetchDashboardData} className="p-2 border-2 border-slate-200 rounded-lg text-slate-400 hover:text-blue-600 hover:border-blue-500 transition-all shadow-sm">
             <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
           </button>
         </div>
@@ -132,7 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
               <button 
                 key={p} 
                 onClick={() => setActivePeriod(p)}
-                className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${activePeriod === p ? 'bg-blue-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap border-2 ${activePeriod === p ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-200'}`}
               >
                 {p}
               </button>
@@ -140,11 +140,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             
             <div className="h-6 w-px bg-slate-200 mx-2"></div>
 
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50">
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-slate-100 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50 hover:border-slate-200">
                Realizado <ChevronDown size={12} />
             </button>
 
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50">
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-slate-100 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50 hover:border-slate-200">
                <Filter size={12} /> Avançado <ChevronDown size={12} />
             </button>
           </div>
@@ -202,7 +202,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         {/* Row 2: Secondary Stats Row */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-5">
           {/* Card Meta */}
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center text-center group hover:border-blue-100 transition-all relative">
+          <div className="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center text-center group hover:border-blue-500 transition-all relative overflow-hidden">
             <div className="absolute top-4 left-4">
               <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-md text-[9px] font-bold text-slate-400">
                 Mensal <ChevronDown size={10} />
@@ -214,41 +214,33 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
 
             <div className="relative mb-4 mt-4">
-              <CircleDashed size={60} strokeWidth={1} className="text-slate-100 animate-[spin_20s_linear_infinite]" />
-              <Target size={24} className="absolute inset-0 m-auto text-slate-300" />
+              <CircleDashed size={60} strokeWidth={1} className="text-blue-50 animate-[spin_20s_linear_infinite]" />
+              <Target size={24} className="absolute inset-0 m-auto text-blue-200 group-hover:text-blue-500 transition-colors" />
             </div>
-            <h4 className="text-[12px] font-semibold text-slate-400 mb-4">Meta não definida</h4>
-            <button className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-bold hover:bg-slate-50 transition-all shadow-sm">
+            <h4 className="text-[12px] font-semibold text-slate-400 mb-4 uppercase tracking-widest">Meta de Fluxo</h4>
+            <button className="flex items-center gap-2 px-4 py-1.5 border border-blue-200 text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-50 transition-all shadow-sm">
               <Target size={12} /> Definir Meta
             </button>
           </div>
 
           {/* Card A Receber */}
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm group hover:border-blue-100 transition-all flex flex-col justify-between">
+          <div className="bg-white border-2 border-amber-100 rounded-xl p-6 shadow-sm group hover:border-amber-500 transition-all flex flex-col justify-between overflow-hidden">
             <div className="flex items-center gap-2 mb-4">
-              <Wallet size={16} className="text-amber-500" />
-              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">A Receber</h4>
+              <div className="p-2 bg-amber-50 rounded-lg border border-amber-200"><Wallet size={16} className="text-amber-500" /></div>
+              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Expectativa Receita</h4>
             </div>
             <div>
               <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.aReceber)}</h3>
-              <p className="text-[10px] text-slate-400 font-medium mt-1">Total em aberto (atual + futuro)</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1">Total em aberto via Ledger</p>
             </div>
             <div className="mt-6 space-y-4">
-              <div className="flex justify-between text-[10px] font-medium">
-                <span className="text-slate-400">Recebido</span>
-                <span className="text-slate-400">Em aberto</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
-                 <div className="h-full bg-blue-600/10 w-[5%] shadow-sm" />
-              </div>
-              <div className="flex justify-between text-[11px] font-bold text-slate-900">
-                <span>R$ 0,00</span>
-                <span>R$ 0,00</span>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex border border-slate-50">
+                 <div className="h-full bg-amber-500/20 w-[5%] shadow-sm" />
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400"><FileText size={12} /></div>
-                  <div className="flex flex-col"><span className="text-[10px] text-slate-400">Pendências</span><span className="text-[12px] font-bold text-slate-800">0</span></div>
+                  <div className="flex flex-col"><span className="text-[10px] text-slate-400">Tickets</span><span className="text-[12px] font-bold text-slate-800">0</span></div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400"><User size={12} /></div>
@@ -259,61 +251,65 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           </div>
 
           {/* Card Contas a Pagar */}
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm group hover:border-blue-100 transition-all flex flex-col justify-between">
+          <div className="bg-white border-2 border-rose-100 rounded-xl p-6 shadow-sm group hover:border-rose-500 transition-all flex flex-col justify-between overflow-hidden">
             <div className="flex items-center gap-2 mb-4">
-              <Receipt size={16} className="text-rose-500" />
-              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Contas a Pagar</h4>
+              <div className="p-2 bg-rose-50 rounded-lg border border-rose-200"><Receipt size={16} className="text-rose-500" /></div>
+              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Contas a Pagar</h4>
             </div>
             <div>
               <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.contasPagar)}</h3>
-              <p className="text-[10px] text-slate-400 font-medium mt-1">{metrics.countPagar} contas pendentes</p>
+              <p className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">{metrics.countPagar} débitos pendentes</p>
             </div>
-            <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center opacity-20">
-               <Receipt size={40} className="text-slate-300" />
+            <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center opacity-10 group-hover:opacity-30 transition-opacity">
+               <Receipt size={40} className="text-rose-600" />
             </div>
           </div>
 
           {/* Card MRR */}
-          <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm group hover:border-blue-100 transition-all flex flex-col justify-between">
+          <div className="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-sm group hover:border-blue-500 transition-all flex flex-col justify-between overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <RefreshCcw size={16} className="text-blue-500" />
-                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">MRR</h4>
+                <div className="p-2 bg-blue-50 rounded-lg border border-blue-200"><RefreshCcw size={16} className="text-blue-500" /></div>
+                <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">MRR Contratual</h4>
               </div>
-              <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-lg border border-blue-100">{metrics.countContracts} contratos</span>
+              <span className="text-[9px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-lg border border-blue-700 shadow-sm">{metrics.countContracts} Ativos</span>
             </div>
             <div>
               <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.mrr)}</h3>
-              <p className="text-[10px] text-slate-400 font-medium mt-1">Garantido mensalmente • Clique para detalhes</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Recorrência Bruta</p>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center py-6 opacity-30">
-               <p className="text-[11px] font-medium text-slate-400">Nenhum contrato recorrente ativo</p>
+            <div className="flex-1 flex flex-col items-center justify-center py-6 opacity-30 group-hover:opacity-100 transition-all">
+               <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-blue-400">Matriz de Dados SQL</p>
             </div>
           </div>
         </div>
 
         {/* Row 3: Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
-          <ChartCard 
-            title="Entradas x Saídas" 
-            xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
-            legend={[
-              { label: 'Entradas', color: '#2563eb' },
-              { label: 'Saídas', color: '#f43f5e' }
-            ]}
-          />
-          <ChartCard 
-            title="Lucro Líquido por Período" 
-            xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
-          />
+          <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white p-1">
+            <ChartCard 
+              title="Entradas x Saídas (Auditado)" 
+              xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
+              legend={[
+                { label: 'Entradas', color: '#2563eb' },
+                { label: 'Saídas', color: '#f43f5e' }
+              ]}
+            />
+          </div>
+          <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white p-1">
+            <ChartCard 
+              title="Variação Lucro Líquido" 
+              xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
+            />
+          </div>
         </div>
 
         {/* Row 4: Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-10">
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 border-2 border-slate-100 rounded-2xl bg-white overflow-hidden p-1">
             <RecentEntries />
           </div>
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 border-2 border-slate-100 rounded-2xl bg-white overflow-hidden p-1">
             <CustomersTable />
           </div>
         </div>
@@ -321,11 +317,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       </div>
 
       {isLoading && (
-        <div className="fixed bottom-24 md:bottom-12 right-4 md:right-12 bg-slate-900 text-white px-8 py-4 rounded-[2rem] shadow-2xl flex items-center gap-4 animate-bounce z-50 border border-white/10 backdrop-blur-md">
-          <Loader2 size={20} className="animate-spin text-blue-400" />
+        <div className="fixed bottom-24 md:bottom-12 right-4 md:right-12 bg-slate-900 text-white px-10 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-5 z-50 border border-white/10 animate-bounce">
+          <Loader2 size={24} className="animate-spin text-blue-400" />
           <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">Engine Sincronizada</span>
-            <span className="text-xs font-medium text-slate-400 tracking-tight">Consolidando Matriz de Dados...</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mb-1 text-white">Engine Sincronizada</span>
+            <span className="text-xs font-bold text-slate-400 tracking-tight">Conciliando matriz de dados...</span>
           </div>
         </div>
       )}

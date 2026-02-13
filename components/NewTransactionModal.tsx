@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, ChevronDown, Plus, DollarSign, Loader2, User, Truck, Users, LayoutGrid, Banknote, CreditCard, Building2, Layers } from 'lucide-react';
+import { X, Calendar, ChevronDown, Plus, DollarSign, Loader2, User, Truck, Users, LayoutGrid, Banknote, CreditCard, Building2, Layers, Save } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface NewTransactionModalProps {
@@ -12,7 +12,6 @@ interface NewTransactionModalProps {
 const NewTransactionModal: React.FC<NewTransactionModalProps> = ({ isOpen, onClose, user }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
-  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [costCenters, setCostCenters] = useState<any[]>([]);
   const [bankAccounts, setBankAccounts] = useState<any[]>([]);
@@ -98,107 +97,107 @@ const NewTransactionModal: React.FC<NewTransactionModalProps> = ({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-white w-full max-w-[800px] max-h-[92vh] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-slate-100 flex flex-col">
+      <div className="relative bg-white w-full max-w-[800px] max-h-[92vh] rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border-2 border-slate-100 flex flex-col">
         {/* Header */}
-        <div className="p-8 pb-4 flex items-center justify-between shrink-0">
+        <div className="p-10 pb-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
-              <Plus size={24} />
+            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-[1.5rem] border-2 border-blue-100 flex items-center justify-center shadow-sm">
+              <Plus size={28} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Novo Lançamento</h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Fluxa Engine Finance v2.6</p>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight uppercase">Novo Lançamento</h2>
+              <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Fluxa Engine Finance v2.6</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full text-slate-300 hover:text-slate-900 transition-colors">
-            <X size={20} />
+          <button onClick={onClose} className="p-3 hover:bg-slate-50 rounded-full text-slate-300 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200">
+            <X size={24} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 pt-4 no-scrollbar">
-          <form id="new-detailed-tx-form" onSubmit={handleSubmit} className="space-y-8">
+        <div className="flex-1 overflow-y-auto px-10 pb-10 pt-4 no-scrollbar">
+          <form id="new-detailed-tx-form" onSubmit={handleSubmit} className="space-y-10">
             
             {/* Top Config Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] ml-1">Tipo *</label>
-                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
+              <div className="space-y-4">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Direção do Fluxo *</label>
+                <div className="flex bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-200/50">
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, type: 'IN'})}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.type === 'IN' ? 'bg-white text-emerald-600 shadow-sm border border-slate-100' : 'text-slate-400'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border-2 ${formData.type === 'IN' ? 'bg-white text-emerald-600 border-emerald-500 shadow-lg' : 'border-transparent text-slate-400'}`}
                   >
                     Entrada
                   </button>
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, type: 'OUT'})}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.type === 'OUT' ? 'bg-white text-rose-600 shadow-sm border border-slate-100' : 'text-slate-400'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border-2 ${formData.type === 'OUT' ? 'bg-white text-rose-600 border-rose-500 shadow-lg' : 'border-transparent text-slate-400'}`}
                   >
                     Saída
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] ml-1">Status *</label>
-                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
+              <div className="space-y-4">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Status de Liquidação *</label>
+                <div className="flex bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-200/50">
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, status: 'PENDING'})}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.status === 'PENDING' ? 'bg-white text-amber-600 shadow-sm border border-slate-100' : 'text-slate-400'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border-2 ${formData.status === 'PENDING' ? 'bg-white text-amber-600 border-amber-500 shadow-lg' : 'border-transparent text-slate-400'}`}
                   >
                     Pendente
                   </button>
                   <button 
                     type="button" 
                     onClick={() => setFormData({...formData, status: 'PAID'})}
-                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.status === 'PAID' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400'}`}
+                    className={`flex-1 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border-2 ${formData.status === 'PAID' ? 'bg-white text-blue-600 border-blue-500 shadow-lg' : 'border-transparent text-slate-400'}`}
                   >
-                    Pago
+                    Efetivado
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Core Data Card */}
-            <div className="bg-slate-50/50 border border-slate-100 rounded-[2.5rem] p-8 space-y-6">
-              <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Descrição do Lançamento *</label>
+            <div className={`border-2 rounded-[2.5rem] p-10 space-y-8 transition-all duration-500 ${formData.type === 'IN' ? 'border-emerald-100 bg-emerald-50/10' : 'border-rose-100 bg-rose-50/10'}`}>
+              <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição do Lançamento *</label>
                 <input 
                   type="text" 
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Ex: Pagamento de consultoria Alpha"
-                  className="w-full bg-white border border-slate-100 rounded-2xl py-4 px-6 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                  placeholder="Ex: Consultoria Técnica Mensal"
+                  className="w-full bg-white border-2 border-slate-200 rounded-2xl py-5 px-8 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Valor (R$) *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Valor Auditado (R$) *</label>
                   <div className="relative group">
-                    <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-blue-500" size={20} />
+                    <DollarSign className={`absolute left-6 top-1/2 -translate-y-1/2 ${formData.type === 'IN' ? 'text-emerald-500' : 'text-rose-500'}`} size={24} />
                     <input 
                       type="text" 
                       value={formData.amount}
                       onChange={(e) => setFormData({...formData, amount: e.target.value})}
                       placeholder="0,00"
-                      className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-xl font-black text-slate-900 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                      className="w-full bg-white border-2 border-slate-200 rounded-2xl py-5 pl-14 pr-8 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Data de Competência *</label>
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Data de Competência *</label>
                   <div className="relative">
-                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                     <input 
                       type="date"
                       value={formData.competence_date}
                       onChange={(e) => setFormData({...formData, competence_date: e.target.value})}
-                      className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer"
+                      className="w-full bg-white border-2 border-slate-200 rounded-2xl py-5 pl-14 pr-8 text-sm font-bold text-slate-700 outline-none focus:border-blue-500 transition-all cursor-pointer"
                     />
                   </div>
                 </div>
@@ -206,152 +205,61 @@ const NewTransactionModal: React.FC<NewTransactionModalProps> = ({ isOpen, onClo
             </div>
 
             {/* Relations Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cliente</label>
-                  <button type="button" className="text-[9px] font-black text-blue-600 uppercase hover:underline">Novo</button>
-                </div>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                  <select 
-                    value={formData.customer_id}
-                    onChange={e => setFormData({...formData, customer_id: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:ring-2 focus:ring-blue-50"
-                  >
-                    <option value="">Selecione um cliente</option>
-                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fornecedor (opc)</label>
-                  <button type="button" className="text-[9px] font-black text-blue-600 uppercase hover:underline">Novo</button>
-                </div>
-                <div className="relative">
-                  <Truck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                  <select className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:ring-2 focus:ring-blue-50">
-                    <option value="">Vincular a fornecedor</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Membro Equipe</label>
-                  <button type="button" className="text-[9px] font-black text-blue-600 uppercase hover:underline">Novo</button>
-                </div>
-                <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                  <select 
-                    value={formData.team_member_id}
-                    onChange={e => setFormData({...formData, team_member_id: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:ring-2 focus:ring-blue-50"
-                  >
-                    <option value="">Vincular a membro</option>
-                    {teamMembers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Financial Taxonomy */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-50">
-               <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
+               <div className="space-y-3">
                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Centro de Custo</label>
-                 <div className="relative">
-                   <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                 <div className="relative group">
+                   <LayoutGrid className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-hover:text-blue-500 transition-colors" size={16} />
                    <select 
                     value={formData.cost_center_id}
                     onChange={e => setFormData({...formData, cost_center_id: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-4 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:border-blue-400 transition-all"
                    >
                      <option value="">Selecione</option>
                      {costCenters.map(cc => <option key={cc.id} value={cc.id}>{cc.name}</option>)}
                    </select>
+                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
                  </div>
                </div>
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Conta Contábil</label>
-                 <div className="relative">
-                   <Layers className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                   <select className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none">
-                     <option value="">Selecione</option>
-                     <option>Receita de Vendas</option>
-                     <option>Prestação de Serviços</option>
-                     <option>Despesas Operacionais</option>
-                   </select>
-                 </div>
-               </div>
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Banco</label>
-                 <div className="relative">
-                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+               <div className="space-y-3">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Conta Bancária</label>
+                 <div className="relative group">
+                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-hover:text-blue-500 transition-colors" size={16} />
                    <select 
                     value={formData.bank_account_id}
                     onChange={e => setFormData({...formData, bank_account_id: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-4 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:border-blue-400 transition-all"
                    >
                      <option value="">Selecione o banco</option>
                      {bankAccounts.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                    </select>
+                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
                  </div>
                </div>
-            </div>
-
-            {/* Payment & Installments */}
-            <div className="space-y-6 pt-4">
-               <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Meio de Pagamento</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Pix', 'Boleto', 'Transferência', 'Cartão', 'Outro'].map(method => (
-                      <button 
-                        key={method}
-                        type="button"
-                        onClick={() => setFormData({...formData, payment_method: method})}
-                        className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${formData.payment_method === method ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
-                      >
-                        {method}
-                      </button>
-                    ))}
-                  </div>
+               <div className="space-y-3">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pagamento</label>
+                 <div className="relative group">
+                   <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-hover:text-blue-500 transition-colors" size={16} />
+                   <select 
+                    value={formData.payment_method}
+                    onChange={e => setFormData({...formData, payment_method: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-4 pl-11 pr-5 text-xs font-bold text-slate-600 appearance-none outline-none focus:border-blue-400 transition-all"
+                   >
+                     {['Pix', 'Boleto', 'Transferência', 'Cartão', 'Espécie'].map(m => <option key={m}>{m}</option>)}
+                   </select>
+                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
+                 </div>
                </div>
-
-               <div className="flex items-center justify-between p-6 bg-blue-50/30 border border-blue-50 rounded-2xl">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-white rounded-xl text-blue-600 shadow-sm"><Banknote size={20}/></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 uppercase tracking-tight">Parcelado</h4>
-                      <p className="text-[10px] text-slate-400 font-medium">Dividir em múltiplas parcelas no ledger</p>
-                    </div>
-                  </div>
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({...formData, is_installment: !formData.is_installment})}
-                    className={`w-12 h-7 rounded-full relative transition-all duration-300 ${formData.is_installment ? 'bg-blue-600' : 'bg-slate-200'}`}
-                  >
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ${formData.is_installment ? 'left-6 shadow-sm' : 'left-1'}`} />
-                  </button>
-               </div>
-            </div>
-
-            <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100/50 flex gap-4">
-               <div className="p-2 bg-white rounded-xl text-amber-500 shrink-0 shadow-sm"><Layers size={20}/></div>
-               <p className="text-[11px] text-amber-700 font-bold leading-relaxed italic">
-                 "Salve o lançamento primeiro para habilitar a gestão de anexos e comprovantes fiscais."
-               </p>
             </div>
           </form>
         </div>
 
         {/* Footer */}
-        <div className="p-8 pt-4 flex items-center gap-4 shrink-0 border-t border-slate-50 bg-white">
+        <div className="p-10 pt-6 flex items-center gap-4 shrink-0 border-t border-slate-100 bg-white">
           <button 
             type="button" 
             onClick={onClose}
-            className="flex-1 py-4 bg-white border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
+            className="flex-1 py-5 bg-white border-2 border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 hover:border-slate-300 transition-all"
           >
             Cancelar
           </button>
@@ -359,9 +267,9 @@ const NewTransactionModal: React.FC<NewTransactionModalProps> = ({ isOpen, onClo
             form="new-detailed-tx-form"
             type="submit" 
             disabled={isSaving}
-            className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-70"
+            className="flex-1 py-5 bg-blue-600 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-70"
           >
-            {isSaving ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} /> Criar Lançamento</>}
+            {isSaving ? <Loader2 size={18} className="animate-spin" /> : <><Save size={18} /> Confirmar Lançamento</>}
           </button>
         </div>
       </div>

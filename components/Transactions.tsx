@@ -9,7 +9,8 @@ import {
   Filter, 
   MoreVertical,
   Loader2,
-  Database
+  Database,
+  RefreshCcw
 } from 'lucide-react';
 import NewTransactionModal from './NewTransactionModal';
 import ImportModal from './ImportModal';
@@ -40,7 +41,7 @@ const Transactions: React.FC<TransactionsProps> = ({ user }) => {
           bank_accounts (name),
           cost_centers (name)
         `)
-        .eq('user_id', user.id) // FILTRO CRÍTICO: Somente dados do usuário logado
+        .eq('user_id', user.id)
         .order('competence_date', { ascending: false });
 
       if (error) throw error;
@@ -94,35 +95,35 @@ const Transactions: React.FC<TransactionsProps> = ({ user }) => {
              <Database size={16} className="text-blue-500" />
              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Database Realtime</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Ledger Financeiro</h2>
-          <p className="text-slate-500 font-medium text-xs md:text-sm">Exibindo {filteredTransactions.length} registros da sua conta.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight uppercase">Ledger Financeiro</h2>
+          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-1">Exibindo {filteredTransactions.length} registros auditados</p>
         </div>
         
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <button 
             onClick={() => setIsImportModalOpen(true)}
-            className="flex-1 md:flex-none bg-white border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 shadow-sm"
+            className="flex-1 md:flex-none bg-white border-2 border-slate-200 text-slate-600 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
           >
             Importar
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+            className="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             <Plus size={18} />
-            Novo
+            Novo Lançamento
           </button>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-2xl md:rounded-3xl shadow-sm">
-        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl md:rounded-[1.25rem] w-full lg:w-auto overflow-x-auto no-scrollbar">
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-3 border-2 border-slate-100 rounded-[2rem] shadow-md">
+        <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-2xl w-full lg:w-auto overflow-x-auto no-scrollbar border border-slate-200/50">
           {tabs.map(tab => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
-              className={`px-4 md:px-5 py-2 rounded-lg md:rounded-[1rem] text-xs font-bold transition-all whitespace-nowrap ${selectedTab === tab ? 'bg-white text-slate-900 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all whitespace-nowrap border-2 ${selectedTab === tab ? 'bg-white text-blue-600 border-blue-500 shadow-sm' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             >
               {tab}
             </button>
@@ -130,77 +131,84 @@ const Transactions: React.FC<TransactionsProps> = ({ user }) => {
         </div>
 
         <div className="flex items-center gap-2 w-full lg:w-auto md:pr-2">
-          <div className="relative flex-1 lg:w-80">
+          <div className="relative flex-1 lg:w-96">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
             <input 
               type="text" 
-              placeholder="Pesquisar..." 
+              placeholder="Buscar por descrição ou banco..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border-none rounded-xl md:rounded-2xl py-2.5 pl-11 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 text-slate-600"
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-2.5 pl-11 pr-4 text-xs font-bold focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-slate-600 transition-all"
             />
           </div>
+          <button onClick={fetchTransactions} className="p-2.5 bg-white border-2 border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 hover:border-blue-400 transition-all">
+            <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
-      {/* Tabela */}
-      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] shadow-sm overflow-hidden">
-        <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+      {/* Tabela com Bordas Dinâmicas */}
+      <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] shadow-xl overflow-hidden min-h-[500px] flex flex-col transition-all hover:border-slate-200">
+        <div className="overflow-x-auto no-scrollbar flex-1">
+          <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-slate-50">
-                <th className="px-6 md:px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Data</th>
-                <th className="px-6 md:px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Descrição</th>
-                <th className="px-6 md:px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Valor</th>
-                <th className="px-6 md:px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
-                <th className="px-6 md:px-8 py-5 w-10"></th>
+              <tr className="bg-slate-50/50 border-b-2 border-slate-100">
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Data</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Descrição & Centro</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Valor</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Status</th>
+                <th className="px-8 py-6 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y-2 divide-slate-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="py-24 text-center">
-                    <Loader2 className="animate-spin mx-auto text-blue-500 mb-4" size={32} />
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Filtrando seus dados...</p>
+                  <td colSpan={5} className="py-32 text-center">
+                    <Loader2 className="animate-spin mx-auto text-blue-500 mb-4" size={40} />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Conciliando Base...</p>
                   </td>
                 </tr>
               ) : filteredTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-32 text-center">
-                    <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.2em]">Sem registros na sua conta</p>
+                  <td colSpan={5} className="py-40 text-center opacity-30">
+                    <Database size={48} className="mx-auto text-slate-200 mb-4" />
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Sem registros vinculados à sua conta</p>
                   </td>
                 </tr>
               ) : (
                 filteredTransactions.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 transition-all group">
-                    <td className="px-6 md:px-8 py-5">
-                      <span className="text-sm font-semibold text-slate-400">{formatDate(item.competence_date)}</span>
+                  <tr key={item.id} className={`hover:bg-slate-50 transition-all group border-l-[6px] ${item.type === 'IN' ? 'border-emerald-500/80 hover:bg-emerald-50/20' : 'border-rose-500/80 hover:bg-rose-50/20'}`}>
+                    <td className="px-8 py-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-black text-slate-800 tracking-tight">{formatDate(item.competence_date)}</span>
+                        <span className="text-[9px] font-bold text-slate-300 uppercase">{item.bank_accounts?.name || 'Caixa'}</span>
+                      </div>
                     </td>
-                    <td className="px-6 md:px-8 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-1.5 rounded-lg shrink-0 ${item.type === 'IN' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                          {item.type === 'IN' ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-5">
+                        <div className={`p-2.5 rounded-2xl border-2 transition-transform group-hover:scale-110 shadow-sm ${item.type === 'IN' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200'}`}>
+                          {item.type === 'IN' ? <ArrowDownLeft size={16} strokeWidth={3} /> : <ArrowUpRight size={16} strokeWidth={3} />}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-bold text-slate-900 tracking-tight truncate max-w-[200px]">{item.description}</p>
-                          <p className="text-[10px] text-slate-400 font-medium uppercase truncate">{item.cost_centers?.name || 'Geral'}</p>
+                          <p className="text-sm font-black text-slate-900 tracking-tight uppercase truncate max-w-[300px]">{item.description}</p>
+                          <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mt-0.5">{item.cost_centers?.name || 'Geral Operacional'}</p>
                         </div>
                       </div>
                     </td>
-                    <td className={`px-6 md:px-8 py-5 text-sm font-bold text-right tracking-tight ${item.type === 'IN' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    <td className={`px-8 py-6 text-base font-black text-right tracking-tighter ${item.type === 'IN' ? 'text-emerald-600' : 'text-slate-900'}`}>
                       {item.type === 'IN' ? '+' : '-'} {formatCurrency(item.amount)}
                     </td>
-                    <td className="px-6 md:px-8 py-5 text-center">
-                      <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border ${
-                        item.status === 'PAID' ? 'bg-emerald-50 text-emerald-500 border-emerald-100' : 
-                        'bg-amber-50 text-amber-500 border-amber-100'
+                    <td className="px-8 py-6 text-center">
+                      <span className={`text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border-2 shadow-sm ${
+                        item.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-500' : 
+                        'bg-amber-50 text-amber-600 border-amber-500'
                       }`}>
                         {item.status === 'PAID' ? 'Pago' : 'Pendente'}
                       </span>
                     </td>
-                    <td className="px-6 md:px-8 py-5 text-right">
-                      <button className="p-2 text-slate-200 hover:text-slate-900">
-                        <MoreVertical size={16} />
+                    <td className="px-8 py-6 text-right">
+                      <button className="p-2.5 text-slate-200 hover:text-slate-900 hover:bg-white hover:shadow-md rounded-xl transition-all">
+                        <MoreVertical size={18} />
                       </button>
                     </td>
                   </tr>
@@ -212,7 +220,7 @@ const Transactions: React.FC<TransactionsProps> = ({ user }) => {
       </div>
 
       <NewTransactionModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); fetchTransactions(); }} user={user} />
-      <ImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} user={user} />
+      <ImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} />
     </div>
   );
 };

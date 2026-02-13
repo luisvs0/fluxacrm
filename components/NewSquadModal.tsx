@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, Upload, ChevronDown, Users, Check, Plus, Info } from 'lucide-react';
+import { X, Upload, ChevronDown, Users, Check, Plus, Info, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface NewSquadModalProps {
   isOpen: boolean;
@@ -8,19 +9,50 @@ interface NewSquadModalProps {
 }
 
 const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
+  const [isSaving, setIsSaving] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    leader: ''
+  });
 
-  const members = [
+  const membersList = [
     { id: '1', name: 'Gabriel Dantras', initials: 'GD' },
     { id: '2', name: 'Kyros', initials: 'KY' },
     { id: '3', name: 'Lucca Hurtado', initials: 'LU' },
+    { id: '4', name: 'Luis Venx', initials: 'LV' },
   ];
 
-  const toggleMember = (id: string) => {
+  const toggleMember = (name: string) => {
     setSelectedMembers(prev => 
-      prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+      prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]
     );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name) return alert('O nome do squad é obrigatório.');
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('squads').insert([{
+        name: formData.name,
+        description: formData.description,
+        leader: formData.leader,
+        members: selectedMembers,
+        status: isActive ? 'Ativo' : 'Inativo'
+      }]);
+
+      if (error) throw error;
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao criar squad.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -53,8 +85,7 @@ const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Form Body */}
-        <div className="p-8 pt-4 space-y-8">
-          {/* Visual Identity Section */}
+        <form onSubmit={handleSubmit} className="p-8 pt-4 space-y-8">
           <div className="flex items-center gap-6 p-6 bg-slate-50/50 border border-slate-100 rounded-[2rem]">
             <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-slate-300 shadow-sm border border-slate-100 group cursor-pointer hover:border-blue-100 transition-all">
               <Upload size={28} className="group-hover:text-blue-500" />
@@ -66,49 +97,51 @@ const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="space-y-6">
-            {/* Nome do Squad */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nome de Identificação *</label>
               <input 
                 type="text" 
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
                 placeholder="Ex: Squad Alpha, Geração de Valor..."
                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
                 autoFocus
               />
             </div>
 
-            {/* Descrição */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Mantra / Objetivo do Time</label>
               <textarea 
                 rows={2}
+                value={formData.description}
+                onChange={e => setFormData({...formData, description: e.target.value})}
                 placeholder="Ex: Foco total em conversão de leads frios."
                 className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all resize-none"
               />
             </div>
 
-            {/* Líder do Squad */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Head / Líder do Squad</label>
               <div className="relative">
-                <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
-                  <option>Selecione o responsável</option>
-                  <option>Gabriel Dantras</option>
-                  <option>Kyros</option>
-                  <option>Lucca Hurtado</option>
+                <select 
+                  value={formData.leader}
+                  onChange={e => setFormData({...formData, leader: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
+                >
+                  <option value="">Selecione o responsável</option>
+                  {membersList.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
               </div>
             </div>
 
-            {/* Seletor de Membros */}
             <div className="space-y-4">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Vincular Membros</label>
               <div className="bg-slate-50/50 border border-slate-100 rounded-[2rem] overflow-hidden divide-y divide-slate-100">
-                {members.map((member) => (
+                {membersList.map((member) => (
                   <div 
                     key={member.id}
-                    onClick={() => toggleMember(member.id)}
+                    onClick={() => toggleMember(member.name)}
                     className="flex items-center justify-between p-4 hover:bg-white transition-all cursor-pointer group"
                   >
                     <div className="flex items-center gap-3">
@@ -118,18 +151,17 @@ const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
                       <span className="text-sm font-bold text-slate-700 tracking-tight">{member.name}</span>
                     </div>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedMembers.includes(member.id) 
+                      selectedMembers.includes(member.name) 
                         ? 'bg-blue-600 border-blue-600 scale-110 shadow-lg' 
                         : 'bg-white border-slate-200'
                     }`}>
-                      {selectedMembers.includes(member.id) && <Check size={12} className="text-white font-bold" strokeWidth={4} />}
+                      {selectedMembers.includes(member.name) && <Check size={12} className="text-white font-bold" strokeWidth={4} />}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Ativo Status Box */}
             <div className="flex items-center justify-between p-5 bg-slate-50/50 border border-slate-100 rounded-2xl">
               <div>
                 <p className="text-sm font-semibold text-slate-900">Squad Ativo</p>
@@ -152,7 +184,6 @@ const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
 
-          {/* Footer Buttons */}
           <div className="flex items-center gap-3 pt-4 pb-4">
             <button 
               type="button" 
@@ -162,14 +193,15 @@ const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
               Cancelar
             </button>
             <button 
-              type="button" 
+              type="submit" 
+              disabled={isSaving}
               className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2"
             >
-              <Plus size={18} />
+              {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
               Finalizar Criação
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

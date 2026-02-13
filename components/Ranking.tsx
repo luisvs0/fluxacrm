@@ -1,18 +1,18 @@
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Trophy, 
-  Users, 
   PhoneCall, 
   CalendarDays, 
   Star, 
-  User, 
   Sparkles,
   Medal,
-  ChevronRight,
   TrendingUp,
-  Target
+  Target,
+  Loader2,
+  Database
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface RankItem {
   name: string;
@@ -23,23 +23,66 @@ interface RankItem {
 }
 
 const Ranking: React.FC = () => {
-  const prospeccoes: RankItem[] = [
-    { name: 'Kyros', initial: 'K', level: 1, value: 1, isWinner: true },
-    { name: 'Gabriel Dantras', initial: 'GD', level: 1, value: 0 },
-  ];
+  const [isLoading, setIsLoading] = useState(true);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [timeRange, setTimeRange] = useState('Geral');
 
-  const reunioes: RankItem[] = [
-    { name: 'Gabriel Dantras', initial: 'GD', level: 1, value: 0, isWinner: true },
-    { name: 'Kyros', initial: 'K', level: 1, value: 0 },
-  ];
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      // Busca todos os leads para processar o ranking localmente (agregação em tempo real)
+      const { data, error } = await supabase.from('leads').select('*');
+      if (error) throw error;
+      setLeads(data || []);
+    } catch (err) {
+      console.error('Erro ao carregar ranking:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const conversoes: RankItem[] = [
-    { name: 'Gabriel Dantras', initial: 'GD', level: 1, value: 0, isWinner: true },
-    { name: 'Kyros', initial: 'K', level: 1, value: 0 },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const rankings = useMemo(() => {
+    const grouped: Record<string, { prospects: number, meetings: number, sales: number, value: number }> = {};
+
+    leads.forEach(lead => {
+      const rep = lead.assigned_to || 'Sem Atribuição';
+      if (!grouped[rep]) grouped[rep] = { prospects: 0, meetings: 0, sales: 0, value: 0 };
+      
+      grouped[rep].prospects++;
+      if (lead.stage?.toLowerCase() === 'reuniao') grouped[rep].meetings++;
+      if (lead.stage?.toLowerCase() === 'fechado') {
+        grouped[rep].sales++;
+        grouped[rep].value += Number(lead.value) || 0;
+      }
+    });
+
+    const createRank = (key: 'prospects' | 'meetings' | 'sales') => {
+      return Object.entries(grouped)
+        .map(([name, stats]) => ({
+          name,
+          initial: name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+          level: Math.floor(stats.sales / 5) + 1,
+          value: stats[key]
+        }))
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .map((item, index) => ({ ...item, isWinner: index === 0 }));
+    };
+
+    return {
+      prospeccoes: createRank('prospects'),
+      reunioes: createRank('meetings'),
+      vendas: createRank('sales'),
+      myStats: grouped['Kyros (Financial Ops)'] || grouped['Kyrooss'] || { prospects: 0, meetings: 0, sales: 0, value: 0 }
+    };
+  }, [leads]);
 
   const RenderMetricCard = ({ title, icon, items }: { title: string, icon: React.ReactNode, items: RankItem[] }) => (
-    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col space-y-6 hover:shadow-md transition-all group">
+    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col space-y-6 hover:shadow-md transition-all group min-h-[420px]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
@@ -47,13 +90,16 @@ const Ranking: React.FC = () => {
           </div>
           <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">{title}</h3>
         </div>
-        <button className="text-slate-300 hover:text-slate-900 transition-colors">
-          <TrendingUp size={18} />
-        </button>
+        <TrendingUp size={18} className="text-slate-200" />
       </div>
       
-      <div className="space-y-3">
-        {items.map((item, idx) => (
+      <div className="space-y-3 flex-1">
+        {items.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center opacity-20 text-center space-y-2">
+            <Database size={32} />
+            <p className="text-[10px] font-black uppercase tracking-widest">Aguardando dados SQL</p>
+          </div>
+        ) : items.slice(0, 5).map((item, idx) => (
           <div 
             key={idx} 
             className={`relative flex items-center justify-between p-4 rounded-[1.5rem] transition-all overflow-hidden ${
@@ -74,7 +120,7 @@ const Ranking: React.FC = () => {
               }`}>
                 {item.initial}
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className={`text-sm font-bold truncate ${item.isWinner ? 'text-white' : 'text-slate-800'}`}>
                   {item.name}
                 </p>
@@ -93,57 +139,66 @@ const Ranking: React.FC = () => {
           </div>
         ))}
       </div>
-      
-      <button className="w-full py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">
-        Ver Ranking Completo
-      </button>
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[80vh]">
+        <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando Leaderboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
       
-      {/* SaaS Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+             <Database size={16} className="text-blue-500" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Banco de Dados Ativo</span>
+          </div>
           <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Leaderboard</h2>
-          <p className="text-slate-500 font-medium mt-1">Gamificação e performance comercial em tempo real.</p>
+          <p className="text-slate-500 font-medium mt-1">Performance consolidada a partir dos leads do CRM.</p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex bg-white border border-slate-200 rounded-full p-1 shadow-sm">
-             <button className="px-5 py-2 bg-slate-900 text-white rounded-full text-xs font-bold shadow-md">Semana</button>
-             <button className="px-5 py-2 text-slate-500 text-xs font-bold">Mês</button>
-             <button className="px-5 py-2 text-slate-500 text-xs font-bold">Geral</button>
+             {['Mês', 'Geral'].map(range => (
+               <button 
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${timeRange === range ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-900'}`}
+               >
+                 {range}
+               </button>
+             ))}
           </div>
         </div>
       </div>
 
-      {/* Metrics Ranking Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <RenderMetricCard 
           title="Prospecções" 
           icon={<PhoneCall size={18} />} 
-          items={prospeccoes} 
+          items={rankings.prospeccoes} 
         />
         <RenderMetricCard 
           title="Reuniões" 
           icon={<CalendarDays size={18} />} 
-          items={reunioes} 
+          items={rankings.reunioes} 
         />
         <RenderMetricCard 
           title="Vendas" 
           icon={<Trophy size={18} />} 
-          items={conversoes} 
+          items={rankings.vendas} 
         />
       </div>
 
-      {/* Individual Statistics Section */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between px-2">
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Seu Perfil de Atleta</h3>
-          <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">Status: Em Evolução</span>
-        </div>
+        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Seu Perfil de Performance</h3>
 
         <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm relative group overflow-hidden hover:border-blue-100 transition-all">
           <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
@@ -151,54 +206,51 @@ const Ranking: React.FC = () => {
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-            {/* Avatar Profile */}
             <div className="relative">
-              <div className="w-32 h-32 bg-slate-50 border-4 border-white rounded-[2.5rem] flex items-center justify-center text-4xl font-black text-slate-900 shadow-xl group-hover:shadow-blue-200/50 transition-all duration-500">
+              <div className="w-32 h-32 bg-slate-900 text-white rounded-[2.5rem] flex items-center justify-center text-5xl font-black shadow-2xl group-hover:scale-105 transition-transform duration-500 italic">
                 K
               </div>
               <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 border-4 border-white rounded-2xl flex items-center justify-center text-white text-sm font-black shadow-lg">
-                1
+                {Math.floor(rankings.myStats.sales / 5) + 1}
               </div>
             </div>
 
-            {/* Profile Info & XP */}
             <div className="flex-1 w-full space-y-8">
               <div className="text-center md:text-left space-y-1">
-                <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Kyros</h4>
-                <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600 font-bold">
+                <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Kyros (Financial Ops)</h4>
+                <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600">
                   <Star size={16} className="fill-blue-600" />
-                  <span className="text-xs uppercase tracking-widest font-black">Novato da Temporada (Lv. 1)</span>
+                  <span className="text-[10px] uppercase tracking-widest font-black">Performance Realtime baseada em SQL</span>
                 </div>
               </div>
 
-              {/* XP Progress Bar */}
               <div className="space-y-4">
                 <div className="flex justify-between items-end">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest">XP de Performance</span>
-                    <span className="p-1 bg-slate-50 rounded text-[9px] font-bold text-slate-400 border border-slate-100">PROX: 500 XP</span>
-                  </div>
-                  <span className="text-sm font-black text-slate-900">1 / 500</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Impacto Financeiro (Vendas Fechadas)</span>
+                  <span className="text-sm font-black text-slate-900">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(rankings.myStats.value)}
+                  </span>
                 </div>
-                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-50">
-                  <div className="h-full w-[1%] bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-1000"></div>
+                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-1000" 
+                    style={{ width: `${Math.min((rankings.myStats.value / 100000) * 100, 100)}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
 
-            {/* AI Action Button */}
             <div className="shrink-0">
                <button className="flex flex-col items-center gap-3 group/ai">
-                 <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center shadow-sm group-hover/ai:bg-blue-600 group-hover/ai:text-white group-hover/ai:scale-105 transition-all duration-300">
+                 <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center shadow-sm group-hover/ai:bg-blue-600 group-hover/ai:text-white group-hover/ai:scale-105 transition-all duration-300 border border-blue-100/50">
                    <Sparkles size={32} />
                  </div>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover/ai:text-blue-600 transition-colors">AI Mentor</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover/ai:text-blue-600 transition-colors">AI Coach</span>
                </button>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 };

@@ -64,49 +64,49 @@ const LoginView: React.FC<LoginViewProps> = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#fcfcfd] relative overflow-hidden font-['Inter']">
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden font-['Inter']">
       
-      {/* Soft Glow Effects (Light Startup Aesthetic) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/5 blur-[120px] rounded-full"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/5 blur-[120px] rounded-full"></div>
-      
-      {/* Pattern Background */}
-      <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[20000ms] scale-110 hover:scale-100"
+        style={{ backgroundImage: "url('https://lh3.googleusercontent.com/d/19U8wGmf5NP9ui8ZEnJ4k1MU0SVnmbuTG')" }}
+      ></div>
+      <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px]"></div>
 
       <div className="w-full max-w-[1100px] grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-12 p-4 lg:p-8 z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
         
         {/* Left Side: Brand Info */}
         <div className="hidden lg:flex flex-col justify-center space-y-12">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-medium uppercase tracking-[0.2em]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 border border-blue-100 text-blue-600 text-[10px] font-medium uppercase tracking-[0.2em] backdrop-blur-sm">
               <Zap size={12} fill="currentColor" /> Fluxa Engine v2.6
             </div>
             <h2 className="text-5xl font-medium text-slate-950 tracking-tighter leading-[1.1]">
               Inteligência financeira <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">em tempo real.</span>
             </h2>
-            <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-md">
+            <p className="text-slate-600 text-lg font-medium leading-relaxed max-w-md">
               A stack definitiva para gestão de fluxos, OKRs e auditoria bancária automatizada.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <div className="p-5 rounded-3xl bg-white border border-slate-100 space-y-2 shadow-sm">
+            <div className="p-5 rounded-3xl bg-white/70 border border-white/50 backdrop-blur-md space-y-2 shadow-sm">
               <ShieldCheck className="text-emerald-500" size={20} />
               <p className="text-slate-900 text-sm font-medium uppercase tracking-tight">SQL Encryption</p>
-              <p className="text-slate-400 text-xs font-medium">Dados protegidos por protocolos de nível bancário.</p>
+              <p className="text-slate-500 text-xs font-medium">Dados protegidos por protocolos de nível bancário.</p>
             </div>
-            <div className="p-5 rounded-3xl bg-white border border-slate-100 space-y-2 shadow-sm">
+            <div className="p-5 rounded-3xl bg-white/70 border border-white/50 backdrop-blur-md space-y-2 shadow-sm">
               <Globe className="text-blue-500" size={20} />
               <p className="text-slate-900 text-sm font-medium uppercase tracking-tight">Cloud Sync</p>
-              <p className="text-slate-400 text-xs font-medium">Acesse sua operação de qualquer lugar do mundo.</p>
+              <p className="text-slate-500 text-xs font-medium">Acesse sua operação de qualquer lugar do mundo.</p>
             </div>
           </div>
         </div>
 
         {/* Right Side: Auth Card */}
         <div className="flex flex-col justify-center items-center">
-          <div className="w-full max-w-[440px] bg-white border border-slate-200/60 rounded-[2.5rem] p-8 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+          <div className="w-full max-w-[440px] bg-white border border-slate-200/60 rounded-[2.5rem] p-8 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden group">
             
             {/* Header */}
             <div className="mb-10">
@@ -221,9 +221,9 @@ const LoginView: React.FC<LoginViewProps> = () => {
             </button>
           </div>
 
-          <div className="mt-8 flex gap-6 text-[10px] font-medium uppercase tracking-widest text-slate-300">
-            <a href="#" className="hover:text-slate-500 transition-colors">Privacidade</a>
-            <a href="#" className="hover:text-slate-500 transition-colors">Termos de Uso</a>
+          <div className="mt-8 flex gap-6 text-[10px] font-medium uppercase tracking-widest text-slate-400">
+            <a href="#" className="hover:text-slate-700 transition-colors">Privacidade</a>
+            <a href="#" className="hover:text-slate-700 transition-colors">Termos de Uso</a>
           </div>
         </div>
       </div>

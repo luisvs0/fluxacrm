@@ -43,35 +43,21 @@ const LoginView: React.FC<LoginViewProps> = () => {
           throw new Error('As senhas não coincidem.');
         }
         
-        // 1. Criar usuário no Supabase Auth
-        const { data, error: signUpError } = await supabase.auth.signUp({
+        // Cadastrar usuário no Supabase Auth. 
+        // O Trigger 'on_auth_user_created' no banco cuidará de inserir nas tabelas 'users' e 'profiles'
+        const { error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: { 
-            data: { full_name: formData.name } 
+            data: { 
+              full_name: formData.name 
+            } 
           }
         });
 
         if (signUpError) throw signUpError;
 
-        // 2. Criar perfil na tabela 'users'
-        if (data.user) {
-          const { error: profileError } = await supabase.from('users').insert([
-            { 
-              id: data.user.id, 
-              full_name: formData.name, 
-              email: formData.email,
-              role: 'Visualizador'
-            }
-          ]);
-          
-          if (profileError) {
-            console.warn('Nota: Perfil será sincronizado após a confirmação do e-mail ou via trigger.', profileError.message);
-          }
-        }
-
         setSuccess('Conta criada! Enviamos um link de confirmação para o seu e-mail. Por favor, valide seu acesso para entrar na plataforma.');
-        // Limpar campos de senha após sucesso
         setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
       } else {
         const { error } = await supabase.auth.signInWithPassword({

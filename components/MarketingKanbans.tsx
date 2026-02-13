@@ -3,21 +3,17 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   MoreVertical, 
-  Calendar, 
   Image as ImageIcon, 
   Video, 
   FileText,
-  LayoutGrid,
-  ChevronDown,
-  Layers,
   Loader2,
   Database,
-  CheckCircle2,
-  RefreshCcw
+  RefreshCcw,
+  LayoutGrid
 } from 'lucide-react';
 import NewKanbanModal from './NewKanbanModal';
+import NewTaskModal from './NewTaskModal';
 import { supabase } from '../lib/supabase';
 
 interface MarketingKanbansProps {
@@ -26,6 +22,7 @@ interface MarketingKanbansProps {
 
 const MarketingKanbans: React.FC<MarketingKanbansProps> = ({ user }) => {
   const [isNewKanbanModalOpen, setIsNewKanbanModalOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,7 +39,11 @@ const MarketingKanbans: React.FC<MarketingKanbansProps> = ({ user }) => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.from('marketing_tasks').select('*').eq('user_id', user.id);
+      const { data, error } = await supabase
+        .from('marketing_tasks')
+        .select('*')
+        .eq('user_id', user.id);
+      
       if (error) throw error;
       setTasks(data || []);
     } catch (err) {
@@ -88,10 +89,29 @@ const MarketingKanbans: React.FC<MarketingKanbansProps> = ({ user }) => {
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button 
             onClick={() => setIsNewKanbanModalOpen(true)}
+            className="flex-1 md:flex-none bg-white border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl md:rounded-full text-xs font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+          >
+            <LayoutGrid size={18} /> Novo Quadro
+          </button>
+          <button 
+            onClick={() => setIsNewTaskModalOpen(true)}
             className="flex-1 md:flex-none bg-blue-600 text-white px-5 py-2.5 rounded-xl md:rounded-full text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2"
           >
             <Plus size={20} /> Nova Tarefa
           </button>
+        </div>
+      </div>
+
+      <div className="px-4 md:px-8 mb-4">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+          <input 
+            type="text" 
+            placeholder="Buscar tarefas..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white border border-slate-100 rounded-xl py-2 pl-11 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 outline-none"
+          />
         </div>
       </div>
 
@@ -141,10 +161,17 @@ const MarketingKanbans: React.FC<MarketingKanbansProps> = ({ user }) => {
                                  <span className="text-[9px] font-black uppercase tracking-tighter">{task.type || 'copy'}</span>
                               </div>
                             </div>
+                            <button onClick={fetchTasks} className="text-slate-200 hover:text-blue-500"><RefreshCcw size={12}/></button>
                           </div>
                         </div>
                       </div>
                     ))}
+                    <button 
+                      onClick={() => setIsNewTaskModalOpen(true)}
+                      className="w-full py-3 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:text-blue-500 hover:border-blue-200 transition-all group/add"
+                    >
+                      <Plus size={16} className="group-hover/add:scale-110 transition-transform" />
+                    </button>
                   </div>
                 </div>
               );
@@ -156,6 +183,11 @@ const MarketingKanbans: React.FC<MarketingKanbansProps> = ({ user }) => {
       <NewKanbanModal 
         isOpen={isNewKanbanModalOpen} 
         onClose={() => { setIsNewKanbanModalOpen(false); fetchTasks(); }} 
+        user={user}
+      />
+      <NewTaskModal 
+        isOpen={isNewTaskModalOpen} 
+        onClose={() => { setIsNewTaskModalOpen(false); fetchTasks(); }} 
         user={user}
       />
     </div>

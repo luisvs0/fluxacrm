@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
-import { X, Loader2, Database, Palette, Target, AlignLeft } from 'lucide-react';
+import { X, Loader2, Database, Palette, AlignLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface NewKanbanModalProps {
   isOpen: boolean;
   onClose: () => void;
+  user: any;
 }
 
-const NewKanbanModal: React.FC<NewKanbanModalProps> = ({ isOpen, onClose }) => {
+const NewKanbanModal: React.FC<NewKanbanModalProps> = ({ isOpen, onClose, user }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#2563eb');
   const [formData, setFormData] = useState({
@@ -22,11 +23,13 @@ const NewKanbanModal: React.FC<NewKanbanModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     if (!formData.name) return alert('O nome do quadro é obrigatório.');
 
     setIsSaving(true);
     try {
       const { error } = await supabase.from('marketing_boards').insert([{
+        user_id: user.id, // Vínculo obrigatório ao usuário logado
         name: formData.name,
         description: formData.description,
         color: selectedColor,

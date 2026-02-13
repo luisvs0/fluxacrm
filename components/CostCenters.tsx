@@ -35,7 +35,7 @@ const CostCenters: React.FC<CostCentersProps> = ({ user }) => {
           *,
           transactions(amount, type)
         `)
-        .eq('user_id', user.id); // ISOLAÇÃO
+        .eq('user_id', user.id); 
 
       if (error) throw error;
 
@@ -70,36 +70,78 @@ const CostCenters: React.FC<CostCentersProps> = ({ user }) => {
     <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Centros de Custo</h2>
-          <p className="text-slate-500 font-medium text-xs md:text-sm mt-1">Gestão de verbas isolada por conta.</p>
+          <div className="flex items-center gap-2 mb-1">
+             <Database size={16} className="text-blue-500 shrink-0" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Budget Matrix SQL</span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight uppercase">Centros de Custo</h2>
+          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-1">Gestão de verbas isolada por conta</p>
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <button onClick={() => setIsExportModalOpen(true)} className="flex-1 md:flex-none bg-white border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 flex items-center justify-center gap-2 shadow-sm"><Download size={18} /> Relatórios</button>
-          <button onClick={() => setIsModalOpen(true)} className="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"><Plus size={18} /> Novo</button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button onClick={() => setIsExportModalOpen(true)} className="flex-1 md:flex-none bg-white border-2 border-slate-200 text-slate-600 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm">
+            Relatórios
+          </button>
+          <button onClick={() => setIsModalOpen(true)} className="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-2">
+            <Plus size={18} /> Novo Centro
+          </button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[400px]">
+      <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[400px]">
         {isLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20"><Loader2 className="animate-spin text-blue-500 mb-4" size={32} /><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Acessando Sua Estrutura...</p></div>
+          <div className="flex-1 flex flex-col items-center justify-center py-20">
+            <Loader2 className="animate-spin text-blue-500 mb-4" size={32} />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Sua Estrutura...</p>
+          </div>
         ) : (
-          <div className="p-4 md:p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+          <div className="p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
             {costCenters.map((center) => (
-              <div key={center.id} className="p-5 md:p-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] hover:shadow-md transition-all group relative">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="space-y-1 min-w-0">
-                    <h4 className="text-sm font-bold text-slate-900 tracking-tight uppercase truncate">{center.name}</h4>
-                    <p className="text-[11px] text-slate-400 font-medium">Budget: {formatCurrency(center.budget)}</p>
+              <div key={center.id} className="p-8 bg-white border-2 border-blue-50 rounded-[2.5rem] hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-500 group relative overflow-hidden">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="space-y-1.5 min-w-0">
+                    <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 uppercase tracking-widest">
+                      #{center.code || 'CC'}
+                    </span>
+                    <h4 className="text-base font-black text-slate-900 tracking-tight uppercase truncate">{center.name}</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">Budget: {formatCurrency(center.budget)}</p>
                   </div>
-                  <button className="text-slate-200 hover:text-slate-900 shrink-0"><MoreVertical size={18} /></button>
+                  <button className="p-2 text-slate-200 hover:text-slate-900 transition-colors"><MoreVertical size={20} /></button>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end"><span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">{formatCurrency(center.spent)}</span><span className="text-[10px] font-bold text-slate-400">{center.perc.toFixed(0)}%</span></div>
-                  <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden"><div className="h-full bg-blue-600 transition-all duration-1000 shadow-sm" style={{ width: `${center.perc}%` }}></div></div>
+                
+                <div className="space-y-5">
+                  <div className="flex justify-between items-end">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Consumido</span>
+                      <span className="text-2xl font-black text-slate-900 tracking-tighter">{formatCurrency(center.spent)}</span>
+                    </div>
+                    <span className={`text-xs font-black ${center.perc > 90 ? 'text-rose-600' : 'text-blue-600'}`}>
+                      {center.perc.toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-50 border border-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 shadow-sm ${center.perc > 90 ? 'bg-rose-500' : 'bg-blue-600'}`} 
+                      style={{ width: `${center.perc}%` }}
+                    ></div>
+                  </div>
                 </div>
+
+                {/* Visual Accent */}
+                <div className={`absolute bottom-0 left-0 h-1.5 w-full transition-all duration-500 opacity-20 ${center.perc > 90 ? 'bg-rose-500' : 'bg-blue-500 group-hover:opacity-40'}`}></div>
               </div>
             ))}
-            <button onClick={() => setIsModalOpen(true)} className="p-8 border-2 border-dashed border-slate-100 rounded-2xl md:rounded-[2rem] flex flex-col items-center justify-center text-center gap-3 hover:bg-slate-50 group min-h-[160px]"><div className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-300 group-hover:text-blue-600 transition-all"><Plus size={20} /></div><p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Adicionar Centro</p></button>
+            
+            <button 
+              onClick={() => setIsModalOpen(true)} 
+              className="p-10 border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center text-center gap-4 hover:bg-slate-50 hover:border-blue-400/50 group min-h-[220px] transition-all"
+            >
+              <div className="w-14 h-14 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 group-hover:text-blue-600 group-hover:border-blue-100 group-hover:scale-110 shadow-sm transition-all">
+                <Plus size={28} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">Criar Novo Centro</p>
+              </div>
+            </button>
           </div>
         )}
       </div>

@@ -1,0 +1,25 @@
+
+{
+  "name": "Fluxa Dashboard",
+  "short_name": "Fluxa",
+  "description": "Plataforma de inteligência financeira e gestão empresarial.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fcfcfd",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/10xHwuGRL4LxVlXesojAg1OsYfS0kh3RU",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/10xHwuGRL4LxVlXesojAg1OsYfS0kh3RU",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

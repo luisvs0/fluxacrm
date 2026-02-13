@@ -24,7 +24,6 @@ const Squads: React.FC = () => {
   const fetchSquads = async () => {
     setIsLoading(true);
     try {
-      // Busca squads do Supabase (sem ordenação por created_at para evitar erro de coluna)
       const { data, error } = await supabase.from('squads').select('*');
       if (error) throw error;
       setSquads(data || []);
@@ -47,42 +46,43 @@ const Squads: React.FC = () => {
   }, [squads, searchTerm]);
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
+    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-             <Database size={16} className="text-blue-500" />
+             <Database size={16} className="text-blue-500 shrink-0" />
              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Database Org Sincronizado</span>
           </div>
-          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Células Operacionais</h2>
-          <p className="text-slate-500 font-medium mt-1">Gestão de estrutura organizacional do time.</p>
+          <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Células Operacionais</h2>
+          <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">Gestão de estrutura organizacional do time.</p>
         </div>
 
         <button 
           onClick={() => setIsNewSquadModalOpen(true)}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 active:scale-95"
+          className="w-full md:w-auto bg-blue-600 text-white px-6 py-3 md:py-2.5 rounded-xl md:rounded-full text-xs md:text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
         >
-          <Plus size={20} /> Novo Squad
+          <Plus size={20} /> <span className="md:hidden">Novo Squad</span> <span className="hidden md:inline">Criar Novo Squad</span>
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-3xl shadow-sm">
-        <div className="relative flex-1 lg:max-w-md ml-2">
+      {/* Toolbar Adaptável */}
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-2xl md:rounded-3xl shadow-sm">
+        <div className="relative flex-1 w-full lg:max-w-md ml-0 lg:ml-2">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
           <input 
             type="text" 
-            placeholder="Buscar por nome do squad ou líder..." 
+            placeholder="Buscar squad ou líder..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 placeholder:text-slate-300"
+            className="w-full bg-slate-50 border-none rounded-xl md:rounded-2xl py-2.5 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 placeholder:text-slate-300"
           />
         </div>
 
-        <div className="flex items-center gap-2 pr-2">
-           <div className="bg-slate-50 p-1 rounded-xl flex items-center gap-1">
-             <button className="p-2 bg-white text-slate-900 rounded-lg shadow-sm border border-slate-100"><LayoutGrid size={18}/></button>
-             <button className="p-2 text-slate-400 hover:text-slate-600"><Filter size={18}/></button>
+        <div className="flex items-center gap-2 w-full lg:w-auto pr-0 lg:pr-2">
+           <div className="flex-1 lg:flex-none bg-slate-50 p-1 rounded-xl flex items-center justify-center gap-1">
+             <button className="flex-1 lg:flex-none p-2 bg-white text-slate-900 rounded-lg shadow-sm border border-slate-100 px-4"><LayoutGrid size={18}/></button>
+             <button className="flex-1 lg:flex-none p-2 text-slate-400 hover:text-slate-600 px-4"><Filter size={18}/></button>
            </div>
         </div>
       </div>
@@ -93,75 +93,75 @@ const Squads: React.FC = () => {
            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Organograma...</p>
         </div>
       ) : filteredSquads.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm min-h-[450px] flex flex-col items-center justify-center p-12 text-center group relative overflow-hidden transition-all hover:border-blue-100">
+        <div className="bg-white border border-slate-100 rounded-[2rem] md:rounded-[2.5rem] shadow-sm min-h-[400px] md:min-h-[450px] flex flex-col items-center justify-center p-8 md:p-12 text-center group relative overflow-hidden transition-all hover:border-blue-100">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
             <Users2 size={250} />
           </div>
 
           <div className="relative z-10 flex flex-col items-center space-y-6">
-            <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-200 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all duration-500 shadow-sm border border-slate-100">
-              <Users size={48} strokeWidth={1.5} />
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-center text-slate-200 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all duration-500 shadow-sm border border-slate-100">
+              <Users size={40} md:size={48} strokeWidth={1.5} />
             </div>
             
             <div className="max-w-sm">
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">Nenhum squad encontrado</h3>
-              <p className="text-sm text-slate-400 font-medium leading-relaxed">
+              <h3 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight mb-2">Nenhum squad encontrado</h3>
+              <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed">
                 Você ainda não configurou células operacionais. Crie squads para organizar metas e responsabilidades.
               </p>
             </div>
 
             <button 
               onClick={() => setIsNewSquadModalOpen(true)}
-              className="px-10 py-4 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95"
+              className="px-8 md:px-10 py-3.5 md:py-4 bg-slate-900 text-white rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95"
             >
               Criar Primeiro Squad
             </button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filteredSquads.map((squad) => (
-            <div key={squad.id} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden flex flex-col justify-between min-h-[340px]">
+            <div key={squad.id} className="bg-white border border-slate-100 rounded-[1.75rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden flex flex-col justify-between min-h-[300px] md:min-h-[340px]">
                <div>
-                 <div className="flex justify-between items-start mb-8">
-                    <div className="w-16 h-16 bg-slate-900 text-white rounded-[1.5rem] flex items-center justify-center text-xl font-black shadow-lg group-hover:scale-110 transition-transform italic">
+                 <div className="flex justify-between items-start mb-6 md:mb-8">
+                    <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-900 text-white rounded-2xl md:rounded-[1.5rem] flex items-center justify-center text-lg md:text-xl font-black shadow-lg group-hover:scale-110 transition-transform italic">
                       {squad.name.substring(0,1).toUpperCase()}
                     </div>
-                    <button className="p-2 text-slate-200 hover:text-slate-900"><MoreVertical size={20}/></button>
+                    <button className="p-2 text-slate-200 hover:text-slate-900 transition-colors"><MoreVertical size={20}/></button>
                  </div>
 
                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-xl font-bold text-slate-900 tracking-tight uppercase">{squad.name}</h4>
-                      <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-2">{squad.description || 'Nenhum mantra definido para este squad.'}</p>
+                    <div className="min-w-0">
+                      <h4 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight uppercase truncate">{squad.name}</h4>
+                      <p className="text-[10px] md:text-xs text-slate-400 font-medium mt-1 line-clamp-2">{squad.description || 'Nenhum mantra definido para este squad.'}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
                       <div>
-                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Head Responsável</p>
-                         <p className="text-sm font-bold text-slate-700 mt-1 truncate">{squad.leader || 'A definir'}</p>
+                         <p className="text-[8px] md:text-[9px] font-black text-slate-300 uppercase tracking-widest">Head</p>
+                         <p className="text-xs md:text-sm font-bold text-slate-700 mt-1 truncate">{squad.leader || 'A definir'}</p>
                       </div>
                       <div className="text-right">
-                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Time Ativo</p>
-                         <p className="text-sm font-bold text-slate-700 mt-1">{Array.isArray(squad.members) ? squad.members.length : 0} membros</p>
+                         <p className="text-[8px] md:text-[9px] font-black text-slate-300 uppercase tracking-widest">Time</p>
+                         <p className="text-xs md:text-sm font-bold text-slate-700 mt-1">{Array.isArray(squad.members) ? squad.members.length : 0} membros</p>
                       </div>
                     </div>
                  </div>
                </div>
 
-               <div className="flex items-center gap-2 pt-6">
-                   <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${squad.status === 'Ativo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
+               <div className="flex items-center gap-2 pt-6 mt-auto">
+                   <span className={`text-[8px] md:text-[9px] font-black px-2.5 md:px-3 py-1 rounded-full uppercase tracking-widest ${squad.status === 'Ativo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
                       {squad.status || 'Ativo'}
                    </span>
                    <div className="flex -space-x-2 ml-auto">
-                      {(squad.members || []).slice(0, 4).map((member: string, i: number) => (
-                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] font-black text-slate-400 shadow-sm" title={member}>
+                      {(squad.members || []).slice(0, 3).map((member: string, i: number) => (
+                        <div key={i} className="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] md:text-[9px] font-black text-slate-400 shadow-sm" title={member}>
                           {member.substring(0, 1).toUpperCase()}
                         </div>
                       ))}
-                      {(squad.members || []).length > 4 && (
-                        <div className="w-8 h-8 rounded-full border-2 border-white bg-blue-50 flex items-center justify-center text-[9px] font-black text-blue-600 shadow-sm">
-                          +{(squad.members || []).length - 4}
+                      {(squad.members || []).length > 3 && (
+                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white bg-blue-50 flex items-center justify-center text-[8px] md:text-[9px] font-black text-blue-600 shadow-sm">
+                          +{(squad.members || []).length - 3}
                         </div>
                       )}
                    </div>

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2, Database, Palette } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface NewKanbanModalProps {
   isOpen: boolean;
@@ -8,104 +9,121 @@ interface NewKanbanModalProps {
 }
 
 const NewKanbanModal: React.FC<NewKanbanModalProps> = ({ isOpen, onClose }) => {
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#5c6cf2');
+  const [formData, setFormData] = useState({
+    name: '',
+    description: ''
+  });
 
   const colors = [
-    '#5c6cf2', // Blue (Selected in image)
-    '#8b5cf6', // Violet
-    '#a855f7', // Purple
-    '#ec4899', // Pink
-    '#ef4444', // Red
-    '#f59e0b', // Orange
-    '#22c55e', // Green
-    '#14b8a6', // Teal
-    '#3b82f6', // Sky Blue
+    '#5c6cf2', '#8b5cf6', '#a855f7', '#ec4899', '#ef4444', '#f59e0b', '#22c55e', '#14b8a6', '#3b82f6',
   ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name) return alert('O nome do quadro é obrigatório.');
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('marketing_boards').insert([{
+        name: formData.name,
+        description: formData.description,
+        color: selectedColor,
+        status: 'Ativo'
+      }]);
+
+      if (error) throw error;
+      
+      setFormData({ name: '', description: '' });
+      onClose();
+    } catch (err) {
+      console.error('Erro ao salvar board:', err);
+      alert('Erro ao criar quadro no banco de dados.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[480px] rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Novo Kanban</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
+      <div className="relative bg-white w-full max-w-[500px] rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden border border-slate-100 flex flex-col p-10">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+              <Database size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Novo Quadro</h2>
+              <p className="text-xs text-slate-400 font-medium">Estrutura de workflow via PostgreSQL</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full text-slate-300 hover:text-slate-900 transition-colors"><X size={20} /></button>
         </div>
 
-        {/* Form Body */}
-        <div className="space-y-6">
-          {/* Nome */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Nome *</label>
-            <div className="relative">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Identificação do Board *</label>
               <input 
                 type="text" 
-                placeholder="Ex: Conteúdo LinkedIn"
-                className="w-full bg-white border-2 border-blue-600 rounded-[14px] py-3.5 px-4 text-[14px] focus:outline-none text-gray-700 font-medium shadow-sm shadow-blue-500/10 transition-all placeholder:text-gray-400"
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
+                placeholder="Ex: Lançamento Produto X, Social Media..."
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all"
                 autoFocus
               />
             </div>
-          </div>
 
-          {/* Descrição */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Descrição</label>
-            <textarea 
-              rows={4}
-              placeholder="Descrição do kanban..."
-              className="w-full bg-white border border-[#e2e8f0] rounded-[14px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all resize-none placeholder:text-gray-400 font-medium"
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Objetivo do Fluxo</label>
+              <textarea 
+                rows={3}
+                value={formData.description}
+                onChange={e => setFormData({...formData, description: e.target.value})}
+                placeholder="Descreva o propósito deste kanban..."
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all resize-none"
+              />
+            </div>
 
-          {/* Cor */}
-          <div className="space-y-4">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Cor</label>
-            <div className="flex flex-wrap gap-2.5">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-9 h-9 rounded-full transition-all relative flex items-center justify-center ${
-                    selectedColor === color 
-                    ? 'ring-2 ring-blue-600 ring-offset-2 scale-110 shadow-lg' 
-                    : 'hover:scale-105 opacity-90 hover:opacity-100'
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 ml-1">
+                <Palette size={14} className="text-slate-400" />
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Identidade Visual</label>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {colors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-10 h-10 rounded-full transition-all relative flex items-center justify-center ${
+                      selectedColor === color 
+                      ? 'ring-4 ring-blue-100 scale-110 shadow-lg' 
+                      : 'hover:scale-105 opacity-60 hover:opacity-100'
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-6">
+          <div className="flex items-center gap-3 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all">Cancelar</button>
             <button 
-              type="button" 
-              onClick={onClose}
-              className="px-7 py-3.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] text-[14px] font-bold text-gray-700 hover:bg-gray-100 transition-all"
+              type="submit" 
+              disabled={isSaving}
+              className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 flex items-center justify-center gap-2"
             >
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="px-9 py-3.5 bg-[#8ca1db] text-white rounded-[14px] text-[14px] font-bold hover:bg-[#7a8ec9] transition-all shadow-md shadow-blue-200/50 active:scale-95"
-            >
-              Criar Kanban
+              {isSaving ? <Loader2 size={18} className="animate-spin" /> : 'Criar Quadro'}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

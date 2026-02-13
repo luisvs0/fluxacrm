@@ -9,7 +9,8 @@ import {
   Users2,
   Loader2,
   Database,
-  MoreVertical
+  MoreVertical,
+  Target
 } from 'lucide-react';
 import NewSquadModal from './NewSquadModal';
 import { supabase } from '../lib/supabase';
@@ -52,10 +53,10 @@ const Squads: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
              <Database size={16} className="text-blue-500" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Database Org Ativa</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Database Org Sincronizado</span>
           </div>
-          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Squads & Células</h2>
-          <p className="text-slate-500 font-medium mt-1">Gerencie a estrutura organizacional do time comercial e operacional.</p>
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Células Operacionais</h2>
+          <p className="text-slate-500 font-medium mt-1">Gestão de estrutura organizacional do time.</p>
         </div>
 
         <button 
@@ -71,7 +72,7 @@ const Squads: React.FC = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
           <input 
             type="text" 
-            placeholder="Buscar por nome do squad ou head..." 
+            placeholder="Buscar por nome do squad ou líder..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 placeholder:text-slate-300"
@@ -87,9 +88,9 @@ const Squads: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="py-20 flex flex-col items-center justify-center">
+        <div className="py-20 flex flex-col items-center justify-center min-h-[400px]">
            <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando Organograma...</p>
+           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Organograma...</p>
         </div>
       ) : filteredSquads.length === 0 ? (
         <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm min-h-[450px] flex flex-col items-center justify-center p-12 text-center group relative overflow-hidden transition-all hover:border-blue-100">
@@ -103,17 +104,17 @@ const Squads: React.FC = () => {
             </div>
             
             <div className="max-w-sm">
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">Sem squads cadastrados</h3>
+              <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-2">Nenhum squad encontrado</h3>
               <p className="text-sm text-slate-400 font-medium leading-relaxed">
-                Organize seu time em células para facilitar a atribuição de leads e o acompanhamento de metas por canal.
+                Você ainda não configurou células operacionais. Crie squads para organizar metas e responsabilidades.
               </p>
             </div>
 
             <button 
               onClick={() => setIsNewSquadModalOpen(true)}
-              className="px-10 py-4 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl"
+              className="px-10 py-4 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95"
             >
-              Adicionar Primeiro Squad
+              Criar Primeiro Squad
             </button>
           </div>
         </div>

@@ -30,7 +30,7 @@ const Ranking: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Busca todos os leads para processar o ranking localmente (agregação em tempo real)
+      // Agregação de performance baseada exclusivamente nos leads reais
       const { data, error } = await supabase.from('leads').select('*');
       if (error) throw error;
       setLeads(data || []);
@@ -95,9 +95,9 @@ const Ranking: React.FC = () => {
       
       <div className="space-y-3 flex-1">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center opacity-20 text-center space-y-2">
+          <div className="h-full flex flex-col items-center justify-center opacity-20 text-center space-y-4">
             <Database size={32} />
-            <p className="text-[10px] font-black uppercase tracking-widest">Aguardando dados SQL</p>
+            <p className="text-[10px] font-black uppercase tracking-widest max-w-[150px]">Nenhum dado comercial no banco</p>
           </div>
         ) : items.slice(0, 5).map((item, idx) => (
           <div 
@@ -146,7 +146,7 @@ const Ranking: React.FC = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-[80vh]">
         <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando Leaderboard...</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Calculando Performance...</p>
       </div>
     );
   }
@@ -158,15 +158,15 @@ const Ranking: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
              <Database size={16} className="text-blue-500" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Banco de Dados Ativo</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Dados Auditados SQL</span>
           </div>
-          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Leaderboard</h2>
-          <p className="text-slate-500 font-medium mt-1">Performance consolidada a partir dos leads do CRM.</p>
+          <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Leaderboard Realtime</h2>
+          <p className="text-slate-500 font-medium mt-1">Ranking de conversão extraído diretamente da base de leads.</p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex bg-white border border-slate-200 rounded-full p-1 shadow-sm">
-             {['Mês', 'Geral'].map(range => (
+             {['Hoje', 'Mês', 'Geral'].map(range => (
                <button 
                 key={range}
                 onClick={() => setTimeRange(range)}
@@ -180,25 +180,13 @@ const Ranking: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <RenderMetricCard 
-          title="Prospecções" 
-          icon={<PhoneCall size={18} />} 
-          items={rankings.prospeccoes} 
-        />
-        <RenderMetricCard 
-          title="Reuniões" 
-          icon={<CalendarDays size={18} />} 
-          items={rankings.reunioes} 
-        />
-        <RenderMetricCard 
-          title="Vendas" 
-          icon={<Trophy size={18} />} 
-          items={rankings.vendas} 
-        />
+        <RenderMetricCard title="Prospecções" icon={<PhoneCall size={18} />} items={rankings.prospeccoes} />
+        <RenderMetricCard title="Reuniões" icon={<CalendarDays size={18} />} items={rankings.reunioes} />
+        <RenderMetricCard title="Vendas" icon={<Trophy size={18} />} items={rankings.vendas} />
       </div>
 
       <div className="space-y-6">
-        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Seu Perfil de Performance</h3>
+        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Análise de Atleta (Você)</h3>
 
         <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm relative group overflow-hidden hover:border-blue-100 transition-all">
           <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
@@ -220,13 +208,13 @@ const Ranking: React.FC = () => {
                 <h4 className="text-3xl font-bold text-slate-900 tracking-tight">Kyros (Financial Ops)</h4>
                 <div className="flex items-center justify-center md:justify-start gap-2 text-blue-600">
                   <Star size={16} className="fill-blue-600" />
-                  <span className="text-[10px] uppercase tracking-widest font-black">Performance Realtime baseada em SQL</span>
+                  <span className="text-[10px] uppercase tracking-widest font-black">Performance Baseada em Transações Reais</span>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Impacto Financeiro (Vendas Fechadas)</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Revenue Impact</span>
                   <span className="text-sm font-black text-slate-900">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(rankings.myStats.value)}
                   </span>
@@ -245,7 +233,7 @@ const Ranking: React.FC = () => {
                  <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center shadow-sm group-hover/ai:bg-blue-600 group-hover/ai:text-white group-hover/ai:scale-105 transition-all duration-300 border border-blue-100/50">
                    <Sparkles size={32} />
                  </div>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover/ai:text-blue-600 transition-colors">AI Coach</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover/ai:text-blue-600 transition-colors">Performance AI</span>
                </button>
             </div>
           </div>

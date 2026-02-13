@@ -1,52 +1,84 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Star, 
-  Users, 
-  Settings, 
   Plus, 
   TrendingUp, 
   MessageSquare, 
-  Clock, 
   BarChart, 
-  Building2, 
-  FileText,
-  ChevronDown,
-  ArrowUpRight,
-  Smile,
-  Meh,
-  Frown
+  Smile, 
+  Meh, 
+  Frown,
+  Loader2,
+  Database,
+  RefreshCcw
 } from 'lucide-react';
 import NewNPSModal from './NewNPSModal';
+import { supabase } from '../lib/supabase';
 
 const OperationalNPS: React.FC = () => {
   const [activeSegment, setActiveSegment] = useState<'Clientes' | 'Equipe'>('Clientes');
-  const [activeView, setActiveView] = useState<'Cohort' | 'Cliente' | 'Pesquisas'>('Cohort');
+  const [activeView, setActiveView] = useState<'Cohort' | 'Cliente' | 'Pesquisas'>('Pesquisas');
   const [isNewNPSModalOpen, setIsNewNPSModalOpen] = useState(false);
+  const [responses, setResponses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const metrics = [
-    { label: 'Score Geral', value: '72', sub: 'Zona de Qualidade', icon: <Star size={18} />, color: 'text-emerald-500' },
-    { label: 'Taxa de Resposta', value: '64%', sub: '+12% vs mês ant.', icon: <MessageSquare size={18} />, color: 'text-blue-500' },
-    { label: 'Promotores', value: '78', sub: 'Clientes Leais', icon: <Smile size={18} />, color: 'text-emerald-600' },
-    { label: 'Detratores', value: '12', sub: 'Ação Imediata', icon: <Frown size={18} />, color: 'text-rose-500' },
-  ];
+  const fetchNPS = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('nps_responses')
+        .select(`
+          *,
+          customers (name)
+        `)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setResponses(data || []);
+    } catch (err) {
+      console.error('Erro NPS:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNPS();
+  }, []);
+
+  const stats = useMemo(() => {
+    if (responses.length === 0) return { score: 0, rate: 0, promotores: 0, detratores: 0, passivos: 0 };
+    
+    const promotores = responses.filter(r => r.score >= 9).length;
+    const detratores = responses.filter(r => r.score <= 6).length;
+    const passivos = responses.length - promotores - detratores;
+    
+    const npsScore = Math.round(((promotores - detratores) / responses.length) * 100);
+    
+    return {
+      score: npsScore,
+      rate: responses.length,
+      promotores,
+      detratores,
+      passivos
+    };
+  }, [responses]);
 
   return (
     <div className="bg-[#fcfcfd] min-h-screen space-y-8 animate-in fade-in duration-700 pb-20 px-6 lg:px-10 pt-8">
       
-      {/* SaaS Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
             <Star size={24} />
           </div>
           <div>
-            <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Sentiment Analytics</h2>
-            <div className="flex items-center gap-2 mt-1">
-               <span className="text-slate-400 text-sm font-medium">Monitoramento de Satisfação</span>
-               <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
-               <span className="text-emerald-600 text-sm font-bold tracking-tight">NPS Saudável</span>
+            <div className="flex items-center gap-2 mb-0.5">
+               <Database size={14} className="text-blue-500" />
+               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sentiment Data Sync</span>
             </div>
+            <h2 className="text-3xl font-semibold text-slate-900 tracking-tight">Customer Satisfaction</h2>
           </div>
         </div>
 
@@ -54,13 +86,13 @@ const OperationalNPS: React.FC = () => {
           <div className="flex bg-white border border-slate-200 rounded-full p-1 shadow-sm">
             <button 
               onClick={() => setActiveSegment('Clientes')}
-              className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${activeSegment === 'Clientes' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${activeSegment === 'Clientes' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-900'}`}
             >
               Clientes
             </button>
             <button 
               onClick={() => setActiveSegment('Equipe')}
-              className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${activeSegment === 'Equipe' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${activeSegment === 'Equipe' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-900'}`}
             >
               Equipe (eNPS)
             </button>
@@ -75,71 +107,108 @@ const OperationalNPS: React.FC = () => {
         </div>
       </div>
 
-      {/* NPS KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((m, i) => (
-          <div key={i} className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{m.label}</p>
-              <div className={`p-2 bg-slate-50 ${m.color} rounded-xl group-hover:scale-110 transition-transform`}>
-                {m.icon}
-              </div>
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">NPS Score Geral</p>
+          <h3 className={`text-3xl font-black tracking-tighter ${stats.score >= 70 ? 'text-emerald-500' : stats.score >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+            {isLoading ? '...' : stats.score}
+          </h3>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Zona de {stats.score >= 75 ? 'Excelência' : stats.score >= 50 ? 'Qualidade' : 'Aperfeiçoamento'}</p>
+        </div>
+
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Amostragem</p>
+          <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{isLoading ? '...' : `${stats.rate} Feedbacks`}</h3>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Base SQL Ativa</p>
+        </div>
+
+        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-6 shadow-sm hover:shadow-md transition-all group">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Promotores</p>
+          <div className="flex items-center gap-2">
+             <Smile size={20} className="text-emerald-500" />
+             <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{stats.promotores}</h3>
+          </div>
+          <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mt-1">Clientes Leais</p>
+        </div>
+
+        <div className="bg-[#002147] rounded-[1.75rem] p-6 shadow-xl text-white relative overflow-hidden group">
+          <div className="relative z-10">
+            <p className="text-[11px] font-bold text-white/50 uppercase tracking-widest mb-4">Detratores</p>
+            <div className="flex items-center gap-2">
+               <Frown size={20} className="text-rose-400" />
+               <h3 className="text-2xl font-bold tracking-tight">{stats.detratores}</h3>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{m.value}</h3>
-            <p className="text-xs text-slate-400 font-medium mt-1">{m.sub}</p>
+            <p className="text-xs text-rose-400 font-bold mt-1 uppercase tracking-widest">Ação Imediata</p>
           </div>
-        ))}
-      </div>
-
-      {/* View Tabs */}
-      <div className="flex items-center gap-3 bg-white p-2 border border-slate-100 rounded-3xl shadow-sm w-fit">
-        {['Cohort', 'Por Cliente', 'Pesquisas'].map((view) => (
-          <button
-            key={view}
-            onClick={() => setActiveView(view as any)}
-            className={`px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-              activeView === view 
-                ? 'bg-blue-50 text-blue-600 shadow-sm' 
-                : 'text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            {view}
-          </button>
-        ))}
-      </div>
-
-      {/* Main Analysis Canvas */}
-      <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm min-h-[450px] flex flex-col p-10 group relative overflow-hidden transition-all hover:border-blue-100">
-        <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform pointer-events-none">
-          <BarChart size={300} />
-        </div>
-
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Distribuição de Feedback</h3>
-            <p className="text-xs text-slate-400 font-medium">Visualização analítica por trimestre</p>
-          </div>
-          <button className="p-2.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-xl transition-all">
-            <TrendingUp size={18} />
-          </button>
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
-          <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all duration-500">
-            <MessageSquare size={40} />
-          </div>
-          <div className="max-w-xs">
-            <p className="text-sm font-medium text-slate-400 italic leading-relaxed">
-              Inicie uma nova campanha de {activeSegment.toLowerCase()} para visualizar os dados de sentimento aqui.
-            </p>
-          </div>
-          <button className="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">
-            Ver documentação de NPS
-          </button>
+          <BarChart className="absolute -right-4 -bottom-4 text-white/5 w-24 h-24 group-hover:scale-110 transition-transform" />
         </div>
       </div>
 
-      <NewNPSModal isOpen={isNewNPSModalOpen} onClose={() => setIsNewNPSModalOpen(false)} />
+      <div className="bg-white border border-slate-100 rounded-[2.5rem] shadow-sm overflow-hidden min-h-[450px] flex flex-col">
+        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <h3 className="text-lg font-bold text-slate-900 tracking-tight">Feedbacks Recentes</h3>
+              <span className="bg-slate-50 text-slate-400 text-[10px] font-black px-2 py-0.5 rounded-lg uppercase">{responses.length}</span>
+           </div>
+           <button onClick={fetchNPS} className="p-2 text-slate-300 hover:text-slate-900 transition-colors"><RefreshCcw size={18}/></button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-20">
+             <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
+             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Processando Sentimentos...</p>
+          </div>
+        ) : responses.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-20 opacity-30">
+             <MessageSquare size={48} className="mb-4" />
+             <p className="text-[10px] font-black uppercase tracking-[0.2em]">Sem respostas registradas</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/30">
+                  <th className="px-10 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cliente</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">Score</th>
+                  <th className="px-8 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Comentário</th>
+                  <th className="px-10 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">Data</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {responses.map((res) => (
+                  <tr key={res.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-10 py-6">
+                      <p className="text-sm font-bold text-slate-900 uppercase">{res.customers?.name || 'Cliente S/N'}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">{res.context || 'Geral'}</p>
+                    </td>
+                    <td className="px-8 py-6 text-center">
+                      <span className={`w-10 h-10 inline-flex items-center justify-center rounded-xl font-black text-sm shadow-sm ${
+                        res.score >= 9 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                        res.score >= 7 ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                        'bg-rose-50 text-rose-600 border border-rose-100'
+                      }`}>
+                        {res.score}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="text-xs text-slate-600 font-medium leading-relaxed max-w-md italic line-clamp-2">
+                        "{res.comment || 'Sem observações.'}"
+                      </p>
+                    </td>
+                    <td className="px-10 py-6 text-right">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        {new Date(res.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <NewNPSModal isOpen={isNewNPSModalOpen} onClose={() => { setIsNewNPSModalOpen(false); fetchNPS(); }} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
-import { X, ChevronDown, Calendar, Package, FileText, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ChevronDown, Calendar, Package, FileText, Plus, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface NewContractModalProps {
   isOpen: boolean;
@@ -8,181 +9,116 @@ interface NewContractModalProps {
 }
 
 const NewContractModal: React.FC<NewContractModalProps> = ({ isOpen, onClose }) => {
-  const [duration, setDuration] = useState('12');
+  const [isSaving, setIsSaving] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [formData, setFormData] = useState({
+    customer_id: '',
+    status: 'ACTIVE',
+    start_date: new Date().toISOString().split('T')[0],
+    duration_months: '12',
+    deployment_fee: '0',
+    amount: '0',
+    notes: ''
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCustomers();
+    }
+  }, [isOpen]);
+
+  const fetchCustomers = async () => {
+    const { data } = await supabase.from('customers').select('id, name').order('name');
+    if (data) setCustomers(data);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.customer_id) return alert('Selecione um cliente.');
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('contracts').insert([{
+        customer_id: formData.customer_id,
+        amount: parseFloat(formData.amount.replace(',', '.')) || 0,
+        deployment_fee: parseFloat(formData.deployment_fee.replace(',', '.')) || 0,
+        start_date: formData.start_date,
+        status: formData.status,
+        notes: formData.notes
+      }]);
+
+      if (error) throw error;
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao salvar contrato.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
       
-      {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[500px] max-h-[95vh] overflow-y-auto rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-8">
-        {/* Header */}
+      <div className="relative bg-white w-full max-w-[500px] max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-10 border border-slate-100 flex flex-col">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Novo Contrato</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Novo Contrato</h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full text-slate-300"><X size={20} /></button>
         </div>
 
-        {/* Form Body */}
-        <div className="space-y-6">
-          {/* Cliente */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Cliente *</label>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Cliente *</label>
             <div className="relative">
-              <select className="w-full bg-white border-2 border-blue-600 rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none text-gray-700 cursor-pointer font-medium shadow-sm shadow-blue-500/10">
-                <option>Selecione o cliente</option>
+              <select 
+                value={formData.customer_id}
+                onChange={e => setFormData({...formData, customer_id: e.target.value})}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 outline-none"
+              >
+                <option value="">Selecione o cliente</option>
+                {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={18} />
             </div>
           </div>
 
-          {/* Status */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Status</label>
-            <div className="relative">
-              <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                <option>Ativo</option>
-                <option>Pausado</option>
-                <option>Encerrado</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-            </div>
-          </div>
-
-          <div className="h-px bg-gray-100 w-full my-4" />
-
-          {/* Produtos Vendidos */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Package size={18} className="text-gray-400" />
-              <label className="text-[14px] font-semibold text-[#1e293b]">Produtos Vendidos *</label>
-            </div>
-            <div className="relative">
-              <div className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] flex items-center justify-between text-gray-400 cursor-pointer hover:border-blue-200 transition-colors">
-                <span>Selecionar produtos...</span>
-                <div className="flex flex-col items-center justify-center scale-75 text-gray-400">
-                   <ChevronDown size={14} className="rotate-180 mb-[-6px]" />
-                   <ChevronDown size={14} />
-                </div>
-              </div>
-            </div>
-            <button type="button" className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e2e8f0] rounded-xl text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm">
-              <Plus size={16} className="text-gray-400" />
-              Criar novo produto
-            </button>
-          </div>
-
-          <div className="h-px bg-gray-100 w-full my-4" />
-
-          {/* Vigência do Contrato */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <FileText size={18} className="text-gray-400" />
-              <label className="text-[14px] font-semibold text-[#1e293b]">Vigência do Contrato</label>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[13px] font-semibold text-gray-600">Data de Início</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Selecionar"
-                    className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium pl-10"
-                  />
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[13px] font-semibold text-gray-600">Duração (meses)</label>
-                <input 
-                  type="text" 
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[13px] font-semibold text-gray-600">Data de Término</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Calculado automaticamente"
-                  disabled
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] text-gray-400 font-medium pl-10 cursor-not-allowed"
-                />
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              </div>
-            </div>
-          </div>
-
-          <div className="h-px bg-gray-100 w-full my-4" />
-
-          {/* Taxas */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Taxa de Implantação</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  defaultValue="0,00"
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-                />
-              </div>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">MRR (R$)</label>
+              <input type="text" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="0,00" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-slate-900" />
             </div>
             <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Valor Mensal Recorrente</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  defaultValue="0,00"
-                  className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-                />
-              </div>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Setup (R$)</label>
+              <input type="text" value={formData.deployment_fee} onChange={e => setFormData({...formData, deployment_fee: e.target.value})} placeholder="0,00" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-slate-900" />
             </div>
           </div>
 
-          <div className="h-px bg-gray-100 w-full my-4" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Data de Início</label>
+              <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Duração (Meses)</label>
+              <input type="number" value={formData.duration_months} onChange={e => setFormData({...formData, duration_months: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold text-slate-700" />
+            </div>
+          </div>
 
-          {/* Observações */}
           <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Observações</label>
-            <textarea 
-              rows={4}
-              placeholder="Anotações sobre o contrato..."
-              className="w-full bg-white border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all resize-none placeholder:text-gray-400 font-medium"
-            />
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Observações</label>
+            <textarea rows={3} value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Cláusulas específicas, bônus, etc..." className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-3.5 px-5 text-sm font-medium resize-none" />
           </div>
 
-          {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="px-8 py-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] text-[14px] font-bold text-gray-700 hover:bg-gray-100 transition-all shadow-sm"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="px-10 py-3 bg-[#1147b1] text-white rounded-[14px] text-[14px] font-bold hover:bg-blue-800 transition-all shadow-md shadow-blue-500/20 active:scale-95"
-            >
-              Criar
+          <div className="flex items-center gap-3 pt-6">
+            <button type="button" onClick={onClose} className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-400 hover:bg-slate-50">Cancelar</button>
+            <button type="submit" disabled={isSaving} className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg flex items-center justify-center gap-2">
+              {isSaving ? <Loader2 size={18} className="animate-spin" /> : 'Criar Contrato'}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

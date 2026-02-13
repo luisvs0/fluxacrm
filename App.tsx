@@ -121,6 +121,8 @@ const App: React.FC = () => {
       <Sidebar 
         isOpen={isSidebarOpen} 
         isCollapsed={isSidebarCollapsed}
+        userEmail={session.user.email}
+        userName={session.user.user_metadata?.full_name}
         toggleSidebar={() => setIsSidebarOpen(false)} 
         toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         onNavigate={(view) => {

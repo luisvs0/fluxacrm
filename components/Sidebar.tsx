@@ -34,21 +34,35 @@ import {
   Scale,
   Users2,
   FileSignature,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import { NavItem } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface SidebarProps {
   isOpen: boolean;
   isCollapsed: boolean;
+  userEmail?: string;
+  userName?: string;
   toggleSidebar: () => void;
   toggleCollapse: () => void;
   onNavigate: (view: string) => void;
   activeView: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, toggleCollapse, onNavigate, activeView }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  isOpen, 
+  isCollapsed, 
+  userEmail, 
+  userName, 
+  toggleSidebar, 
+  toggleCollapse, 
+  onNavigate, 
+  activeView 
+}) => {
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Financeiro', 'Operacional', 'Comercial']);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const toggleMenu = (id: string) => {
     if (isCollapsed) {
@@ -60,6 +74,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, t
       prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
     );
   };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await supabase.auth.signOut();
+  };
+
+  const userInitial = (userName || userEmail || 'U').substring(0, 1).toUpperCase();
 
   const navItems: NavItem[] = [
     { id: 'Agenda', label: 'Agenda', icon: <Calendar size={18} /> },
@@ -133,11 +154,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, t
       {/* Header Fixo do Sidebar */}
       <div className={`p-6 flex items-center justify-between bg-white shrink-0 ${isCollapsed ? 'flex-col gap-6' : 'pb-8'}`}>
         <div 
-          className="flex items-center gap-3.5 group cursor-pointer"
+          className="flex items-center group cursor-pointer overflow-hidden"
           onClick={() => isCollapsed ? toggleCollapse() : onNavigate('Dashboard')}
         >
-          <div className="w-9 h-9 bg-slate-900 rounded-2xl flex items-center justify-center font-black italic text-white shadow-lg group-hover:scale-110 transition-transform">F</div>
-          {!isCollapsed && <span className="font-bold text-xl tracking-tight text-slate-900 uppercase">Fluxa</span>}
+          <img 
+            src="https://drive.google.com/uc?export=view&id=1TIYyVwcuCt7uOdJocoOY6B8GyYXmSPyh" 
+            alt="Fluxa Logo" 
+            className={`transition-all duration-500 ${isCollapsed ? 'h-8 min-w-[32px] object-contain' : 'h-10 object-contain'}`}
+          />
         </div>
         
         <button 
@@ -236,10 +260,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, t
         {!isCollapsed ? (
           <>
             <div className="bg-slate-50 p-4 rounded-2xl mb-6 flex items-center gap-4 border border-slate-100 group cursor-pointer hover:bg-white hover:shadow-md transition-all">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-xs font-black shadow-sm">K</div>
+              <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white text-xs font-black shadow-sm italic">{userInitial}</div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[9px] text-blue-600 font-black uppercase tracking-widest leading-none mb-1">Admin</span>
-                <span className="text-xs text-slate-900 font-bold truncate">kyroossx@gmail.com</span>
+                <span className="text-[9px] text-blue-600 font-black uppercase tracking-widest leading-none mb-1">Conta Ativa</span>
+                <span className="text-xs text-slate-900 font-bold truncate">{userEmail || 'Usuário'}</span>
               </div>
             </div>
             
@@ -252,9 +276,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, t
                 <span className="text-[10px] font-black uppercase tracking-widest">Ajustes</span>
               </button>
               <button 
-                className="flex flex-col items-center justify-center gap-2 p-3.5 bg-white border border-slate-100 text-slate-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50 rounded-2xl transition-all shadow-sm group"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex flex-col items-center justify-center gap-2 p-3.5 bg-white border border-slate-100 text-slate-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50 rounded-2xl transition-all shadow-sm group disabled:opacity-50"
               >
-                <LogOut size={18} />
+                {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
                 <span className="text-[10px] font-black uppercase tracking-widest">Sair</span>
               </button>
             </div>
@@ -269,12 +295,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, toggleSidebar, t
                 <Settings size={20} />
              </button>
              <button 
+                onClick={handleLogout}
                 title="Sair"
                 className="p-3 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all"
              >
                 <LogOut size={20} />
              </button>
-             <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-sm mt-2">K</div>
+             <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-sm mt-2 italic">{userInitial}</div>
           </div>
         )}
       </div>

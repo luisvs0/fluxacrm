@@ -88,10 +88,13 @@ const LoginView: React.FC<LoginViewProps> = () => {
       <div className="flex-1 flex flex-col justify-center px-8 sm:px-12 lg:px-24 xl:px-40 py-12">
         <div className="max-w-[440px] w-full mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
           
-          {/* Logo */}
-          <div className="flex items-center gap-3 group cursor-default">
-            <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center font-black italic text-white shadow-lg group-hover:scale-110 transition-transform">F</div>
-            <span className="font-bold text-2xl tracking-tight text-slate-900 uppercase">Fluxa</span>
+          {/* Logo Oficial */}
+          <div className="group cursor-default">
+            <img 
+              src="https://drive.google.com/uc?export=view&id=1TIYyVwcuCt7uOdJocoOY6B8GyYXmSPyh" 
+              alt="Fluxa Logo" 
+              className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-500"
+            />
           </div>
 
           <div className="space-y-2">

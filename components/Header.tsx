@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Tv, Bell, Search, Command } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 import GlobalSearchOverlay from './GlobalSearchOverlay';
+import { supabase } from '../lib/supabase';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -13,9 +14,38 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  // Formata o título para parecer um path técnico
+  // Função para contar notificações não lidas no banco
+  const fetchUnreadCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false);
+      
+      if (!error) setUnreadCount(count || 0);
+    } catch (err) {
+      console.error('Erro ao contar notificações:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    
+    // Opcional: Escutar mudanças via Realtime para atualizar o contador instantaneamente
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        fetchUnreadCount();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const formattedTitle = title.includes('-') ? title.split('-').join(' / ') : title;
 
   return (
@@ -42,7 +72,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title }) => {
       </div>
       
       <div className="flex items-center gap-5">
-        {/* Barra de Busca Interativa */}
         <div 
           onClick={() => setIsSearchOpen(true)}
           className="hidden md:flex items-center gap-3 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full text-slate-400 hover:bg-slate-100 transition-all cursor-pointer group group-hover:border-slate-200"
@@ -57,7 +86,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title }) => {
 
         <div className="h-6 w-px bg-slate-100 mx-1 hidden sm:block"></div>
 
-        {/* Notificações com Dropdown */}
         <div className="relative">
           <button 
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -65,14 +93,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title }) => {
           >
             <Bell size={18} className={`${isNotificationsOpen ? '' : 'group-hover:rotate-12'} transition-transform`} />
             {unreadCount > 0 && (
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 border-2 border-white rounded-full"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 border-2 border-white rounded-full animate-bounce"></span>
             )}
           </button>
           
           {isNotificationsOpen && (
             <NotificationCenter 
               onClose={() => setIsNotificationsOpen(false)} 
-              onMarkAllRead={() => setUnreadCount(0)}
+              onMarkAllRead={fetchUnreadCount}
             />
           )}
         </div>

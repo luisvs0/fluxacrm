@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, User, Upload, ChevronDown } from 'lucide-react';
+import { X, User, Upload, ChevronDown, Loader2, Save } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface NewMemberModalProps {
   isOpen: boolean;
@@ -8,211 +9,118 @@ interface NewMemberModalProps {
 }
 
 const NewMemberModal: React.FC<NewMemberModalProps> = ({ isOpen, onClose }) => {
+  const [isSaving, setIsSaving] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [hasContract, setHasContract] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    role: '',
+    type: 'Funcionário',
+    email: '',
+    phone: '',
+    document_type: 'CPF',
+    document_number: '',
+    cost_center: 'Operacional',
+    salary_value: '0',
+    observations: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.role) return alert('Nome e Cargo são obrigatórios.');
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('team_members').insert([{
+        name: formData.name,
+        role: formData.role,
+        type: formData.type,
+        email: formData.email,
+        phone: formData.phone,
+        document_number: formData.document_number,
+        cost_center: formData.cost_center,
+        salary_value: parseFloat(formData.salary_value.replace(',', '.')) || 0,
+        status: isActive ? 'Ativo' : 'Inativo',
+        observations: formData.observations
+      }]);
+
+      if (error) throw error;
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao cadastrar membro.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" 
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
       
-      {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-[500px] max-h-[95vh] overflow-y-auto rounded-[24px] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-8">
-        {/* Header */}
+      <div className="relative bg-white w-full max-w-[550px] max-h-[95vh] overflow-y-auto rounded-[2.5rem] shadow-2xl animate-in zoom-in-95 duration-200 no-scrollbar p-10 border border-slate-100 flex flex-col">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[20px] font-bold text-[#1e293b]">Novo Membro da Equipe</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Novo Colaborador</h2>
+          <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-900"><X size={20} /></button>
         </div>
 
-        {/* Photo Upload Area */}
-        <div className="flex flex-col items-center justify-center space-y-4 mb-10">
-          <div className="w-28 h-28 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-inner">
-            <User size={40} className="text-gray-300" />
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-all shadow-sm">
-            <Upload size={16} className="text-gray-400" />
-            Adicionar foto
-          </button>
-        </div>
-
-        <div className="h-px bg-gray-100 w-full mb-8" />
-
-        {/* Form Body */}
-        <div className="space-y-6">
-          <p className="text-[14px] font-bold text-gray-500 mb-2">Dados Básicos</p>
-
-          {/* Nome */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Nome *</label>
-            <input 
-              type="text" 
-              placeholder="Nome completo"
-              className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium transition-all placeholder:text-gray-400"
-              autoFocus
-            />
-          </div>
-
-          {/* Cargo & Tipo */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Cargo *</label>
-              <input 
-                type="text" 
-                placeholder="Ex: Desenvolvedor"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col items-center justify-center space-y-4 mb-4">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 shadow-inner">
+              <User size={40} className="text-slate-300" />
             </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Tipo</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                  <option>Funcionário</option>
-                  <option>Sócio</option>
-                  <option>Terceiro</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-          </div>
-
-          {/* Email & Telefone */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Email</label>
-              <input 
-                type="email" 
-                placeholder="email@exemplo.com"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Telefone</label>
-              <input 
-                type="text" 
-                placeholder="(11) 99999-9999"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Tipo Doc. & Número */}
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-4 space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Tipo Doc.</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                  <option>CPF</option>
-                  <option>CNPJ</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-            <div className="col-span-8 space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Número do Documento</label>
-              <input 
-                type="text" 
-                placeholder="000.000.000-00"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Ativo Toggle */}
-          <div className="flex items-center gap-3 py-2">
-            <button 
-              type="button"
-              onClick={() => setIsActive(!isActive)}
-              className={`w-12 h-6 rounded-full relative transition-all duration-200 ${isActive ? 'bg-[#1d4ed8]' : 'bg-gray-200'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${isActive ? 'left-[26px]' : 'left-1'}`} />
-            </button>
-            <span className="text-[14px] font-semibold text-[#1e293b]">Ativo</span>
-          </div>
-
-          <div className="h-px bg-gray-100 w-full my-2" />
-
-          {/* Possui Contrato Toggle */}
-          <div className="flex items-center gap-3 py-2">
-            <button 
-              type="button"
-              onClick={() => setHasContract(!hasContract)}
-              className={`w-12 h-6 rounded-full relative transition-all duration-200 ${hasContract ? 'bg-[#1d4ed8]' : 'bg-gray-200'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${hasContract ? 'left-[26px]' : 'left-1'}`} />
-            </button>
-            <span className="text-[14px] font-semibold text-[#1e293b]">Possui contrato</span>
-          </div>
-
-          {/* Centro de Custo & Valor Mensal */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Centro de Custo</label>
-              <div className="relative">
-                <select className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] appearance-none focus:outline-none focus:border-blue-400 text-gray-700 cursor-pointer font-medium">
-                  <option>Nenhum</option>
-                  <option>Operacional</option>
-                  <option>Comercial</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[14px] font-semibold text-[#1e293b]">Valor Mensal (Ref)</label>
-              <input 
-                type="text" 
-                defaultValue="0"
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 font-medium"
-              />
-            </div>
-          </div>
-
-          <div className="h-px bg-gray-100 w-full my-2" />
-
-          {/* Observações */}
-          <div className="space-y-2">
-            <label className="text-[14px] font-semibold text-[#1e293b]">Observações</label>
-            <div className="relative">
-              <textarea 
-                rows={4}
-                placeholder="Anotações adicionais sobre o membro..."
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[12px] py-3.5 px-4 text-[14px] focus:outline-none focus:border-blue-400 text-gray-700 transition-all resize-y placeholder:text-gray-400 font-medium min-h-[100px]"
-              />
-              <div className="absolute bottom-2 right-2 text-gray-300 pointer-events-none">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M10 6L6 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-6">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="px-8 py-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] text-[14px] font-bold text-gray-700 hover:bg-gray-100 transition-all shadow-sm"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="px-10 py-3 bg-[#1147b1] text-white rounded-[14px] text-[14px] font-bold hover:bg-blue-800 transition-all shadow-md shadow-blue-500/20 active:scale-95"
-            >
-              Adicionar
+            <button type="button" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline">
+              Vincular Avatar
             </button>
           </div>
-        </div>
+
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nome Completo *</label>
+              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ex: Roberto Carlos" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-100" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Cargo *</label>
+                <input type="text" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} placeholder="Ex: Analista" className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold outline-none" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Custo Mensal (Ref)</label>
+                <input type="text" value={formData.salary_value} onChange={e => setFormData({...formData, salary_value: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-bold text-slate-900" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Centro de Custo</label>
+              <select value={formData.cost_center} onChange={e => setFormData({...formData, cost_center: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3.5 px-5 text-sm font-semibold outline-none">
+                <option>Operacional</option>
+                <option>Comercial</option>
+                <option>Marketing</option>
+                <option>Diretoria</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-3 py-2">
+              <button 
+                type="button"
+                onClick={() => setIsActive(!isActive)}
+                className={`w-11 h-6 rounded-full relative transition-all duration-200 ${isActive ? 'bg-blue-600' : 'bg-slate-200'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${isActive ? 'left-[22px]' : 'left-1'}`} />
+              </button>
+              <span className="text-[13px] font-bold text-slate-700">Membro Ativo</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-6">
+            <button type="button" onClick={onClose} className="flex-1 py-4 bg-white border border-slate-100 rounded-full text-xs font-bold text-slate-400">Cancelar</button>
+            <button type="submit" disabled={isSaving} className="flex-1 py-4 bg-blue-600 text-white rounded-full text-xs font-bold shadow-lg flex items-center justify-center gap-2">
+              {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />} Salvar no Banco
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, 
   Globe, 
@@ -18,13 +19,84 @@ import {
   ChevronRight,
   Plus,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  Database
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 type SettingsTab = 'Perfil' | 'Notificações' | 'Segurança' | 'Faturamento' | 'Integrações';
 
 const SettingsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('Perfil');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [companyData, setCompanyData] = useState({
+    id: '',
+    name: '',
+    document: '',
+    email: '',
+    currency: 'BRL - Real Brasileiro',
+    address: ''
+  });
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.from('company_settings').select('*').single();
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setCompanyData({
+          id: data.id,
+          name: data.name || '',
+          document: data.document || '',
+          email: data.email || '',
+          currency: data.currency || 'BRL - Real Brasileiro',
+          address: data.address || ''
+        });
+      }
+    } catch (err) {
+      console.error('Erro settings:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const payload = {
+        name: companyData.name,
+        document: companyData.document,
+        email: companyData.email,
+        currency: companyData.currency,
+        address: companyData.address
+      };
+
+      let error;
+      if (companyData.id) {
+        const result = await supabase.from('company_settings').update(payload).eq('id', companyData.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from('company_settings').insert([payload]);
+        error = result.error;
+      }
+
+      if (error) throw error;
+      alert('Configurações atualizadas com sucesso!');
+      fetchSettings();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao salvar configurações no banco.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const menuItems = [
     { label: 'Perfil da Empresa', id: 'Perfil' as SettingsTab, icon: <Building2 size={18}/> },
@@ -35,6 +107,15 @@ const SettingsView: React.FC = () => {
   ];
 
   const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="py-20 flex flex-col items-center justify-center">
+          <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Preferências...</p>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'Perfil':
         return (
@@ -42,26 +123,51 @@ const SettingsView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Razão Social</label>
-                 <input type="text" defaultValue="Fluxa Management LTDA" className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+                 <input 
+                  type="text" 
+                  value={companyData.name} 
+                  onChange={e => setCompanyData({...companyData, name: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all shadow-inner" 
+                 />
               </div>
               <div className="space-y-2">
                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">CNPJ</label>
-                 <input type="text" defaultValue="00.000.000/0001-00" className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+                 <input 
+                  type="text" 
+                  value={companyData.document} 
+                  onChange={e => setCompanyData({...companyData, document: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all shadow-inner" 
+                 />
               </div>
               <div className="space-y-2">
                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">E-mail Financeiro</label>
-                 <input type="email" defaultValue="financeiro@fluxa.com" className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+                 <input 
+                  type="email" 
+                  value={companyData.email} 
+                  onChange={e => setCompanyData({...companyData, email: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all shadow-inner" 
+                 />
               </div>
               <div className="space-y-2">
                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Moeda Padrão</label>
-                 <select className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none">
+                 <select 
+                  value={companyData.currency}
+                  onChange={e => setCompanyData({...companyData, currency: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none shadow-inner"
+                 >
                     <option>BRL - Real Brasileiro</option>
                     <option>USD - Dólar Americano</option>
                  </select>
               </div>
               <div className="md:col-span-2 space-y-2">
                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Endereço Fiscal</label>
-                 <input type="text" placeholder="Av. Paulista, 1000 - São Paulo, SP" className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+                 <input 
+                  type="text" 
+                  value={companyData.address}
+                  onChange={e => setCompanyData({...companyData, address: e.target.value})}
+                  placeholder="Av. Paulista, 1000 - São Paulo, SP" 
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-blue-500 transition-all shadow-inner" 
+                 />
               </div>
             </div>
           </div>
@@ -74,23 +180,15 @@ const SettingsView: React.FC = () => {
                 { title: 'Lançamentos Financeiros', desc: 'Receba alertas sobre novas entradas e saídas pendentes.', channels: ['E-mail', 'Push'] },
                 { title: 'Relatórios Mensais', desc: 'Avisar quando o DRE e DFC do mês anterior estiverem consolidados.', channels: ['E-mail'] },
                 { title: 'Novos Leads', desc: 'Notificar responsáveis quando um novo lead entrar no pipeline.', channels: ['Push', 'WhatsApp'] },
-                { title: 'Segurança da Conta', desc: 'Alertas de logins em novos dispositivos ou tentativas falhas.', channels: ['E-mail', 'Push', 'SMS'] },
               ].map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-6 bg-gray-50 border border-gray-100 rounded-2xl group hover:border-blue-200 transition-all">
+                <div key={idx} className="flex items-center justify-between p-6 bg-gray-50/50 border border-gray-100 rounded-2xl group hover:border-blue-200 transition-all">
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold text-gray-900">{item.title}</h4>
                     <p className="text-xs text-gray-400 font-medium">{item.desc}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {item.channels.map(channel => (
-                      <span key={channel} className="px-3 py-1 bg-white border border-gray-100 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 shadow-sm">
-                        {channel}
-                      </span>
-                    ))}
-                    <button className="w-10 h-5 bg-blue-600 rounded-full relative ml-2">
-                      <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
-                    </button>
-                  </div>
+                  <button className="w-10 h-5 bg-blue-600 rounded-full relative ml-2">
+                    <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                  </button>
                 </div>
               ))}
             </div>
@@ -103,34 +201,24 @@ const SettingsView: React.FC = () => {
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-blue-600">
                   <ShieldCheck size={20} />
-                  <h3 className="text-sm font-black uppercase tracking-widest">Alterar Senha</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest">Credenciais SQL</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Senha Atual</label>
-                    <input type="password" underline-none className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" />
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Senha de Acesso</label>
+                    <input type="password" placeholder="••••••••••••" readOnly className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none cursor-not-allowed" />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Nova Senha</label>
-                    <input type="password" underline-none className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" />
-                  </div>
-                  <button className="text-xs font-bold text-blue-600 hover:underline">Esqueci minha senha</button>
+                  <button className="text-xs font-bold text-blue-600 hover:underline">Solicitar alteração de senha segura</button>
                 </div>
               </div>
-
-              <div className="space-y-6">
-                <div className="flex items-center gap-2 text-blue-600">
-                  <Smartphone size={20} />
-                  <h3 className="text-sm font-black uppercase tracking-widest">Autenticação em 2 Etapas</h3>
-                </div>
-                <div className="bg-blue-50/50 border border-blue-100 p-6 rounded-2xl space-y-4">
+              <div className="bg-blue-50/50 border border-blue-100 p-8 rounded-[2.5rem] space-y-4">
+                  <h4 className="text-sm font-bold text-blue-900 uppercase tracking-widest">Proteção de Dados</h4>
                   <p className="text-xs text-blue-700 font-medium leading-relaxed">
-                    Adicione uma camada extra de proteção à sua conta. Use um app autenticador para gerar códigos de acesso.
+                    Sua conta está protegida por criptografia AES-256 e protocolos de segurança do Supabase Auth. 
                   </p>
-                  <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">
-                    Configurar 2FA
+                  <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">
+                    Ativar 2FA
                   </button>
-                </div>
               </div>
             </div>
           </div>
@@ -138,175 +226,86 @@ const SettingsView: React.FC = () => {
       case 'Faturamento':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-gray-900 rounded-3xl p-8 text-white relative overflow-hidden group">
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                  <CreditCard size={120} />
+                  <CreditCard size={150} />
                 </div>
-                <div className="relative z-10 space-y-6">
+                <div className="relative z-10 space-y-10">
                   <div>
-                    <span className="px-3 py-1 bg-blue-500 rounded-full text-[10px] font-black uppercase tracking-widest">Plano Pro</span>
-                    <h3 className="text-3xl font-black mt-2 tracking-tight">R$ 297,00<span className="text-sm font-normal text-white/40">/mês</span></h3>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs text-white/60 font-medium">Próxima cobrança em 12 de Março, 2026</p>
-                    <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full w-2/3 bg-blue-500"></div>
-                    </div>
+                    <span className="px-4 py-1.5 bg-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Enterprise Plan</span>
+                    <h3 className="text-4xl font-black mt-4 tracking-tighter italic">SQL UNLIMITED</h3>
                   </div>
                   <div className="flex gap-3">
-                    <button className="bg-white text-gray-900 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg">Alterar Plano</button>
-                    <button className="bg-white/10 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/20 transition-all">Cancelar</button>
+                    <button className="bg-white text-slate-900 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">Ver Faturas</button>
+                    <button className="bg-white/10 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">Contrato</button>
                   </div>
                 </div>
               </div>
-
-              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between group hover:border-blue-200 transition-all">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-gray-400">Método de Pagamento</h4>
-                    <CheckCircle2 size={16} className="text-emerald-500" />
-                  </div>
-                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <div className="w-10 h-10 bg-white rounded-lg border border-gray-100 flex items-center justify-center">
-                      <CreditCard size={20} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">•••• 4412</p>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">Visa - Exp. 12/28</p>
-                    </div>
-                  </div>
-                </div>
-                <button className="mt-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline">
-                  <Plus size={14} /> Atualizar Cartão
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm">
-              <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-                <h4 className="text-sm font-black uppercase tracking-widest text-gray-400">Histórico de Faturas</h4>
-                <button className="text-[10px] font-black uppercase tracking-widest text-blue-600">Ver Todas</button>
-              </div>
-              <table className="w-full text-left">
-                <tbody className="divide-y divide-gray-50">
-                  {[
-                    { date: '12 Fev, 2026', val: 'R$ 297,00', status: 'Pago' },
-                    { date: '12 Jan, 2026', val: 'R$ 297,00', status: 'Pago' },
-                    { date: '12 Dez, 2025', val: 'R$ 297,00', status: 'Pago' },
-                  ].map((row, i) => (
-                    <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4 text-xs font-bold text-gray-700">{row.date}</td>
-                      <td className="px-6 py-4 text-xs font-bold text-gray-900">{row.val}</td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase rounded-md tracking-widest">{row.status}</span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-1.5 text-gray-300 hover:text-blue-600 transition-colors"><ExternalLink size={14} /></button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      case 'Integrações':
-        return (
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[
-                { name: 'Slack', desc: 'Receba alertas financeiros diretamente em canais do Slack.', icon: <Slack size={24} />, connected: true, color: 'text-purple-600 bg-purple-50' },
-                { name: 'WhatsApp', desc: 'Notificações de leads e cobranças via API oficial.', icon: <MessageSquare size={24} />, connected: false, color: 'text-emerald-500 bg-emerald-50' },
-                { name: 'Google Calendar', desc: 'Sincronize sua agenda de reuniões e follow-ups.', icon: <Calendar size={24} />, connected: false, color: 'text-blue-500 bg-blue-50' },
-                { name: 'Conta Azul', desc: 'Integração de notas fiscais e conciliação bancária.', icon: <Cloud size={24} />, connected: false, color: 'text-cyan-500 bg-cyan-50' },
-                { name: 'Asaas', desc: 'Geração automática de boletos e links de pagamento.', icon: <CreditCard size={24} />, connected: true, color: 'text-blue-600 bg-blue-50' },
-              ].map((app, i) => (
-                <div key={i} className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between group hover:border-blue-200 transition-all">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-2xl ${app.color}`}>
-                        {app.icon}
-                      </div>
-                      {app.connected ? (
-                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-500">
-                          <CheckCircle2 size={12} /> Conectado
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-300">
-                          Desconectado
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-900">{app.name}</h4>
-                      <p className="text-xs text-gray-400 font-medium leading-relaxed mt-1">{app.desc}</p>
-                    </div>
-                  </div>
-                  <button className={`mt-6 w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${app.connected ? 'bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500' : 'bg-[#0047AB] text-white hover:bg-blue-800'}`}>
-                    {app.connected ? 'Desconectar' : 'Conectar Agora'}
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         );
       default:
-        return null;
+        return <div className="py-20 text-center text-slate-300 font-black uppercase tracking-widest text-xs">Módulo em Integração</div>;
     }
   };
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-500 pb-24">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Configurações</h2>
-          <p className="text-sm font-medium text-gray-400">Personalize sua experiência no Fluxa</p>
+          <div className="flex items-center gap-2 mb-1">
+             <Database size={16} className="text-blue-500" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Environment Preferences</span>
+          </div>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase italic">Configurações</h2>
+          <p className="text-sm font-medium text-gray-400">Personalize os parâmetros operacionais e institucionais.</p>
         </div>
-        {activeTab !== 'Integrações' && (
-           <button className="bg-blue-600 text-white px-8 py-3 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 self-start md:self-center active:scale-95">
-             <Save size={18} /> Salvar Alterações
+        {activeTab === 'Perfil' && !isLoading && (
+           <button 
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-blue-600 text-white px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center gap-3 shadow-xl shadow-blue-200 active:scale-95 disabled:opacity-50"
+           >
+             {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />} Salvar no Banco
            </button>
         )}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-        {/* Settings Sidebar */}
         <div className="space-y-1.5">
            {menuItems.map((item) => (
              <button 
                key={item.id} 
                onClick={() => setActiveTab(item.id)}
-               className={`w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all border ${
+               className={`w-full flex items-center gap-4 p-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border ${
                  activeTab === item.id 
-                  ? 'bg-white text-blue-600 border-blue-100 shadow-md shadow-blue-500/5' 
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xl' 
                   : 'text-gray-400 border-transparent hover:bg-white hover:text-gray-900 hover:border-gray-100'
                }`}
              >
-               <span className={activeTab === item.id ? 'text-blue-600' : 'text-gray-300'}>
+               <span className={activeTab === item.id ? 'text-blue-400' : 'text-gray-300'}>
                  {item.icon}
                </span>
                <span>{item.label}</span>
-               {activeTab === item.id && <ChevronRight size={14} className="ml-auto opacity-50" />}
+               {activeTab === item.id && <div className="ml-auto w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />}
              </button>
            ))}
         </div>
 
-        {/* Dynamic Content Card */}
-        <div className="xl:col-span-3 bg-white border border-gray-100 rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden">
-           {/* Background subtle decoration */}
+        <div className="xl:col-span-3 bg-white border border-gray-100 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden flex flex-col">
            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none">
-              <Settings size={200} />
+              <Settings size={250} />
            </div>
            
-           <div className="relative z-10">
-             <div className="flex items-center gap-3 mb-10 border-b border-gray-50 pb-6">
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+           <div className="relative z-10 flex-1 flex flex-col">
+             <div className="flex items-center gap-4 mb-10 border-b border-gray-50 pb-8">
+                <div className="w-12 h-12 bg-slate-50 text-slate-900 rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm">
                   {menuItems.find(m => m.id === activeTab)?.icon}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">{menuItems.find(m => m.id === activeTab)?.label}</h3>
-                  <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Painel de Controle / Preferências</p>
+                  <h3 className="text-lg font-bold text-gray-900 tracking-tight uppercase">{menuItems.find(m => m.id === activeTab)?.label}</h3>
+                  <p className="text-[9px] font-black uppercase text-gray-400 tracking-[0.2em]">Fluxa Cloud / {activeTab}</p>
                 </div>
              </div>
              

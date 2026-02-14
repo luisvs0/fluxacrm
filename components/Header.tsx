@@ -33,10 +33,12 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
 
   useEffect(() => {
     fetchUnreadCount();
+    
+    // Inscrição em tempo real para reagir a novas notificações geradas pelo sistema
     const channel = supabase
-      .channel('header-notifications')
+      .channel('header-notifications-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
-        unreadCount;
+        fetchUnreadCount();
       })
       .subscribe();
 
@@ -89,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
         >
           <Bell size={20} />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#203267] border-2 border-white rounded-full"></span>
+            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-bounce"></span>
           )}
         </button>
         

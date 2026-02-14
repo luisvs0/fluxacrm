@@ -105,7 +105,8 @@ const Metas: React.FC<MetasProps> = ({ user }) => {
             <div className="flex justify-between items-start mb-4">
               <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
               <div className={`p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:scale-110 transition-transform`}>
-                {stat.icon && React.cloneElement(stat.icon as React.ReactElement, { size: 18 })}
+                {/* Added React.ReactElement<any> cast to fix property access error */}
+                {stat.icon && React.cloneElement(stat.icon as React.ReactElement<any>, { size: 18 })}
               </div>
             </div>
             <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>

@@ -58,7 +58,6 @@ const NewVisitModal: React.FC<NewVisitModalProps> = ({ isOpen, onClose, user }) 
       if (visitError) throw visitError;
 
       // 2. Automação: Cadastrar na Agenda (appointments)
-      // Formata data e hora para ISO string
       const startDateTime = new Date(`${formData.date}T${formData.time}:00`).toISOString();
       
       const { error: apptError } = await supabase.from('appointments').insert([{
@@ -67,7 +66,8 @@ const NewVisitModal: React.FC<NewVisitModalProps> = ({ isOpen, onClose, user }) 
         category: 'Comercial',
         start_time: startDateTime,
         description: `Visita agendada via módulo imobiliário.\nCorretor: ${formData.visitor_name}\nCliente: ${formData.client_name}\nTelefone: ${formData.client_phone}`,
-        is_completed: false
+        is_completed: false,
+        notified: false // Garantindo estado inicial
       }]);
 
       if (apptError) {
@@ -125,7 +125,7 @@ const NewVisitModal: React.FC<NewVisitModalProps> = ({ isOpen, onClose, user }) 
                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Interessado (Lead) *</label>
                    <div className="relative">
                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                     <input type="text" value={formData.client_name} onChange={e => setFormData({...formData, client_name: e.target.value})} placeholder="Nome completo" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 pl-11 pr-5 text-sm font-bold shadow-inner" />
+                     <input type="text" value={formData.client_name} onChange={e => setFormData({...formData, client_name: e.target.value})} placeholder="Nome completo" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3.5 px-5 pl-11 pr-5 text-sm font-bold shadow-inner" />
                    </div>
                 </div>
                 <div className="space-y-2">

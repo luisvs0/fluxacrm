@@ -31,7 +31,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
       <div className="flex items-center justify-between mb-4">
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{title}</span>
         <div className={`p-2 rounded-xl border transition-transform group-hover:scale-110 ${colorMap[color]}`}>
-          {icon && React.cloneElement(icon as React.ReactElement, { size: 16 })}
+          {/* Added React.ReactElement<any> cast to fix property access error */}
+          {icon && React.cloneElement(icon as React.ReactElement<any>, { size: 16 })}
         </div>
       </div>
       <div className="space-y-0.5">
@@ -45,7 +46,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color
       <div className={`absolute bottom-0 left-0 h-1 w-full opacity-20 ${colorMap[color].split(' ')[0]}`}></div>
       {/* Background decoration */}
       <div className={`absolute -right-2 -bottom-2 w-16 h-16 opacity-[0.03] group-hover:scale-110 transition-transform ${colorMap[color].split(' ')[1]}`}>
-        {icon && React.cloneElement(icon as React.ReactElement, { size: 64 })}
+        {/* Added React.ReactElement<any> cast to fix property access error */}
+        {icon && React.cloneElement(icon as React.ReactElement<any>, { size: 64 })}
       </div>
     </div>
   );

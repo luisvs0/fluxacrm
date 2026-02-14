@@ -6,6 +6,8 @@ import { supabase } from '../lib/supabase';
 interface NewSquadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // Added user prop to match usage in Squads.tsx
+  user: any;
 }
 
 interface DBUser {
@@ -14,7 +16,7 @@ interface DBUser {
   email?: string;
 }
 
-const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose }) => {
+const NewSquadModal: React.FC<NewSquadModalProps> = ({ isOpen, onClose, user }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isActive, setIsActive] = useState(true);

@@ -60,7 +60,8 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({ isOpen, onClo
           start_time: startDateTime,
           end_time: endDateTime,
           description: formData.description,
-          is_completed: false
+          is_completed: false,
+          notified: false // Garantindo o estado inicial
         }]);
 
       if (error) throw error;

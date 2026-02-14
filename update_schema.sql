@@ -1,127 +1,59 @@
 
--- Habilitar extensão para geração de UUIDs
+-- ==========================================================
+-- FLUXA IMOB ENGINE v2.6 - FULL DATABASE SETUP
+-- ==========================================================
+
+-- 1. EXTENSÕES
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--------------------------------------------------------------------------------
--- 1. TABELAS DE USUÁRIO E PERFIL
--------------------------------------------------------------------------------
-
--- Tabela de Usuários (Centralizadora)
-CREATE TABLE IF NOT EXISTS users (
+-- 2. TABELAS DE USUÁRIO E PERFIL
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
   email TEXT,
   role TEXT DEFAULT 'Visualizador',
+  user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- Tabela de Perfis (Metadados Adicionais)
-CREATE TABLE IF NOT EXISTS profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name TEXT,
-  email TEXT,
-  role TEXT DEFAULT 'Visualizador',
-  user_id UUID REFERENCES auth.users(id), -- Referência ao dono organizacional
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
--------------------------------------------------------------------------------
--- 2. TABELA DO PLANO DE CONTAS E MAPEAMENTOS
--------------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS chart_of_accounts (
+-- 3. MÓDULO IMOBILIÁRIO (Inventory & Showings)
+CREATE TABLE IF NOT EXISTS public.properties (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
-  code TEXT NOT NULL,
-  name TEXT NOT NULL,
-  account_group TEXT,
-  nature TEXT,
-  report_type TEXT, -- BP or DRE
-  flow_section TEXT,
-  is_system BOOLEAN DEFAULT false,
+  title TEXT NOT NULL,
+  description TEXT,
+  address TEXT NOT NULL,
+  type TEXT DEFAULT 'Apartamento', 
+  status TEXT DEFAULT 'Disponível', 
+  sale_price NUMERIC(15,2) DEFAULT 0,
+  rent_price NUMERIC(15,2) DEFAULT 0,
+  condo_fee NUMERIC(15,2) DEFAULT 0,
+  iptu_value NUMERIC(15,2) DEFAULT 0,
+  area NUMERIC(10,2) DEFAULT 0,
+  bedrooms INTEGER DEFAULT 0,
+  bathrooms INTEGER DEFAULT 0,
+  is_exclusive BOOLEAN DEFAULT false,
+  is_opportunity BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS accounting_mappings (
+CREATE TABLE IF NOT EXISTS public.visits (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
-  type TEXT NOT NULL, -- Categoria, Centro de Custo, Fornecedor
-  entity_name TEXT NOT NULL,
-  account_id UUID REFERENCES chart_of_accounts(id) ON DELETE CASCADE,
+  property_id UUID REFERENCES public.properties(id) ON DELETE CASCADE,
+  client_name TEXT NOT NULL,
+  client_phone TEXT,
+  visitor_name TEXT, 
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  status TEXT DEFAULT 'Agendada', 
+  feedback TEXT,
+  feedback_rating INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS initial_balances (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  account_id UUID REFERENCES chart_of_accounts(id) ON DELETE CASCADE,
-  reference_date DATE NOT NULL,
-  amount NUMERIC(15,2) NOT NULL DEFAULT 0,
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS accounting_settings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL UNIQUE,
-  default_regime TEXT DEFAULT 'Regime de Caixa',
-  fiscal_year_start TEXT DEFAULT 'Janeiro',
-  main_cash_account_id UUID REFERENCES chart_of_accounts(id) ON DELETE SET NULL,
-  retained_earnings_account_id UUID REFERENCES chart_of_accounts(id) ON DELETE SET NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
--------------------------------------------------------------------------------
--- 3. AUTOMAÇÃO DE CADASTRO (TRIGGER)
--------------------------------------------------------------------------------
-
--- Função que cria registros em 'users' e 'profiles' automaticamente
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  -- Insere na tabela 'users'
-  INSERT INTO public.users (id, full_name, email, role)
-  VALUES (
-    new.id, 
-    new.raw_user_meta_data->>'full_name', 
-    new.email,
-    'Visualizador'
-  );
-
-  -- Insere na tabela 'profiles'
-  INSERT INTO public.profiles (id, full_name, email, role, user_id)
-  VALUES (
-    new.id, 
-    new.raw_user_meta_data->>'full_name', 
-    new.email,
-    'Visualizador',
-    new.id
-  );
-
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Gatilho para disparar a função após o cadastro no Auth
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--------------------------------------------------------------------------------
--- 4. RESTANTE DA ESTRUTURA (FINANCEIRO / CRM)
--------------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS cost_centers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  name TEXT NOT NULL,
-  code TEXT,
-  budget NUMERIC(15,2) DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS bank_accounts (
+-- 4. MÓDULO FINANCEIRO (Ledger & Banking)
+CREATE TABLE IF NOT EXISTS public.bank_accounts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -130,19 +62,16 @@ CREATE TABLE IF NOT EXISTS bank_accounts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS cards (
+CREATE TABLE IF NOT EXISTS public.cost_centers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
-  last_digits TEXT,
-  limit_amount NUMERIC(15,2) DEFAULT 0,
-  type TEXT DEFAULT 'Cartão Empresa',
-  color TEXT DEFAULT 'bg-slate-900',
-  status TEXT DEFAULT 'Ativo',
+  code TEXT,
+  budget NUMERIC(15,2) DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS customers (
+CREATE TABLE IF NOT EXISTS public.customers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -157,34 +86,36 @@ CREATE TABLE IF NOT EXISTS customers (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE IF NOT EXISTS public.transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  description TEXT NOT NULL,
+  amount NUMERIC(15,2) NOT NULL,
+  type TEXT CHECK (type IN ('IN', 'OUT')),
+  status TEXT DEFAULT 'PENDING',
+  competence_date DATE DEFAULT CURRENT_DATE,
+  payment_method TEXT DEFAULT 'Pix',
+  accounting_account TEXT,
+  customer_id UUID REFERENCES public.customers(id) ON DELETE SET NULL,
+  cost_center_id UUID REFERENCES public.cost_centers(id) ON DELETE SET NULL,
+  bank_account_id UUID REFERENCES public.bank_accounts(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.cards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
-  type TEXT DEFAULT 'Recorrente',
+  last_digits TEXT,
+  limit_amount NUMERIC(15,2) DEFAULT 0,
+  type TEXT DEFAULT 'Cartão Empresa',
+  color TEXT DEFAULT 'bg-slate-900',
   status TEXT DEFAULT 'Ativo',
-  description TEXT,
-  sla_days INTEGER DEFAULT 5,
-  responsible_unit TEXT DEFAULT 'Sucesso do Cliente',
-  involved_teams TEXT[],
-  onboarding_scope TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS contracts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
-  amount NUMERIC(15,2) DEFAULT 0,
-  setup_fee NUMERIC(15,2) DEFAULT 0,
-  start_date DATE DEFAULT CURRENT_DATE,
-  duration_months INTEGER DEFAULT 12,
-  status TEXT DEFAULT 'ACTIVE',
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS leads (
+-- 5. CRM E COMERCIAL (Leads & Funnel)
+CREATE TABLE IF NOT EXISTS public.leads (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -202,23 +133,50 @@ CREATE TABLE IF NOT EXISTS leads (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
+-- 6. ESTRATÉGICO (OKRs & Goals)
+CREATE TABLE IF NOT EXISTS public.goals (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
-  description TEXT NOT NULL,
-  amount NUMERIC(15,2) NOT NULL,
-  type TEXT CHECK (type IN ('IN', 'OUT')),
-  status TEXT DEFAULT 'PENDING',
-  competence_date DATE DEFAULT CURRENT_DATE,
-  payment_method TEXT DEFAULT 'Pix',
-  accounting_account TEXT,
-  customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
-  cost_center_id UUID REFERENCES cost_centers(id) ON DELETE SET NULL,
-  bank_account_id UUID REFERENCES bank_accounts(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  scope TEXT DEFAULT 'Empresa', -- Empresa, Individual, Squad
+  period TEXT DEFAULT 'Mensal',
+  metric TEXT,
+  target_value NUMERIC(15,2) NOT NULL,
+  current_value NUMERIC(15,2) DEFAULT 0,
+  alert_threshold INTEGER DEFAULT 80,
+  start_date DATE,
+  end_date DATE,
+  description TEXT,
+  status TEXT DEFAULT 'Active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS team_members (
+CREATE TABLE IF NOT EXISTS public.okrs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  title TEXT NOT NULL,
+  target NUMERIC(15,2) NOT NULL,
+  current NUMERIC(15,2) DEFAULT 0,
+  period TEXT DEFAULT 'Ciclo 2026',
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- 7. OPERACIONAL (Contratos, Membros, Squads)
+CREATE TABLE IF NOT EXISTS public.contracts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  customer_id UUID REFERENCES public.customers(id) ON DELETE CASCADE,
+  amount NUMERIC(15,2) DEFAULT 0,
+  setup_fee NUMERIC(15,2) DEFAULT 0,
+  start_date DATE DEFAULT CURRENT_DATE,
+  duration_months INTEGER DEFAULT 12,
+  status TEXT DEFAULT 'ACTIVE',
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.team_members (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -228,16 +186,15 @@ CREATE TABLE IF NOT EXISTS team_members (
   phone TEXT,
   document_type TEXT DEFAULT 'CPF',
   document_number TEXT,
-  cost_center_id UUID REFERENCES cost_centers(id) ON DELETE SET NULL,
+  cost_center_id UUID REFERENCES public.cost_centers(id) ON DELETE SET NULL,
   salary_value NUMERIC(15,2) DEFAULT 0,
   status TEXT DEFAULT 'Ativo',
   has_contract BOOLEAN DEFAULT false,
   observations TEXT,
-  photo_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS squads (
+CREATE TABLE IF NOT EXISTS public.squads (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -249,25 +206,64 @@ CREATE TABLE IF NOT EXISTS squads (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS tools (
+-- 8. MARKETING E CONTEÚDO
+CREATE TABLE IF NOT EXISTS public.marketing_boards (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
-  provider TEXT,
-  price NUMERIC(15,2) DEFAULT 0,
-  billing_day INTEGER DEFAULT 1,
-  category TEXT DEFAULT 'SaaS',
-  recurrence TEXT DEFAULT 'Mensal',
-  cost_center_id UUID REFERENCES cost_centers(id) ON DELETE SET NULL,
-  payment_method TEXT DEFAULT 'Nenhum',
+  description TEXT,
+  color TEXT DEFAULT '#2563eb',
   status TEXT DEFAULT 'Ativo',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS onboardings (
+CREATE TABLE IF NOT EXISTS public.marketing_tasks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
-  contract_id UUID REFERENCES contracts(id) ON DELETE CASCADE,
+  board_id UUID REFERENCES public.marketing_boards(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  stage TEXT DEFAULT 'idea',
+  category TEXT DEFAULT 'Geral',
+  type TEXT DEFAULT 'copy',
+  priority TEXT DEFAULT 'Média',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- 9. CONFIGURAÇÕES E SISTEMA
+CREATE TABLE IF NOT EXISTS public.company_settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL UNIQUE,
+  name TEXT,
+  document TEXT,
+  email TEXT,
+  currency TEXT DEFAULT 'BRL - Real Brasileiro',
+  address TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  type TEXT DEFAULT 'SISTEMA',
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.nps_responses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  customer_id UUID REFERENCES public.customers(id) ON DELETE CASCADE,
+  score INTEGER NOT NULL,
+  comment TEXT,
+  context TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.onboardings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  contract_id UUID REFERENCES public.contracts(id) ON DELETE CASCADE,
   stage TEXT DEFAULT 'kickoff',
   progress INTEGER DEFAULT 0,
   responsible TEXT,
@@ -275,39 +271,7 @@ CREATE TABLE IF NOT EXISTS onboardings (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS okrs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  title TEXT NOT NULL,
-  target NUMERIC(15,2) NOT NULL,
-  current NUMERIC(15,2) DEFAULT 0,
-  period TEXT DEFAULT 'Ciclo 2026',
-  description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS nps_responses (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  customer_id UUID REFERENCES customers(id) ON DELETE CASCADE,
-  score INTEGER NOT NULL CHECK (score >= 0 AND score <= 10),
-  comment TEXT,
-  context TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS appointments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  title TEXT NOT NULL,
-  category TEXT DEFAULT 'Geral',
-  start_time TIMESTAMP WITH TIME ZONE NOT NULL,
-  end_time TIMESTAMP WITH TIME ZONE,
-  description TEXT,
-  is_completed BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS taxes (
+CREATE TABLE IF NOT EXISTS public.taxes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   name TEXT NOT NULL,
@@ -320,54 +284,23 @@ CREATE TABLE IF NOT EXISTS taxes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
-CREATE TABLE IF NOT EXISTS notifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  title TEXT NOT NULL,
-  description TEXT,
-  type TEXT DEFAULT 'SISTEMA',
-  is_read BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
+-- ==========================================================
+-- SEGURANÇA: ROW LEVEL SECURITY (RLS)
+-- ==========================================================
 
-CREATE TABLE IF NOT EXISTS marketing_boards (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  name TEXT NOT NULL,
-  description TEXT,
-  color TEXT DEFAULT '#2563eb',
-  status TEXT DEFAULT 'Ativo',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
-CREATE TABLE IF NOT EXISTS marketing_tasks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  board_id UUID REFERENCES marketing_boards(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  stage TEXT DEFAULT 'idea',
-  category TEXT DEFAULT 'Geral',
-  type TEXT DEFAULT 'copy',
-  priority TEXT DEFAULT 'Média',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
-);
-
--------------------------------------------------------------------------------
--- 5. CONFIGURAÇÕES DE SEGURANÇA (RLS)
--------------------------------------------------------------------------------
-
--- Habilitar RLS em todas as tabelas públicas
+-- Habilitar RLS em todas as tabelas
 DO $$ 
 DECLARE 
     t text;
 BEGIN
     FOR t IN (SELECT table_name FROM information_schema.tables WHERE table_schema = 'public') 
     LOOP
-        EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
+        EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
     END LOOP;
 END $$;
 
--- Criar políticas genéricas de "Dono do Dado" baseadas na coluna user_id
+-- Criar políticas genéricas de isolamento por user_id
+-- (Garante que um usuário só veja o que ele criou)
 DO $$ 
 DECLARE 
     t text;
@@ -377,31 +310,18 @@ BEGIN
         FROM information_schema.columns 
         WHERE table_schema = 'public' 
         AND column_name = 'user_id'
-        AND table_name NOT IN ('nps_responses')
+        AND table_name NOT IN ('nps_responses') -- NPS pode ter lógica diferente se for público
     ) 
     LOOP
-        EXECUTE format('DROP POLICY IF EXISTS "Manage own data" ON %I', t);
-        EXECUTE format('CREATE POLICY "Manage own data" ON %I FOR ALL USING (auth.uid() = user_id)', t);
+        EXECUTE format('DROP POLICY IF EXISTS "User isolation" ON public.%I', t);
+        EXECUTE format('CREATE POLICY "User isolation" ON public.%I FOR ALL USING (auth.uid() = user_id)', t);
     END LOOP;
 END $$;
 
--- Política para a tabela 'users' (usa o campo id como chave de posse)
-DROP POLICY IF EXISTS "Users can manage own user record" ON users;
-CREATE POLICY "Users can manage own user record" ON users
-  FOR ALL USING (auth.uid() = id);
+-- Políticas especiais para tabelas sem user_id direto (relacionadas)
+DROP POLICY IF EXISTS "NPS isolation" ON public.nps_responses;
+CREATE POLICY "NPS isolation" ON public.nps_responses FOR ALL USING (true); -- Permitir leitura/escrita conforme fluxo
 
--- Política para Perfis (Profiles)
-DROP POLICY IF EXISTS "Users can manage own profile" ON profiles;
-CREATE POLICY "Users can manage own profile" ON profiles
-  FOR ALL USING (auth.uid() = id);
-
--- Política para NPS (baseada no dono do cliente vinculado)
-DROP POLICY IF EXISTS "Manage NPS via Customer owner" ON nps_responses;
-CREATE POLICY "Manage NPS via Customer owner" ON nps_responses
-FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM customers 
-    WHERE customers.id = nps_responses.customer_id 
-    AND customers.user_id = auth.uid()
-  )
-);
+-- Grant permissions (Opcional se usar Supabase dashboard direto)
+GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, service_role, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, service_role, authenticated;

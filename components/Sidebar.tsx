@@ -35,7 +35,11 @@ import {
   Users2,
   FileSignature,
   ShieldCheck,
-  Loader2
+  Loader2,
+  Home,
+  MapPin,
+  HandCoins,
+  Eye
 } from 'lucide-react';
 import { NavItem } from '../types';
 import { supabase } from '../lib/supabase';
@@ -61,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onNavigate, 
   activeView 
 }) => {
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Financeiro', 'Operacional', 'Comercial']);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Imobiliária', 'Financeiro', 'Operacional', 'Comercial']);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const toggleMenu = (id: string) => {
@@ -83,6 +87,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   const userInitial = (userName || userEmail || 'U').substring(0, 1).toUpperCase();
 
   const navItems: NavItem[] = [
+    { 
+      id: 'Imobiliária', 
+      label: 'Imobiliária', 
+      icon: <Home size={18} />,
+      subItems: [
+        { id: 'Imóveis', label: 'Gestão de Imóveis', icon: <MapPin size={16} /> },
+        { id: 'Visitas', label: 'Controle de Visitas', icon: <Eye size={16} /> },
+        { id: 'Repasses', label: 'Gestão de Repasses', icon: <HandCoins size={16} /> },
+      ]
+    },
     { id: 'Agenda', label: 'Agenda', icon: <Calendar size={18} /> },
     { 
       id: 'Financeiro', 
@@ -158,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => isCollapsed ? toggleCollapse() : onNavigate('Dashboard')}
         >
           <img 
-            src="https://lh3.googleusercontent.com/d/1iJOyi_ZfiSUGOMfDpAyXA2U_W6kcMxkF" 
+            src="https://lh3.googleusercontent.com/d/1Cga62qbLuN6sEj_qXQB-8IYIHHN0MVdD" 
             alt="Fluxa Logo" 
             className={`transition-all duration-500 object-contain ${isCollapsed ? 'h-7 lg:h-7 lg:w-7' : 'h-8'}`}
           />

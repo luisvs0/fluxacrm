@@ -39,7 +39,8 @@ import {
   Home,
   MapPin,
   HandCoins,
-  Eye
+  Eye,
+  ClipboardCheck
 } from 'lucide-react';
 import { NavItem } from '../types';
 import { supabase } from '../lib/supabase';
@@ -94,6 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       subItems: [
         { id: 'Imóveis', label: 'Gestão de Imóveis', icon: <MapPin size={16} /> },
         { id: 'Visitas', label: 'Controle de Visitas', icon: <Eye size={16} /> },
+        { id: 'Vistorias', label: 'Vistorias Técnicas', icon: <ClipboardCheck size={16} /> },
         { id: 'Repasses', label: 'Gestão de Repasses', icon: <HandCoins size={16} /> },
       ]
     },
@@ -287,7 +289,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className="flex flex-col items-center justify-center gap-2 p-3.5 bg-white border border-slate-100 text-slate-400 hover:text-rose-600 hover:border-rose-100 hover:bg-rose-50 rounded-2xl transition-all shadow-sm group disabled:opacity-50"
           >
             {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
-            <span className="text-[10px] font-medium uppercase tracking-widest">Sair</span>
+            <span className="text-[10px) font-medium uppercase tracking-widest">Sair</span>
           </button>
         </div>
 

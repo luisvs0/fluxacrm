@@ -31,6 +31,7 @@ import DashboardTv from './components/DashboardTv';
 import LoginView from './components/LoginView';
 import Properties from './components/Properties';
 import Visits from './components/Visits';
+import Inspections from './components/Inspections';
 import Disbursements from './components/Disbursements';
 import { supabase } from './lib/supabase';
 
@@ -64,6 +65,7 @@ const App: React.FC = () => {
       // Imobiliária
       case 'Imóveis': return <Properties user={user} />;
       case 'Visitas': return <Visits user={user} />;
+      case 'Vistorias': return <Inspections user={user} />;
       case 'Repasses': return <Disbursements user={user} />;
 
       case 'Lançamentos': return <Transactions user={user} />;

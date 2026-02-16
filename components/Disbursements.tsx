@@ -20,9 +20,12 @@ import {
   MoreVertical,
   Download,
   FileText,
-  X
+  X,
+  ShieldCheck,
+  Activity
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import StatCard from './StatCard';
 
 interface DisbursementsProps {
   user: any;
@@ -98,207 +101,201 @@ const Disbursements: React.FC<DisbursementsProps> = ({ user }) => {
   };
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
+    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-20 relative overflow-hidden">
+      {/* Background Micro-Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
+      </div>
+
+      <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none z-0" />
       
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      {/* Header Premium */}
+      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-             <ArrowRightLeft size={16} className="text-blue-500" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Administration & Rent Management</span>
+          <div className="flex items-center gap-3 mb-3">
+             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                <HandCoins size={20} className="text-blue-400" />
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Administration & Rent Ledger SQL</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight uppercase">Repasses Financeiros</h2>
-          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-1">Gestão de liquidação de aluguéis e comissões</p>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
+            Repasses <span className="text-[#203267] not-italic">Financeiros</span>
+          </h1>
+          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Gestão de liquidação de aluguéis e comissões corporativas</p>
         </div>
+        
         <div className="flex items-center gap-3 w-full md:w-auto">
-           <button onClick={fetchDisbursements} className="p-3 bg-white border-2 border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><RefreshCcw size={18} className={isLoading ? 'animate-spin' : ''} /></button>
-           <button className="flex-1 md:flex-none bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20">Processar Lote</button>
+          <button onClick={fetchDisbursements} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all shadow-sm">
+            <RefreshCcw size={22} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+          <button className="flex-1 md:flex-none bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all active:scale-95">
+             Processar Lote SQL
+          </button>
         </div>
       </div>
 
-      {/* KPI Row Aprimorada */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white border-2 border-blue-50 rounded-[2.5rem] p-8 shadow-sm flex items-center justify-between group hover:border-blue-500 transition-all">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total a Repassar</p>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tighter">{formatCurrency(summary.net)}</h3>
-            <span className="text-[9px] font-bold text-blue-500 uppercase flex items-center gap-1 mt-1">
-              <Clock size={10} /> Ciclo Fev/26
-            </span>
+      <div className="relative z-10 px-4 md:px-10 mt-10 space-y-12">
+        {/* Tier 1: KPIs Executivos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Total a Repassar" value={formatCurrency(summary.net)} subtitle="Ciclo Atual Auditado" icon={<HandCoins />} color="blue" />
+          <StatCard title="Taxas Adm (MRR)" value={formatCurrency(summary.fees)} subtitle="Receita Líquida Imob" icon={<TrendingUp />} color="emerald" />
+          <StatCard title="Liquidação Pendente" value={summary.pendingCount.toString()} subtitle="Registros em Aberto" icon={<Receipt />} color="blue" />
+          <div className="bg-[#0a0c10] border border-slate-700 rounded-xl p-8 shadow-xl flex flex-col justify-between overflow-hidden relative min-h-[160px] group">
+            <div className="relative z-10">
+               <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Sync Health</span>
+               <h3 className="text-3xl font-black tracking-tighter mt-3 italic text-emerald-500">94.8%</h3>
+            </div>
+            <div className="relative z-10 pt-3 border-t border-white/5 flex items-center gap-2">
+               <Activity size={12} className="text-blue-500 animate-pulse" />
+               <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Database Node Realtime</span>
+            </div>
+            <Database size={120} className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:scale-110 transition-transform" />
           </div>
-          <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"><HandCoins size={28} /></div>
         </div>
 
-        <div className="bg-white border-2 border-emerald-50 rounded-[2.5rem] p-8 shadow-sm flex items-center justify-between group hover:border-emerald-500 transition-all">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Taxas de Adm. (MRR)</p>
-            <h3 className="text-2xl font-black text-emerald-600 tracking-tighter">{formatCurrency(summary.fees)}</h3>
-            <span className="text-[9px] font-bold text-emerald-400 uppercase flex items-center gap-1 mt-1">
-               <TrendingUp size={10} /> Receita Líquida Imob.
-            </span>
+        {/* Tabela Journal Premium */}
+        <div className="space-y-8 pb-10">
+          <div className="bg-white border border-slate-300 p-2 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4 overflow-hidden">
+             <div className="px-4 py-2">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest italic flex items-center gap-2">
+                  <span className="w-1.5 h-3 bg-[#203267] rounded-sm"></span> Journal de Liquidação
+                </h3>
+             </div>
+             <div className="flex items-center gap-3 pr-4">
+                <div className="relative">
+                  <select className="bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-[10px] font-black uppercase appearance-none pr-10 outline-none focus:border-[#203267] transition-all">
+                    <option>Ciclo Fevereiro / 2026</option>
+                    <option>Ciclo Janeiro / 2026</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                </div>
+             </div>
           </div>
-          <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"><DollarSign size={28} /></div>
-        </div>
 
-        <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex items-center justify-between group hover:border-slate-400 transition-all">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Aguardando Liquidação</p>
-            <h3 className="text-2xl font-black text-slate-400 tracking-tighter">{summary.pendingCount}</h3>
-            <span className="text-[9px] font-bold text-slate-300 uppercase flex items-center gap-1 mt-1">
-               <AlertCircle size={10} /> Boletos em aberto
-            </span>
-          </div>
-          <div className="w-14 h-14 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"><Receipt size={28} /></div>
-        </div>
-
-        <div className="bg-blue-600 rounded-[2.5rem] p-8 shadow-2xl flex flex-col justify-center group overflow-hidden relative">
-           <div className="relative z-10">
-              <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-2">Status da Conciliação</p>
-              <h3 className="text-2xl font-black text-white tracking-tighter">94%</h3>
-              <div className="w-full bg-white/20 h-1.5 rounded-full mt-4 overflow-hidden">
-                <div className="bg-white h-full" style={{ width: '94%' }}></div>
-              </div>
-           </div>
-           <CheckCircle2 className="absolute -right-4 -bottom-4 text-white/10 w-24 h-24 group-hover:scale-110 transition-transform" />
-        </div>
-      </div>
-
-      <div className="bg-white border-2 border-slate-100 rounded-[3rem] shadow-xl overflow-hidden min-h-[500px] flex flex-col">
-        <div className="p-10 border-b-2 border-slate-50 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-slate-50/20">
-           <div>
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Journal de Liquidação</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Processamento individual por contrato</p>
-           </div>
-           <div className="flex items-center gap-3">
-              <div className="relative">
-                <select className="bg-white border-2 border-slate-100 rounded-xl px-4 py-2 text-[10px] font-black uppercase appearance-none pr-10 outline-none focus:border-blue-400 transition-all">
-                  <option>Fevereiro / 2026</option>
-                  <option>Janeiro / 2026</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              </div>
-           </div>
-        </div>
-
-        <div className="overflow-x-auto no-scrollbar flex-1">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
-             <thead>
-               <tr className="bg-white border-b-2 border-slate-50">
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Imóvel & Proprietário</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Aluguel Bruto</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Taxa Imob (10%)</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Líquido Repasse</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Status</th>
-                  <th className="px-8 py-6 w-10"></th>
-               </tr>
-             </thead>
-             <tbody className="divide-y-2 divide-slate-50">
-               {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="py-40 text-center">
-                      <Loader2 className="animate-spin mx-auto text-blue-500 mb-4" size={40} />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Calculando Repasses...</p>
-                    </td>
+          <div className="bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col transition-all hover:shadow-xl duration-700">
+            <div className="overflow-x-auto no-scrollbar flex-1">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-300">
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Imóvel & Proprietário</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Aluguel Bruto</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Taxa Imob (10%)</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Líquido Repasse</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Status</th>
+                    <th className="px-10 py-6 w-10"></th>
                   </tr>
-               ) : disbursements.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-40 text-center opacity-30">
-                       <HandCoins size={48} className="mx-auto text-slate-200 mb-4" />
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Nenhum aluguel ativo para repasse</p>
-                    </td>
-                  </tr>
-               ) : (
-                 disbursements.map((item) => (
-                   <tr key={item.id} className="hover:bg-slate-50 transition-all group">
-                     <td className="px-10 py-6">
-                        <div className="flex flex-col">
-                           <span className="text-sm font-black text-slate-900 tracking-tight uppercase group-hover:text-blue-600 transition-colors">{item.property_title}</span>
-                           <span className="text-[10px] font-bold text-slate-400 uppercase truncate max-w-[250px]">{item.owner_name}</span>
-                        </div>
-                     </td>
-                     <td className="px-8 py-6">
-                        <span className="text-sm font-black text-slate-900">{formatCurrency(item.gross_rent)}</span>
-                     </td>
-                     <td className="px-8 py-6">
-                        <span className="text-sm font-black text-rose-500">-{formatCurrency(item.admin_fee)}</span>
-                     </td>
-                     <td className="px-8 py-6">
-                        <div className="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 inline-block">
-                           <span className="text-sm font-black text-emerald-600">{formatCurrency(item.net_repasse)}</span>
-                        </div>
-                     </td>
-                     <td className="px-8 py-6 text-center">
-                        <span className={`text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border-2 shadow-sm ${
-                          item.status === 'Pago' ? 'bg-emerald-50 text-emerald-600 border-emerald-500' : 
-                          'bg-amber-50 text-amber-600 border-amber-500'
-                        }`}>
-                          {item.status}
-                        </span>
-                     </td>
-                     <td className="px-8 py-6 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                           <button 
-                             onClick={() => setSelectedReceipt(item)}
-                             className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-white rounded-xl transition-all"
-                             title="Ver Recibo"
-                           >
-                              <FileText size={18} />
-                           </button>
-                           <button className="p-2.5 text-slate-200 hover:text-slate-900 transition-all">
-                             <MoreVertical size={18} />
-                           </button>
-                        </div>
-                     </td>
-                   </tr>
-                 ))
-               )}
-             </tbody>
-          </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={6} className="py-40 text-center">
+                        <Loader2 className="animate-spin mx-auto text-[#203267] mb-4" size={40} />
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Auditando Protocolos de Repasse...</p>
+                      </td>
+                    </tr>
+                  ) : disbursements.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-48 text-center opacity-30">
+                        <HandCoins size={60} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Nenhum fluxo de repasse ativo</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    disbursements.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50 transition-all group">
+                        <td className="px-10 py-8">
+                          <div className="flex flex-col">
+                             <span className="text-sm font-black text-slate-900 tracking-tight uppercase group-hover:text-[#203267] transition-colors italic">{item.property_title}</span>
+                             <span className="text-[10px] font-bold text-slate-400 uppercase truncate max-w-[250px] mt-1">{item.owner_name}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-8 text-right">
+                           <span className="text-sm font-black text-slate-900">{formatCurrency(item.gross_rent)}</span>
+                        </td>
+                        <td className="px-8 py-8 text-right">
+                           <span className="text-sm font-black text-rose-500 italic">-{formatCurrency(item.admin_fee)}</span>
+                        </td>
+                        <td className="px-8 py-8 text-right">
+                           <div className="inline-flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-300 shadow-sm group-hover:scale-105 transition-transform">
+                              <span className="text-sm font-black text-emerald-600">{formatCurrency(item.net_repasse)}</span>
+                           </div>
+                        </td>
+                        <td className="px-8 py-8 text-center">
+                           <span className={`text-[9px] font-black px-5 py-2 rounded-md uppercase tracking-widest border transition-all ${
+                             item.status === 'Pago' ? 'bg-emerald-50 text-emerald-600 border-emerald-300' : 'bg-amber-50 text-amber-600 border-amber-300'
+                           }`}>
+                             {item.status}
+                           </span>
+                        </td>
+                        <td className="px-10 py-8 text-right">
+                           <div className="flex items-center justify-end gap-2">
+                              <button 
+                                onClick={() => setSelectedReceipt(item)}
+                                className="p-3 text-slate-300 hover:text-blue-600 hover:bg-white rounded-lg transition-all border border-transparent hover:border-slate-200 shadow-sm"
+                                title="Ver Comprovante"
+                              >
+                                 <FileText size={18} />
+                              </button>
+                              <button className="p-3 text-slate-300 hover:text-slate-900 transition-all active:scale-90">
+                                <MoreVertical size={18} />
+                              </button>
+                           </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Modal de Recibo (Simulado) */}
+      {/* Modal de Comprovante Premium */}
       {selectedReceipt && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setSelectedReceipt(null)} />
-           <div className="relative bg-white w-full max-w-[500px] rounded-[3rem] shadow-2xl p-10 overflow-hidden animate-in zoom-in-95 duration-300">
+           <div className="relative bg-white w-full max-w-[500px] rounded-xl shadow-2xl p-10 overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-300">
               <div className="flex justify-between items-start mb-10">
-                 <div className="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><FileText size={24} /></div>
-                 <button onClick={() => setSelectedReceipt(null)} className="p-2 hover:bg-slate-50 rounded-full text-slate-300"><X size={20}/></button>
+                 <div className="w-14 h-14 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-lg border border-slate-700 italic"><FileText size={24} className="text-blue-400" /></div>
+                 <button onClick={() => setSelectedReceipt(null)} className="p-2 hover:bg-slate-50 rounded-lg text-slate-300 transition-colors border border-slate-200"><X size={20}/></button>
               </div>
               
               <div className="space-y-8">
                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Comprovante de Repasse</h3>
-                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Auditado via Fluxa Engine SQL</p>
+                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">Comprovante de <span className="text-[#203267] not-italic">Repasse</span></h3>
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-3">Auditado via Fluxa Intelligence Engine SQL</p>
                  </div>
 
-                 <div className="space-y-4 border-y border-slate-50 py-8">
-                    <div className="flex justify-between">
-                       <span className="text-[10px] font-black text-slate-400 uppercase">Proprietário</span>
-                       <span className="text-sm font-bold text-slate-900 uppercase">{selectedReceipt.owner_name}</span>
+                 <div className="space-y-5 border-y border-slate-100 py-8">
+                    <div className="flex justify-between items-center">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Protocolo Destino</span>
+                       <span className="text-sm font-bold text-slate-900 uppercase italic">{selectedReceipt.owner_name}</span>
                     </div>
-                    <div className="flex justify-between">
-                       <span className="text-[10px] font-black text-slate-400 uppercase">Imóvel</span>
+                    <div className="flex justify-between items-center">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ativo Referência</span>
                        <span className="text-sm font-bold text-slate-900 uppercase truncate max-w-[200px]">{selectedReceipt.property_title}</span>
                     </div>
-                    <div className="flex justify-between">
-                       <span className="text-[10px] font-black text-slate-400 uppercase">Valor do Aluguel</span>
-                       <span className="text-sm font-bold text-slate-900">{formatCurrency(selectedReceipt.gross_rent)}</span>
+                    <div className="flex justify-between items-center pt-2">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Aluguel Bruto</span>
+                       <span className="text-sm font-black text-slate-900">{formatCurrency(selectedReceipt.gross_rent)}</span>
                     </div>
-                    <div className="flex justify-between">
-                       <span className="text-[10px] font-black text-rose-400 uppercase">Taxa de Administração</span>
-                       <span className="text-sm font-bold text-rose-500">-{formatCurrency(selectedReceipt.admin_fee)}</span>
+                    <div className="flex justify-between items-center">
+                       <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Taxa Administrativa</span>
+                       <span className="text-sm font-black text-rose-500 italic">-{formatCurrency(selectedReceipt.admin_fee)}</span>
                     </div>
                  </div>
 
-                 <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 flex items-center justify-between">
-                    <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Valor Líquido</span>
-                    <span className="text-2xl font-black text-blue-600 tracking-tighter">{formatCurrency(selectedReceipt.net_repasse)}</span>
+                 <div className="bg-slate-900 p-8 rounded-xl border border-slate-700 shadow-2xl flex items-center justify-between relative overflow-hidden group">
+                    <div className="relative z-10">
+                       <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Liquidação Líquida</span>
+                       <p className="text-3xl font-black text-emerald-500 tracking-tighter italic mt-1">{formatCurrency(selectedReceipt.net_repasse)}</p>
+                    </div>
+                    <ShieldCheck size={48} className="text-white/5 absolute -right-4 -bottom-4 group-hover:scale-110 transition-transform" />
                  </div>
 
-                 <button className="w-full py-4 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-                    <Download size={16} /> Baixar PDF Auditoria
+                 <button className="w-full py-5 bg-[#203267] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3 shadow-xl active:scale-95">
+                    <Download size={18} /> Baixar Auditoria PDF
                  </button>
               </div>
            </div>

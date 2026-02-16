@@ -15,8 +15,7 @@ import {
   Loader2,
   Database,
   ExternalLink,
-  RefreshCcw,
-  UserCheck
+  RefreshCcw
 } from 'lucide-react';
 import NewLeadModal from './NewLeadModal';
 import ImportLeadsModal from './ImportLeadsModal';
@@ -41,7 +40,7 @@ const Leads: React.FC<LeadsProps> = ({ user }) => {
       const { data, error } = await supabase
         .from('leads')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) // GARANTIR ISOLAMENTO
         .order('created_at', { ascending: false });
       if (error) throw error;
       setLeads(data || []);
@@ -70,132 +69,104 @@ const Leads: React.FC<LeadsProps> = ({ user }) => {
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
+    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   };
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-20 relative overflow-hidden">
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
-           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
-      </div>
-
-      {/* Header Premium */}
-      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-10 px-4 md:px-10 pt-6 md:pt-8">
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
-                <UserCheck size={20} className="text-blue-400" />
-             </div>
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Customer Database SQL</span>
+          <div className="flex items-center gap-2 mb-1">
+             <Database size={16} className="text-blue-500 shrink-0" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Leads Intelligence</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
-            Intelligence <span className="text-[#203267] not-italic">Leads</span>
-          </h1>
-          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Exibindo {filteredLeads.length} registros auditados</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Leads Central</h2>
+          <p className="text-slate-500 font-medium text-xs md:text-sm">Exibindo {filteredLeads.length} leads da sua conta.</p>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           <button 
             onClick={() => setIsNewLeadModalOpen(true)}
-            className="flex-1 md:flex-none bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
+            className="flex-1 md:flex-none bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2"
           >
-            <Plus size={18} strokeWidth={3} /> Novo Lead
-          </button>
-          <button onClick={fetchLeads} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all">
-            <RefreshCcw size={22} className={isLoading ? 'animate-spin' : ''} />
+            <Plus size={18} /> Novo
           </button>
         </div>
       </div>
 
-      {/* Filter Console */}
-      <div className="relative z-10 px-4 md:px-10 mt-10 mb-10">
-        <div className="bg-white border border-slate-300 p-2 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="relative flex-1 lg:max-w-xl group pl-2">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#203267]" size={16} />
-            <input 
-              type="text" 
-              placeholder="Buscar por cliente, empresa ou protocolo..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-lg py-3 pl-12 pr-4 text-xs font-bold focus:border-[#203267] outline-none transition-all"
-            />
-          </div>
-
-          <div className="flex items-center gap-4 pr-6 text-[10px] font-black text-[#203267] uppercase tracking-[0.2em]">
-             <span className="opacity-40 flex items-center gap-2"><Database size={12}/> DB Node Ledger</span>
-             <div className="relative w-2 h-2 rounded-full bg-emerald-500"></div>
-          </div>
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-2 border border-slate-100 rounded-2xl md:rounded-3xl shadow-sm">
+        <div className="relative flex-1 w-full lg:max-w-md ml-0 lg:ml-2">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+          <input 
+            type="text" 
+            placeholder="Buscar nos seus leads..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-50 border-none rounded-xl md:rounded-2xl py-2.5 pl-11 pr-4 text-sm font-medium focus:ring-2 focus:ring-blue-100 transition-all text-slate-600"
+          />
         </div>
       </div>
 
-      {/* Main Table Container */}
-      <div className="relative z-10 px-4 md:px-10">
-        <div className="bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden min-h-[550px] flex flex-col transition-all hover:shadow-xl duration-700">
-          <div className="overflow-x-auto no-scrollbar flex-1">
-            <table className="w-full text-left border-collapse min-w-[950px]">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-300">
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Lead & Organização</th>
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Fase Pipeline</th>
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Valor Estimado</th>
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Data Protocolo</th>
-                  <th className="px-10 py-6 w-10"></th>
+      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[450px]">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-slate-50/30">
+                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead & Organização</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Fase</th>
+                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Valor Est.</th>
+                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Data</th>
+                <th className="px-6 py-5 w-10"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="py-24 text-center">
+                    <Loader2 size={32} className="animate-spin mx-auto text-blue-500 mb-4" />
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando seus registros...</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="py-40 text-center">
-                      <Loader2 className="animate-spin mx-auto text-[#203267] mb-4" size={40} />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Auditando Registros SQL...</p>
+              ) : filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-32 text-center">
+                     <p className="text-xs font-bold text-slate-300 uppercase tracking-[0.2em]">Sem leads cadastrados por você</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-slate-50 transition-all group">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-md italic">
+                          {lead.name.substring(0, 1)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-slate-900 tracking-tight uppercase truncate max-w-[200px]">{lead.name}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">{lead.company || 'Pessoa Física'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-6 text-center">
+                      <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100/50">
+                        {lead.stage || 'lead'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-6 text-right">
+                      <p className="text-sm font-black text-slate-900 tracking-tighter">{formatCurrency(lead.value || 0)}</p>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <span className="text-[10px] font-black text-slate-400 uppercase">{formatDate(lead.created_at)}</span>
+                    </td>
+                    <td className="px-6 py-6 text-right">
+                       <button className="p-2 text-slate-200 hover:text-slate-900"><MoreVertical size={16}/></button>
                     </td>
                   </tr>
-                ) : filteredLeads.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-48 text-center opacity-30">
-                       <UserPlus size={60} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
-                       <p className="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Nenhum lead localizado nesta conta</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredLeads.map((lead) => (
-                    <tr key={lead.id} className="hover:bg-slate-50 transition-all group">
-                      <td className="px-10 py-8">
-                        <div className="flex items-center gap-6">
-                          <div className="w-12 h-12 bg-slate-900 text-white rounded-lg border border-slate-700 flex items-center justify-center font-black text-xs shadow-md italic transition-transform group-hover:scale-105">
-                            {lead.name.substring(0, 1).toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-black text-slate-900 tracking-tight uppercase truncate max-w-[250px] group-hover:text-[#203267] transition-colors">{lead.name}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{lead.company || 'Pessoa Física'}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-10 py-8 text-center">
-                        <span className="text-[9px] font-black bg-indigo-50 text-[#203267] px-4 py-2 rounded-md uppercase tracking-widest border border-slate-300 shadow-sm">
-                          {lead.stage || 'Entrada'}
-                        </span>
-                      </td>
-                      <td className="px-10 py-8 text-right">
-                        <p className="text-lg font-black text-slate-900 tracking-tighter italic">{formatCurrency(lead.value || 0)}</p>
-                      </td>
-                      <td className="px-10 py-8 text-center">
-                        <div className="flex flex-col items-center">
-                           <span className="text-[10px] font-black text-slate-900 uppercase">{formatDate(lead.created_at)}</span>
-                           <span className="text-[8px] font-black text-slate-400 uppercase mt-1 tracking-tighter italic">Registro Live</span>
-                        </div>
-                      </td>
-                      <td className="px-10 py-8 text-right">
-                        <button className="p-3 text-slate-300 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-90">
-                          <MoreVertical size={20} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

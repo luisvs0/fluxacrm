@@ -15,13 +15,12 @@ import {
   Calendar,
   Loader2,
   Database,
-  RefreshCw,
+  RefreshCcw,
   TrendingUp,
   ShieldCheck
 } from 'lucide-react';
 import NewContractModal from './NewContractModal';
 import { supabase } from '../lib/supabase';
-import StatCard from './StatCard';
 
 interface OperationalContratosProps {
   user: any;
@@ -63,11 +62,11 @@ const OperationalContratos: React.FC<OperationalContratosProps> = ({ user }) => 
     const active = contracts.filter(c => c.status === 'ACTIVE' || c.status === 'Em vigor');
     const mrr = active.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
     
-    return {
-      activeCount: active.length,
-      mrrTotal: mrr,
-      totalCount: contracts.length
-    };
+    return [
+      { label: 'MRR Contratual', value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(mrr), trend: 'Consolidado SQL', icon: <CreditCard size={18}/>, color: 'blue' },
+      { label: 'Em Vigência', value: active.length.toString(), trend: 'Ativos agora', icon: <ShieldCheck size={18}/>, color: 'emerald' },
+      { label: 'Sua Base', value: contracts.length.toString(), trend: 'Registros isolados', icon: <FileText size={18}/>, color: 'blue' },
+    ];
   }, [contracts]);
 
   const filteredContracts = useMemo(() => {
@@ -76,139 +75,83 @@ const OperationalContratos: React.FC<OperationalContratosProps> = ({ user }) => 
     );
   }, [contracts, searchTerm]);
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-  };
-
   return (
-    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-20 relative overflow-hidden">
-      {/* Background Micro-Pattern */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
-           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
-      </div>
-
-      <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none z-0" />
+    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
       
-      {/* Header Premium */}
-      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <div className="flex items-center gap-3 mb-3">
-             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
-                <FileText size={20} className="text-blue-400" />
-             </div>
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Contract Management SQL</span>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
+            <FileText size={24} />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
-            Meus <span className="text-[#203267] not-italic">Contratos</span>
-          </h1>
-          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Gestão de vigências e liquidação recorrente da base</p>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+               <Database size={14} className="text-blue-500" />
+               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Dados da Sua Conta</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Meus Contratos</h2>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <button 
-            onClick={() => setIsNewContractModalOpen(true)}
-            className="flex-1 md:flex-none bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
-          >
-            <Plus size={18} strokeWidth={3} /> Novo Contrato
-          </button>
-          <button onClick={fetchContracts} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all">
-            <RefreshCw size={22} className={isLoading ? 'animate-spin' : ''} />
-          </button>
-        </div>
+        <button 
+          onClick={() => setIsNewContractModalOpen(true)}
+          className="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl md:rounded-full text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+        >
+          <Plus size={20} /> Novo Contrato
+        </button>
       </div>
 
-      <div className="relative z-10 px-4 md:px-10 mt-10 space-y-12">
-        {/* Tier 1: KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard title="MRR Contratual" value={formatCurrency(stats.mrrTotal)} subtitle="Receita Líquida Recorrente" icon={<CreditCard />} color="blue" />
-          <StatCard title="Em Vigência" value={stats.activeCount.toString()} subtitle="Ativos Processando" icon={<ShieldCheck />} color="emerald" />
-          <StatCard title="Sua Base Total" value={stats.totalCount.toString()} subtitle="Registros Consolidados" icon={<FileText />} color="blue" />
-        </div>
-
-        {/* Toolbar & Table */}
-        <div className="space-y-8">
-          <div className="bg-white border border-slate-300 p-2 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="relative flex-1 lg:max-w-2xl group pl-2">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#203267]" size={16} />
-              <input 
-                type="text" 
-                placeholder="Buscar por cliente ou ID de protocolo contratual..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg py-3 pl-12 pr-4 text-xs font-bold focus:border-[#203267] outline-none transition-all"
-              />
-            </div>
-            <div className="flex items-center gap-4 pr-6 text-[10px] font-black text-[#203267] uppercase tracking-[0.2em]">
-               <span className="opacity-40 flex items-center gap-2"><Database size={12}/> Distributed Ledger</span>
-               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm group">
+            <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">{stat.label}</p>
+            <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{isLoading ? '...' : stat.value}</h3>
           </div>
+        ))}
+      </div>
 
-          <div className="bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col transition-all hover:shadow-xl duration-700">
-            <div className="overflow-x-auto no-scrollbar flex-1">
-              <table className="w-full text-left border-collapse min-w-[950px]">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-300">
-                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Cliente & Protocolo</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Valor Mensal</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Status Ativo</th>
-                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Assinatura</th>
-                    <th className="px-10 py-6 w-10"></th>
+      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[450px]">
+        {isLoading ? (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Base SQL...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto no-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[850px]">
+              <thead>
+                <tr className="bg-slate-50/30">
+                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cliente & ID</th>
+                  <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Valor Mensal</th>
+                  <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredContracts.map((contract) => (
+                  <tr key={contract.id} className="hover:bg-slate-50 transition-all group">
+                    <td className="px-8 py-6">
+                      <p className="text-sm font-bold text-slate-900 tracking-tight uppercase truncate max-w-[250px]">{contract.customers?.name || 'Cliente'}</p>
+                      <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-0.5">#{contract.id.toString().substring(0,8)}</p>
+                    </td>
+                    <td className="px-6 py-6 text-right">
+                      <p className="text-sm font-black text-slate-900 tracking-tighter">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(contract.amount || 0)}
+                      </p>
+                    </td>
+                    <td className="px-6 py-6 text-center">
+                       <span className={`text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border ${contract.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>
+                         {contract.status === 'ACTIVE' ? 'Em vigor' : 'Inativo'}
+                       </span>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                       <button className="p-2 text-slate-200 hover:text-slate-900"><MoreVertical size={18} /></button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {isLoading ? (
-                    <tr>
-                      <td colSpan={5} className="py-40 text-center">
-                        <Loader2 className="animate-spin mx-auto text-[#203267] mb-4" size={40} />
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Auditando Registros Contratuais...</p>
-                      </td>
-                    </tr>
-                  ) : filteredContracts.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-48 text-center opacity-30">
-                         <FileText size={60} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
-                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Nenhum contrato ativo localizado</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredContracts.map((contract) => (
-                      <tr key={contract.id} className="hover:bg-slate-50 transition-all group">
-                        <td className="px-10 py-8">
-                          <div className="flex flex-col">
-                             <p className="text-sm font-black text-slate-900 tracking-tight uppercase truncate max-w-[250px] group-hover:text-[#203267] transition-colors">{contract.customers?.name || 'Cliente Removido'}</p>
-                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 italic">Vigência: {contract.duration_months} Meses • Protocolo #{contract.id.substring(0,8)}</p>
-                          </div>
-                        </td>
-                        <td className="px-8 py-8 text-right">
-                          <p className="text-lg font-black text-slate-900 tracking-tighter italic">{formatCurrency(contract.amount || 0)}</p>
-                        </td>
-                        <td className="px-8 py-8 text-center">
-                           <span className={`text-[9px] font-black px-5 py-2 rounded-md uppercase tracking-widest border transition-all ${
-                             contract.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border-emerald-300' : 'bg-rose-50 text-rose-600 border-rose-300'
-                           }`}>
-                             {contract.status === 'ACTIVE' ? 'Em vigor' : 'Inativo'}
-                           </span>
-                        </td>
-                        <td className="px-8 py-8 text-center">
-                           <div className="inline-flex items-center gap-2 bg-indigo-50 text-[#203267] px-4 py-2 rounded-lg border border-slate-300 shadow-sm group-hover:scale-105 transition-transform">
-                              <CheckCircle2 size={14} className="text-emerald-500" />
-                              <span className="text-[10px] font-black uppercase tracking-tight">Auditado</span>
-                           </div>
-                        </td>
-                        <td className="px-10 py-8 text-right">
-                           <button className="p-3 text-slate-300 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-90">
-                              <MoreVertical size={20} />
-                           </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
       </div>
 
       <NewContractModal isOpen={isNewContractModalOpen} onClose={() => { setIsNewContractModalOpen(false); fetchContracts(); }} user={user} />

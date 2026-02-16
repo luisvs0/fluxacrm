@@ -18,7 +18,8 @@ import {
   Edit2,
   FileText,
   User,
-  Database
+  Database,
+  Tv
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import StatCard from './StatCard';
@@ -108,66 +109,65 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-700 pb-24 md:pb-10">
       
       {/* Header Responsivo */}
-      <div className="px-4 md:px-8 pt-6 pb-2 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="px-4 md:px-8 pt-8 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-xl md:text-[22px] font-bold text-[#111827] tracking-tight">Dashboard Financeiro</h1>
-          <p className="text-[12px] text-slate-400 font-medium">Visão geral das suas finanças</p>
+          <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Dashboard Financeiro</h1>
+          <p className="text-xs text-slate-400 font-medium">Visão geral das suas finanças</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={fetchDashboardData} className="p-2 border-2 border-slate-200 rounded-lg text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all shadow-sm">
-            <RefreshCcw size={16} className={isLoading ? 'animate-spin' : ''} />
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+             <Tv size={14} className="text-slate-400" /> Modo TV
           </button>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="px-4 md:px-8 mb-6 mt-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="px-4 md:px-8 mb-8 mt-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-6">
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2 mr-2">
-              <Calendar size={14} className="text-slate-400" />
-              <span className="text-[11px] font-medium text-slate-400">Período:</span>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Periodo:</span>
             </div>
             {['Hoje', 'Esta Semana', 'Este Mês', 'Este Ano'].map(p => (
               <button 
                 key={p} 
                 onClick={() => setActivePeriod(p)}
-                className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap border-2 ${activePeriod === p ? 'bg-[#203267] text-white border-[#203267] shadow-sm' : 'bg-white border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-200'}`}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap border ${activePeriod === p ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
               >
                 {p}
               </button>
             ))}
             
-            <div className="h-6 w-px bg-slate-200 mx-2"></div>
+            <div className="h-4 w-px bg-slate-200 mx-2 hidden md:block"></div>
 
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-slate-100 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50 hover:border-slate-200">
-               Realizado <ChevronDown size={12} />
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+               Realizado <ChevronDown size={14} className="text-slate-300" />
             </button>
 
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border-2 border-slate-100 rounded-lg text-[11px] font-bold text-slate-500 hover:bg-slate-50 hover:border-slate-200">
-               <Filter size={12} /> Avançado <ChevronDown size={12} />
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50">
+               <Filter size={14} className="text-slate-300" /> Avançado <ChevronDown size={14} className="text-slate-300" />
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
-             <span>Visualizando: <strong className="text-slate-600">{activePeriod}</strong></span>
-             <span className="mx-1">|</span>
-             <span>Modo: <strong className="text-slate-600">Realizado</strong></span>
-             <span className="mx-1">|</span>
-             <span>Meta: <strong className="text-slate-600">Mensal</strong></span>
+          <div className="flex items-center gap-4 text-[11px] text-slate-400 font-medium">
+             <span>Visualizando: <strong className="text-slate-800">{activePeriod}</strong></span>
+             <span className="opacity-40">|</span>
+             <span>Modo: <strong className="text-slate-800">Realizado</strong></span>
+             <span className="opacity-40">|</span>
+             <span>Meta: <strong className="text-slate-800">Mensal</strong></span>
           </div>
         </div>
       </div>
 
-      <div className="px-4 md:px-8">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Indicadores Principais</p>
+      <div className="px-4 md:px-8 mb-4">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 opacity-70">Indicadores Principais</p>
       </div>
 
       {/* Main Content Area */}
-      <div className="px-4 md:px-8 space-y-6">
+      <div className="px-4 md:px-8 space-y-8">
         
         {/* Row 1: Key Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             title="Entradas" 
             value={formatCurrency(metrics.entradas)} 
@@ -200,11 +200,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </div>
 
         {/* Row 2: Secondary Stats Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Card Meta */}
-          <div className="bg-white border-2 border-indigo-100 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center text-center group hover:border-[#203267] transition-all relative overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative overflow-hidden">
             <div className="absolute top-4 left-4">
-              <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-md text-[9px] font-bold text-slate-400">
+              <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-100 rounded-md text-[10px] font-bold text-slate-400">
                 Mensal <ChevronDown size={10} />
               </button>
             </div>
@@ -213,103 +213,107 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
               <Maximize2 size={12} className="text-slate-300 cursor-pointer hover:text-slate-600" />
             </div>
 
-            <div className="relative mb-4 mt-4">
-              <CircleDashed size={60} strokeWidth={1} className="text-indigo-50 animate-[spin_20s_linear_infinite]" />
-              <Target size={24} className="absolute inset-0 m-auto text-indigo-200 group-hover:text-[#203267] transition-colors" />
+            <div className="relative mb-6 mt-4">
+              <CircleDashed size={80} strokeWidth={1} className="text-slate-100" />
+              <Target size={28} className="absolute inset-0 m-auto text-slate-300" />
             </div>
-            <h4 className="text-[12px] font-semibold text-slate-400 mb-4 uppercase tracking-widest">Meta de Fluxo</h4>
-            <button className="flex items-center gap-2 px-4 py-1.5 border border-indigo-200 text-[#203267] rounded-lg text-[10px] font-bold hover:bg-indigo-50 transition-all shadow-sm">
-              <Target size={12} /> Definir Meta
+            <h4 className="text-[12px] font-medium text-slate-500 mb-6">Meta não definida</h4>
+            <button className="flex items-center gap-2 px-6 py-2 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+              <Target size={14} /> Definir Meta
             </button>
           </div>
 
           {/* Card A Receber */}
-          <div className="bg-white border-2 border-amber-100 rounded-xl p-6 shadow-sm group hover:border-amber-500 transition-all flex flex-col justify-between overflow-hidden">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-amber-50 rounded-lg border border-amber-200"><Wallet size={16} className="text-amber-500" /></div>
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Expectativa Receita</h4>
+          <div className="bg-white border-l-4 border-l-amber-400 border border-slate-200 rounded-xl p-6 shadow-sm group hover:shadow-md transition-all flex flex-col justify-between overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-amber-50 rounded-lg border border-amber-100"><Wallet size={18} className="text-amber-500" /></div>
+              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">A Receber</h4>
             </div>
             <div>
-              <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.aReceber)}</h3>
-              <p className="text-[10px] text-slate-400 font-medium mt-1">Total em aberto via Ledger</p>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter leading-none mb-1">{formatCurrency(metrics.aReceber)}</h3>
+              <p className="text-[10px] text-slate-400 font-medium">Total em aberto (atual + futuro)</p>
             </div>
-            <div className="mt-6 space-y-4">
-              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex border border-slate-50">
-                 <div className="h-full bg-amber-500/20 w-[5%] shadow-sm" />
+            <div className="mt-8 space-y-4">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                <span className="text-slate-400">Recebido</span>
+                <span className="text-slate-400">Em aberto</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex border border-slate-50">
+                 <div className="h-full bg-emerald-400/30 w-[15%]" />
+              </div>
+              <div className="flex justify-between text-[11px] font-bold text-slate-800">
+                <span>R$ 0,00</span>
+                <span>R$ 0,00</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400"><FileText size={12} /></div>
-                  <div className="flex flex-col"><span className="text-[10px] text-slate-400">Tickets</span><span className="text-[12px] font-bold text-slate-800">0</span></div>
+                  <div className="p-1.5 bg-slate-50 rounded-lg text-slate-300"><FileText size={12} /></div>
+                  <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Pendências</span><span className="text-sm font-black text-slate-900">0</span></div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400"><User size={12} /></div>
-                  <div className="flex flex-col"><span className="text-[10px] text-slate-400">Clientes</span><span className="text-[12px] font-bold text-slate-800">0</span></div>
+                  <div className="p-1.5 bg-slate-50 rounded-lg text-slate-300"><User size={12} /></div>
+                  <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Clientes</span><span className="text-sm font-black text-slate-900">0</span></div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Card Contas a Pagar */}
-          <div className="bg-white border-2 border-rose-100 rounded-xl p-6 shadow-sm group hover:border-rose-500 transition-all flex flex-col justify-between overflow-hidden">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-rose-50 rounded-lg border border-rose-200"><Receipt size={16} className="text-rose-500" /></div>
-              <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Contas a Pagar</h4>
+          <div className="bg-white border-l-4 border-l-rose-400 border border-slate-200 rounded-xl p-6 shadow-sm group hover:shadow-md transition-all flex flex-col justify-between overflow-hidden">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-rose-50 rounded-lg border border-rose-100"><Receipt size={18} className="text-rose-500" /></div>
+              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Contas a Pagar</h4>
             </div>
             <div>
-              <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.contasPagar)}</h3>
-              <p className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mt-1">{metrics.countPagar} débitos pendentes</p>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter leading-none mb-1">{formatCurrency(metrics.contasPagar)}</h3>
+              <p className="text-[10px] text-slate-400 font-medium">0 contas pendentes</p>
             </div>
-            <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center opacity-10 group-hover:opacity-30 transition-opacity">
-               <Receipt size={40} className="text-rose-600" />
+            <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center opacity-[0.03] grayscale">
+               <Receipt size={100} strokeWidth={1} />
             </div>
           </div>
 
           {/* Card MRR */}
-          <div className="bg-white border-2 border-indigo-100 rounded-xl p-6 shadow-sm group hover:border-[#203267] transition-all flex flex-col justify-between overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-50 rounded-lg border border-indigo-200"><RefreshCcw size={16} className="text-[#203267]" /></div>
-                <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">MRR Contratual</h4>
+          <div className="bg-white border-l-4 border-l-blue-400 border border-slate-200 rounded-xl p-6 shadow-sm group hover:shadow-md transition-all flex flex-col justify-between overflow-hidden">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg border border-blue-100"><RefreshCcw size={18} className="text-blue-500" /></div>
+                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">MRR</h4>
               </div>
-              <span className="text-[9px] font-black bg-[#203267] text-white px-2 py-0.5 rounded-lg border border-indigo-900 shadow-sm">{metrics.countContracts} Ativos</span>
+              <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-3 py-1 rounded-full border border-slate-200">0 contratos</span>
             </div>
             <div>
-              <h3 className="text-[22px] font-black text-slate-900 tracking-tight">{formatCurrency(metrics.mrr)}</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Recorrência Bruta</p>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter leading-none mb-1">{formatCurrency(metrics.mrr)}</h3>
+              <p className="text-[10px] text-slate-400 font-medium">Garantido mensalmente • Clique para detalhes</p>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center py-6 opacity-30 group-hover:opacity-100 transition-all">
-               <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-indigo-400">Matriz de Dados SQL</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-30 mt-10">
+               <p className="text-[12px] text-slate-500">Nenhum contrato recorrente ativo</p>
             </div>
           </div>
         </div>
 
         {/* Row 3: Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
-          <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white p-1">
-            <ChartCard 
-              title="Entradas x Saídas (Auditado)" 
-              xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
-              legend={[
-                { label: 'Entradas', color: '#203267' },
-                { label: 'Saídas', color: '#f43f5e' }
-              ]}
-            />
-          </div>
-          <div className="border-2 border-slate-100 rounded-2xl overflow-hidden bg-white p-1">
-            <ChartCard 
-              title="Variação Lucro Líquido" 
-              xAxisLabels={['01/02', '02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
-            />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard 
+            title="Entradas x Saídas" 
+            xAxisLabels={['02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
+            legend={[
+              { label: 'Entradas', color: '#10b981' },
+              { label: 'Saídas', color: '#f43f5e' }
+            ]}
+          />
+          <ChartCard 
+            title="Lucro Líquido por Período" 
+            xAxisLabels={['02/02', '04/02', '06/02', '08/02', '10/02', '12/02', '14/02', '16/02', '18/02', '20/02', '22/02', '24/02', '26/02', '28/02']}
+          />
         </div>
 
         {/* Row 4: Tables */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-10">
-          <div className="lg:col-span-7 border-2 border-slate-100 rounded-2xl bg-white overflow-hidden p-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
+          <div className="lg:col-span-7">
             <RecentEntries />
           </div>
-          <div className="lg:col-span-5 border-2 border-slate-100 rounded-2xl bg-white overflow-hidden p-1">
+          <div className="lg:col-span-5">
             <CustomersTable />
           </div>
         </div>
@@ -317,12 +321,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
       </div>
 
       {isLoading && (
-        <div className="fixed bottom-24 md:bottom-12 right-4 md:right-12 bg-slate-900 text-white px-10 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-5 z-50 border border-white/10 animate-bounce">
-          <Loader2 size={24} className="animate-spin text-indigo-400" />
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mb-1 text-white">Engine Sincronizada</span>
-            <span className="text-xs font-bold text-slate-400 tracking-tight">Conciliando matriz de dados...</span>
-          </div>
+        <div className="fixed bottom-24 md:bottom-12 right-4 md:right-12 bg-slate-900 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 z-50 border border-white/10">
+          <Loader2 size={20} className="animate-spin text-blue-400" />
+          <span className="text-xs font-bold uppercase tracking-widest">Sincronizando base...</span>
         </div>
       )}
     </div>

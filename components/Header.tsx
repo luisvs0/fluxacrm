@@ -62,8 +62,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
   return (
     <header className="px-4 md:px-8 h-20 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-40 transition-all">
       <div className="flex items-center gap-10">
-        <button onClick={onMenuClick} className="lg:hidden p-2 text-slate-400 hover:text-slate-900">
-          <Menu size={20} />
+        <button onClick={onMenuClick} className="lg:hidden p-2 text-slate-600 hover:text-[#01223d] active:scale-95 transition-all">
+          <Menu size={24} />
         </button>
 
         <nav className="hidden lg:flex items-center gap-10">
@@ -73,14 +73,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
               onClick={() => onNavigate(item.view)}
               className={`text-[11px] font-black uppercase tracking-[0.15em] transition-all flex items-center gap-2 h-20 relative group ${
                 isItemActive(item.view) 
-                ? 'text-blue-600' 
+                ? 'text-[#01223d]' 
                 : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               {item.label}
-              <ChevronDownIcon size={12} className={isItemActive(item.view) ? 'text-blue-500' : 'text-slate-300'} />
+              <ChevronDownIcon size={12} className={isItemActive(item.view) ? 'text-[#01223d]' : 'text-slate-300'} />
               {isItemActive(item.view) && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-blue-600 rounded-t-full shadow-[0_-2px_8px_rgba(37,99,235,0.2)]"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#01223d] rounded-t-full shadow-[0_-2px_8px_rgba(1,34,61,0.2)]"></div>
               )}
             </button>
           ))}
@@ -91,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
         <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl p-1 shadow-inner">
            <button 
              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-             className="p-2.5 text-slate-400 hover:text-slate-900 transition-all relative rounded-lg hover:bg-white hover:shadow-sm"
+             className="p-2.5 text-slate-400 hover:text-[#01223d] transition-all relative rounded-lg hover:bg-white hover:shadow-sm"
            >
              <Bell size={18} />
              {unreadCount > 0 && (
@@ -101,14 +101,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onOpenTv, title, onNavigat
            
            <button 
              onClick={() => setIsSearchOpen(true)}
-             className="p-2.5 text-slate-400 hover:text-slate-900 transition-all rounded-lg hover:bg-white hover:shadow-sm"
+             className="p-2.5 text-slate-400 hover:text-[#01223d] transition-all rounded-lg hover:bg-white hover:shadow-sm"
            >
              <Search size={18} />
            </button>
 
            <button 
              onClick={onOpenTv}
-             className="p-2.5 text-slate-400 hover:text-slate-900 transition-all rounded-lg hover:bg-white hover:shadow-sm"
+             className="p-2.5 text-slate-400 hover:text-[#01223d] transition-all rounded-lg hover:bg-white hover:shadow-sm"
            >
              <LayoutGrid size={18} />
            </button>

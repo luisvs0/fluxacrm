@@ -169,8 +169,8 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-[#203267] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#203267]">Fluxa Imob Engine</p>
+          <div className="w-10 h-10 border-4 border-[#01223d] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#01223d]">Fluxa Imob Engine</p>
         </div>
       </div>
     );
@@ -187,9 +187,9 @@ const App: React.FC = () => {
       {activeToast && (
         <div className="fixed top-6 right-6 z-[200] animate-in slide-in-from-right-10 duration-500">
           <div className="bg-white border-2 border-indigo-100 rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex gap-4 w-[400px] relative overflow-hidden group">
-            <div className="absolute top-0 left-0 h-1.5 bg-[#203267] animate-toast-bar w-full" />
+            <div className="absolute top-0 left-0 h-1.5 bg-[#01223d] animate-toast-bar w-full" />
             
-            <div className="w-14 h-14 bg-indigo-50 text-[#203267] rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-indigo-100">
+            <div className="w-14 h-14 bg-indigo-50 text-[#01223d] rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-indigo-100">
               <Calendar size={28} />
             </div>
             
@@ -208,12 +208,12 @@ const App: React.FC = () => {
               
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                  <Clock size={12} className="text-[#203267]" /> 
+                  <Clock size={12} className="text-[#01223d]" /> 
                   Iniciado às {activeToast.time}
                 </div>
                 <button 
                   onClick={() => { setActiveView('Agenda'); setActiveToast(null); }}
-                  className="text-[10px] font-black text-[#203267] uppercase tracking-widest hover:underline"
+                  className="text-[10px] font-black text-[#01223d] uppercase tracking-widest hover:underline"
                 >
                   Abrir Agenda
                 </button>
@@ -239,7 +239,7 @@ const App: React.FC = () => {
       
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[90] transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}

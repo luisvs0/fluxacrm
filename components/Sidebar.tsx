@@ -163,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside 
-      className={`fixed top-0 left-0 bottom-0 z-50 bg-white border-r border-slate-100 transition-all duration-500 ease-in-out transform flex flex-col ${
+      className={`fixed top-0 left-0 bottom-0 z-[100] bg-white border-r border-slate-100 transition-all duration-500 ease-in-out transform flex flex-col ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       } ${isCollapsed ? 'w-[280px] lg:w-20' : 'w-[280px] lg:w-72'}`}
     >
@@ -175,7 +175,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <img 
             src="https://lh3.googleusercontent.com/d/1etimAcTlGnq4yMgwIaChmuykWjsktTKO" 
             alt="Fluxa Logo" 
-            className={`transition-all duration-500 object-contain ${isCollapsed ? 'h-10 lg:h-10 lg:w-10' : 'h-14'}`}
+            className={`transition-all duration-500 object-contain ${isCollapsed ? 'h-7 lg:h-7 lg:w-7' : 'h-9'}`}
           />
         </div>
         
@@ -189,7 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <button 
           onClick={toggleSidebar} 
-          className="lg:hidden p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-300 hover:text-[#01223d]"
+          className="lg:hidden p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400 hover:text-[#01223d]"
         >
           <X size={20} />
         </button>

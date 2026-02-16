@@ -26,13 +26,15 @@ class GoogleCalendarService {
 
   private initTokenClient(callback: (token: string) => void) {
     if (typeof window === 'undefined' || !(window as any).google) {
-      console.error('Google SDK não carregado');
+      console.error('Google SDK não carregado. Verifique se o script do Google está no index.html');
       return;
     }
 
+    // Google Identity Services Token Client
     this.tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
+      ux_mode: 'popup', // Garante que não tente redirecionar a página inteira
       callback: (response: any) => {
         if (response.access_token) {
           this.accessToken = response.access_token;
@@ -40,17 +42,25 @@ class GoogleCalendarService {
           callback(response.access_token);
         }
         if (response.error) {
-          console.error('Erro OAuth Google:', response.error);
+          console.error('Erro OAuth Google:', response.error, response.error_description);
+          alert(`Erro na autenticação: ${response.error_description || response.error}`);
         }
       },
     });
   }
 
-  connect() {
-    return new Promise((resolve) => {
-      this.initTokenClient((token) => resolve(token));
-      if (this.tokenClient) {
-        this.tokenClient.requestAccessToken({ prompt: 'consent' });
+  connect(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.initTokenClient((token) => resolve(token));
+        if (this.tokenClient) {
+          // Solicita o token. O prompt 'consent' garante que o usuário veja a tela de permissão.
+          this.tokenClient.requestAccessToken({ prompt: 'consent' });
+        } else {
+          reject('SDK do Google não inicializado');
+        }
+      } catch (err) {
+        reject(err);
       }
     });
   }
@@ -58,6 +68,10 @@ class GoogleCalendarService {
   disconnect() {
     this.accessToken = null;
     localStorage.removeItem('google_access_token');
+    if (typeof window !== 'undefined' && (window as any).google) {
+      // Opcional: revogar o token no servidor do Google
+      (window as any).google.accounts.oauth2.revoke(this.accessToken || '', () => {});
+    }
   }
 
   isConnected() {
@@ -66,7 +80,7 @@ class GoogleCalendarService {
 
   async createEvent(event: GoogleCalendarEvent) {
     if (!this.accessToken) {
-      console.warn('Google Calendar não conectado');
+      console.warn('Google Calendar não conectado. Tentando conectar...');
       return null;
     }
 
@@ -81,6 +95,7 @@ class GoogleCalendarService {
       });
 
       if (response.status === 401) {
+        // Token expirado ou inválido
         this.disconnect();
         return null;
       }

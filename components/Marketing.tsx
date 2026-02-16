@@ -12,19 +12,22 @@ import {
   Linkedin,
   Loader2,
   Database,
-  RefreshCcw,
+  RefreshCw,
   ArrowUpRight,
   AlertCircle,
-  ChevronDown
+  ChevronDown,
+  Activity,
+  LayoutGrid
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import StatCard from './StatCard';
 
 interface MarketingProps {
   user: any;
 }
 
 const Marketing: React.FC<MarketingProps> = ({ user }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Mês');
+  const [selectedPeriod, setSelectedPeriod] = useState('Este Mês');
   const [tasks, setTasks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,17 +54,17 @@ const Marketing: React.FC<MarketingProps> = ({ user }) => {
     const completed = tasks.filter(t => t.stage === 'live').length;
     const inProd = tasks.filter(t => t.stage === 'prod' || t.stage === 'review').length;
 
-    return [
-      { label: 'Projetos Seus', value: total.toString(), trend: 'Ativos no SQL', icon: <Globe size={18} />, color: 'blue' },
-      { label: 'Publicados', value: completed.toString(), trend: 'Status Live', icon: <Target size={18} />, color: 'emerald' },
-      { label: 'Em Produção', value: inProd.toString(), trend: 'Work-in-progress', icon: <Zap size={18} />, color: 'indigo' },
-      { label: 'Taxa de Entrega', value: total > 0 ? `${Math.round((completed / total) * 100)}%` : '0%', trend: 'Performance', icon: <Share2 size={18} />, color: 'blue' },
-    ];
+    return {
+      total,
+      completed,
+      inProd,
+      rate: total > 0 ? `${Math.round((completed / total) * 100)}%` : '0%'
+    };
   }, [tasks]);
 
   const kanbanStages = useMemo(() => {
     const stages = [
-      { id: 'idea', name: 'Ideação', color: 'bg-slate-200' },
+      { id: 'idea', name: 'Ideação', color: 'bg-slate-300' },
       { id: 'prod', name: 'Produção', color: 'bg-blue-500' },
       { id: 'review', name: 'Revisão', color: 'bg-amber-500' },
       { id: 'sched', name: 'Agendado', color: 'bg-purple-500' },
@@ -76,71 +79,100 @@ const Marketing: React.FC<MarketingProps> = ({ user }) => {
     }));
   }, [tasks]);
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-[#fcfcfd] min-h-[80vh]">
-        <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center px-4">Sincronizando Marketing Ops...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-10 px-4 md:px-10 pt-6 md:pt-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-4">
-           <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
-             <Megaphone size={24} />
-           </div>
-           <div>
-             <div className="flex items-center gap-2 mb-0.5">
-               <Database size={14} className="text-blue-500" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Marketing Isolado</span>
+    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-10 relative overflow-hidden">
+      {/* Background Micro-Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
+      </div>
+
+      <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none z-0" />
+      
+      {/* Header Premium */}
+      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                <Megaphone size={20} className="text-blue-400" />
              </div>
-             <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Marketing Intelligence</h2>
-           </div>
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Growth Engineering SQL</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
+            Marketing <span className="text-[#203267] not-italic">Intelligence</span>
+          </h1>
+          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Monitoramento de ativos digitais e campanhas da conta</p>
         </div>
+
+        <button onClick={fetchMarketingData} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all">
+          <RefreshCw size={22} className={isLoading ? 'animate-spin' : ''} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
-              <div className={`p-2 bg-slate-50 text-slate-600 rounded-xl group-hover:scale-110 transition-transform`}>
-                {stat.icon}
-              </div>
-            </div>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">{stat.trend}</p>
-          </div>
-        ))}
-      </div>
+      <div className="relative z-10 px-4 md:px-10 mt-10 space-y-12">
+        {/* Tier 1: KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Projetos Ativos" value={stats.total.toString()} subtitle="Registros em Pipeline" icon={<Globe />} color="blue" />
+          <StatCard title="Publicados" value={stats.completed.toString()} subtitle="Status Live" icon={<Target />} color="emerald" />
+          <StatCard title="Em Produção" value={stats.inProd.toString()} subtitle="Work-in-progress" icon={<Zap />} color="blue" />
+          <StatCard title="Taxa de Entrega" value={stats.rate} subtitle="Performance Mensal" icon={<Share2 />} color="blue" showInfo />
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] p-6 md:p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-8 md:mb-10">
-            <div>
-              <h3 className="text-base md:text-lg font-bold text-slate-900 tracking-tight">Seu Fluxo de Produção</h3>
-              <p className="text-xs text-slate-400 font-medium">Distribuição por estágio do funil da sua conta</p>
-            </div>
+        {/* Tier 2: Flow Analysis */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-8 bg-white border border-slate-300 rounded-xl p-10 shadow-sm transition-all hover:shadow-xl duration-700">
+             <div className="flex items-center gap-4 mb-12">
+                <div className="w-12 h-12 bg-slate-50 rounded-xl border border-slate-300 flex items-center justify-center text-[#203267] shadow-sm"><Activity size={24}/></div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Fluxo de Produção Auditado</h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Distribuição por estágio do funil</p>
+                </div>
+             </div>
+
+             <div className="space-y-8">
+                {kanbanStages.map((stage, idx) => (
+                  <div key={idx} className="group">
+                    <div className="flex justify-between items-end mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-1.5 h-3 rounded-full ${stage.color}`}></div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stage.name}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-900 uppercase">{stage.count} tarefas ({stage.perc.toFixed(0)}%)</span>
+                    </div>
+                    <div className="h-3 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden p-0.5 shadow-inner">
+                      <div 
+                        className={`h-full ${stage.color} rounded-full transition-all duration-[1500ms] shadow-sm`} 
+                        style={{ width: `${stage.perc}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+             </div>
           </div>
-          
-          <div className="space-y-6 md:space-y-8">
-            {kanbanStages.map((stage, idx) => (
-              <div key={idx} className="group">
-                <div className="flex justify-between items-end mb-2.5">
-                  <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">{stage.name}</span>
-                  <span className="text-xs md:text-sm font-bold text-slate-900">{stage.count} tarefas</span>
+
+          <div className="lg:col-span-4 space-y-8">
+             <div className="bg-slate-900 border border-slate-700 rounded-xl p-8 text-white shadow-2xl relative overflow-hidden group">
+                <div className="relative z-10 space-y-6">
+                   <div className="flex items-center gap-3">
+                      <Sparkles size={20} className="text-blue-400" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Marketing Insights</span>
+                   </div>
+                   <h4 className="text-xl font-black uppercase tracking-tight italic">Relatório de Impacto Digital</h4>
+                   <p className="text-sm text-slate-400 font-medium leading-relaxed">Analise o desempenho de suas campanhas através de integração SQL direta.</p>
+                   <button className="w-full py-4 bg-white text-slate-950 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-400 transition-all shadow-xl active:scale-95">Gerar Insights AI</button>
                 </div>
-                <div className="h-2 md:h-2.5 w-full bg-slate-50 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full ${stage.color} rounded-full transition-all duration-1000 shadow-sm`} 
-                    style={{ width: `${stage.perc}%` }}
-                  ></div>
+                <Database size={200} className="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:scale-110 transition-transform" />
+             </div>
+
+             <div className="bg-white border border-slate-300 rounded-xl p-8 shadow-sm flex items-center justify-between group hover:border-[#203267] transition-all">
+                <div className="space-y-1">
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronização</p>
+                   <p className="text-sm font-black text-slate-900 uppercase">Redes Sociais</p>
                 </div>
-              </div>
-            ))}
+                <div className="flex gap-2">
+                   <div className="p-2 bg-slate-50 rounded-lg text-slate-300"><Instagram size={18} /></div>
+                   <div className="p-2 bg-slate-50 rounded-lg text-slate-300"><Linkedin size={18} /></div>
+                </div>
+             </div>
           </div>
         </div>
       </div>

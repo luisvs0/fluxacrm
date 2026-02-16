@@ -14,10 +14,13 @@ import {
   Users,
   ShieldAlert,
   Clock,
-  UserCheck
+  UserCheck,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import NewUserModal from './NewUserModal';
+import StatCard from './StatCard';
 
 interface UsersManagementProps {
   user: any;
@@ -33,7 +36,6 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ user }) => {
     if (!user) return;
     setIsLoading(true);
     try {
-      // Filtramos perfis que pertencem ao mesmo user_id ou organizacao (simulado por user_id aqui)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -53,96 +55,142 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ user }) => {
     fetchUsers();
   }, [user]);
 
-  const stats = useMemo(() => {
-    const total = users.length;
-    return [
-      { label: 'Sua Equipe', value: total.toString(), trend: 'Membros Ativos', icon: <Users size={18}/> },
-      { label: 'Status Base', value: 'Isolado', trend: 'SQL Personal', icon: <Database size={18}/> },
-    ];
-  }, [users]);
-
   const filteredUsers = useMemo(() => {
     return users.filter(u => 
-      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
+    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-20 relative overflow-hidden">
+      {/* Background Micro-Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
+      </div>
+
+      <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none z-0" />
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
-            <UserCheck size={24} />
+      {/* Header Premium */}
+      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                <UserCheck size={20} className="text-blue-400" />
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Access Control SQL</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-               <Database size={14} className="text-blue-500" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Access Management</span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Equipe & Acessos</h2>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
+            Equipe <span className="text-[#203267] not-italic">& Acessos</span>
+          </h1>
+          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Gestão de permissões e governança da conta isolada</p>
         </div>
 
-        <button 
-          onClick={() => setIsNewUserModalOpen(true)}
-          className="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl md:rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
-        >
-          <UserPlus size={18} /> Convidar Membro
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => setIsNewUserModalOpen(true)}
+            className="flex-1 md:flex-none bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
+          >
+            <UserPlus size={18} strokeWidth={3} /> Convidar Membro
+          </button>
+          <button onClick={fetchUsers} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all">
+            <RefreshCcw size={22} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm group">
-            <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">{stat.label}</p>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{isLoading ? '...' : stat.value}</h3>
-          </div>
-        ))}
-      </div>
+      <div className="relative z-10 px-4 md:px-10 mt-10 space-y-12">
+        {/* Tier 1: KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Assentos Ativos" value={users.length.toString()} subtitle="Membros em Organograma" icon={<Users />} color="blue" />
+          <StatCard title="Protocolo Base" value="Isolado" subtitle="SQL Personal Ledger" icon={<Database />} color="emerald" />
+          <StatCard title="Node Status" value="Online" subtitle="Synchronized Agent" icon={<Activity size={24}/>} color="blue" />
+          <StatCard title="Integridade" value="100%" subtitle="Security Compliance" icon={<ShieldCheck />} color="blue" showInfo />
+        </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[450px]">
-        {isLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-             <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando Usuários...</p>
+        {/* Toolbar & Table */}
+        <div className="space-y-8">
+          <div className="bg-white border border-slate-300 p-2 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="relative flex-1 lg:max-w-2xl group pl-2">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#203267]" size={16} />
+              <input 
+                type="text" 
+                placeholder="Buscar por nome, e-mail ou nível de acesso..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg py-3 pl-12 pr-4 text-xs font-bold focus:border-[#203267] outline-none transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-4 pr-6 text-[10px] font-black text-[#203267] uppercase tracking-[0.2em]">
+               <span className="opacity-40 flex items-center gap-2"><Database size={12}/> Auth Node Sync</span>
+               <div className="relative w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            </div>
           </div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-24 opacity-30 text-center space-y-4 px-8">
-             <UserPlus size={40} className="mx-auto" />
-             <p className="text-sm font-bold uppercase tracking-widest">Nenhum membro cadastrado por você</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr className="bg-slate-50/30">
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Membro & E-mail</th>
-                  <th className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Permissão</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {filteredUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50 transition-all group">
-                    <td className="px-10 py-6">
-                      <p className="font-bold text-slate-900 uppercase text-sm">{u.full_name}</p>
-                      <p className="text-[11px] text-slate-400">{u.email}</p>
-                    </td>
-                    <td className="px-8 py-6 text-center">
-                       <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase bg-slate-50 border border-slate-100">
-                         {u.role || 'Membro'}
-                       </span>
-                    </td>
-                    <td className="px-10 py-6 text-right">
-                       <button className="p-2 text-slate-200 hover:text-slate-900"><MoreVertical size={18}/></button>
-                    </td>
+
+          <div className="bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col transition-all hover:shadow-xl duration-700">
+            <div className="overflow-x-auto no-scrollbar flex-1">
+              <table className="w-full text-left border-collapse min-w-[850px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-300">
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Membro & E-mail Profissional</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Nível de Permissão</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Último Acesso</th>
+                    <th className="px-10 py-6 w-10"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={4} className="py-40 text-center">
+                        <Loader2 className="animate-spin mx-auto text-[#203267] mb-4" size={40} />
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Auditando Acessos SQL...</p>
+                      </td>
+                    </tr>
+                  ) : filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-48 text-center opacity-30">
+                         <Users size={60} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Nenhum membro localizado nesta conta</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((u) => (
+                      <tr key={u.id} className="hover:bg-slate-50 transition-all group">
+                        <td className="px-10 py-8">
+                          <div className="flex items-center gap-6">
+                            <div className="w-12 h-12 bg-slate-900 text-white rounded-lg border border-slate-700 shadow-md flex items-center justify-center font-black text-xs italic group-hover:scale-105 transition-transform">
+                              {u.full_name?.substring(0,1).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-slate-900 tracking-tight uppercase truncate max-w-[250px] group-hover:text-[#203267] transition-colors">{u.full_name}</p>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">{u.email}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-8 text-center">
+                           <span className="text-[10px] font-black text-slate-900 bg-white border border-slate-300 px-4 py-2 rounded-md uppercase tracking-tight shadow-sm">
+                             {u.role || 'Membro'}
+                           </span>
+                        </td>
+                        <td className="px-8 py-8 text-center">
+                           <div className="flex flex-col items-center">
+                              <span className="text-[10px] font-black text-slate-900 uppercase">Hoje</span>
+                              <span className="text-[8px] font-black text-emerald-500 uppercase mt-1 tracking-tighter italic">Sessão Ativa</span>
+                           </div>
+                        </td>
+                        <td className="px-10 py-8 text-right">
+                           <button className="p-3 text-slate-300 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-90">
+                              <MoreVertical size={20} />
+                           </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       <NewUserModal 

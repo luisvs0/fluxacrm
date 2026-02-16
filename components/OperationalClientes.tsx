@@ -15,11 +15,13 @@ import {
   Target,
   Loader2,
   Database,
-  RefreshCcw,
-  Heart
+  RefreshCw,
+  Heart,
+  ShieldAlert
 } from 'lucide-react';
 import NewClientModal from './NewClientModal';
 import { supabase } from '../lib/supabase';
+import StatCard from './StatCard';
 
 interface OperationalClientesProps {
   user: any;
@@ -80,117 +82,140 @@ const OperationalClientes: React.FC<OperationalClientesProps> = ({ user }) => {
   };
 
   return (
-    <div className="bg-[#fcfcfd] min-h-screen space-y-6 md:space-y-8 animate-in fade-in duration-700 pb-24 md:pb-20 px-4 md:px-10 pt-6 md:pt-8">
+    <div className="bg-[#fcfcfd] min-h-screen animate-in fade-in duration-1000 pb-24 md:pb-20 relative overflow-hidden">
+      {/* Background Micro-Pattern */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'radial-gradient(#203267 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
+      </div>
+
+      <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-slate-100/50 to-transparent pointer-events-none z-0" />
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0">
-            <Users size={24} />
+      {/* Header Premium */}
+      <div className="relative z-10 px-4 md:px-10 pt-10 pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white border border-slate-700 shadow-lg group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                <Users size={20} className="text-blue-400" />
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#203267]/60">Customer Lifecycle SQL</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-               <Database size={14} className="text-blue-500" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sua Base SQL</span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">Meus Clientes</h2>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none italic">
+            Intelligence <span className="text-[#203267] not-italic">Portfolio</span>
+          </h1>
+          <p className="text-[13px] text-slate-400 font-bold mt-2 uppercase tracking-widest">Exibindo {filteredClients.length} contas auditadas de sua base</p>
         </div>
 
-        <button 
-          onClick={() => setIsNewClientModalOpen(true)}
-          className="w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl md:rounded-full text-xs font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
-        >
-          <Plus size={20} /> Novo Cliente
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total de Ativos</p>
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
-              <ShieldCheck size={18} />
-            </div>
-          </div>
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{isLoading ? '...' : `${stats.totalActive} Contas`}</h3>
-        </div>
-
-        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">MRR Total</p>
-            <div className="p-2 bg-slate-50 text-slate-600 rounded-xl group-hover:scale-110 transition-transform">
-              <CreditCard size={18} />
-            </div>
-          </div>
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight truncate">{isLoading ? '...' : formatCurrency(stats.mrrTotal)}</h3>
-        </div>
-
-        <div className="bg-white border border-slate-100 rounded-[1.75rem] p-5 md:p-6 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <p className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">Saúde da Base</p>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
-              <Heart size={18} />
-            </div>
-          </div>
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{isLoading ? '...' : `${stats.avgHealth}%`}</h3>
-        </div>
-
-        <div className="bg-[#002147] rounded-[1.75rem] p-5 md:p-6 shadow-xl text-white relative overflow-hidden">
-          <p className="text-[10px] md:text-[11px] font-bold text-white/50 uppercase tracking-widest mb-4">Sua Base Total</p>
-          <h3 className="text-xl md:text-2xl font-bold tracking-tight">{clients.length} Clientes</h3>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={() => setIsNewClientModalOpen(true)}
+            className="flex-1 md:flex-none bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
+          >
+            <Plus size={18} strokeWidth={3} /> Novo Cliente
+          </button>
+          <button onClick={fetchClients} className="p-4 bg-white border border-slate-300 rounded-xl text-slate-400 hover:text-[#203267] hover:border-[#203267] transition-all">
+            <RefreshCw size={22} className={isLoading ? 'animate-spin' : ''} />
+          </button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col min-h-[450px]">
-        {isLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20">
-            <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acessando Dados...</p>
+      <div className="relative z-10 px-4 md:px-10 mt-10 space-y-12">
+        {/* Tier 1: Core KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Total de Ativos" value={`${stats.totalActive} Contas`} subtitle="Monitoramento em vigor" icon={<ShieldCheck />} color="blue" />
+          <StatCard title="MRR Consolidado" value={formatCurrency(stats.mrrTotal)} subtitle="Receita da Base Atual" icon={<CreditCard />} color="blue" />
+          <StatCard title="Health Score" value={`${stats.avgHealth}%`} subtitle="Média Ponderada" icon={<Heart />} color="emerald" />
+          <StatCard title="Risco de Churn" value="0.0%" subtitle="Alerta de Estabilidade" icon={<ShieldAlert />} color="red" />
+        </div>
+
+        {/* Toolbar & Table */}
+        <div className="space-y-8">
+          <div className="bg-white border border-slate-300 p-2 rounded-xl shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="relative flex-1 lg:max-w-2xl group pl-2">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#203267]" size={16} />
+              <input 
+                type="text" 
+                placeholder="Buscar por cliente, segmento ou Health Score..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg py-3 pl-12 pr-4 text-xs font-bold focus:border-[#203267] outline-none transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-4 pr-6 text-[10px] font-black text-[#203267] uppercase tracking-[0.2em]">
+               <span className="opacity-40 flex items-center gap-2"><Database size={12}/> Client Node Ledger</span>
+               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            </div>
           </div>
-        ) : (
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[850px]">
-              <thead>
-                <tr className="bg-slate-50/30">
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cliente & Status</th>
-                  <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">MRR Atual</th>
-                  <th className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Health Score</th>
-                  <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {filteredClients.map((client) => (
-                  <tr key={client.id} className="hover:bg-slate-50 transition-all group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-xs shadow-md italic">
-                          {client.name?.substring(0,1).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 tracking-tight uppercase truncate max-w-[200px]">{client.name}</p>
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{client.status}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-6 text-right">
-                      <p className="text-sm font-black text-slate-900 tracking-tighter">{formatCurrency(client.mrr_value || 0)}</p>
-                    </td>
-                    <td className="px-6 py-6 text-center">
-                        <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
-                          (client.health_score || 0) >= 80 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600'
-                        }`}>
-                          {client.health_score}%
-                        </span>
-                    </td>
-                    <td className="px-8 py-6 text-right">
-                       <button className="p-2 text-slate-200 hover:text-slate-900"><MoreVertical size={18} /></button>
-                    </td>
+
+          <div className="bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden min-h-[500px] flex flex-col transition-all hover:shadow-xl duration-700">
+            <div className="overflow-x-auto no-scrollbar flex-1">
+              <table className="w-full text-left border-collapse min-w-[950px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-300">
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Cliente & Organização</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">MRR Auditado</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Health Score</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Status</th>
+                    <th className="px-10 py-6 w-10"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={5} className="py-40 text-center">
+                        <Loader2 className="animate-spin mx-auto text-[#203267] mb-4" size={40} />
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Auditando Portfolio SQL...</p>
+                      </td>
+                    </tr>
+                  ) : filteredClients.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-48 text-center opacity-30">
+                         <Users size={60} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
+                         <p className="text-xs font-black text-slate-400 uppercase tracking-[0.25em]">Nenhum registro localizado</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredClients.map((client) => (
+                      <tr key={client.id} className="hover:bg-slate-50 transition-all group">
+                        <td className="px-10 py-8">
+                          <div className="flex items-center gap-6">
+                            <div className="w-12 h-12 bg-slate-900 text-white rounded-lg border border-slate-700 shadow-md flex items-center justify-center font-black text-xs italic group-hover:scale-105 transition-transform">
+                              {client.name?.substring(0,1).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-black text-slate-900 tracking-tight uppercase truncate max-w-[250px] group-hover:text-[#203267] transition-colors">{client.name}</p>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">{client.segment || 'Pessoa Física'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-8 text-right">
+                          <p className="text-lg font-black text-slate-900 tracking-tighter italic">{formatCurrency(client.mrr_value || 0)}</p>
+                        </td>
+                        <td className="px-8 py-8 text-center">
+                            <div className="inline-flex items-center gap-2 bg-indigo-50 text-[#203267] px-4 py-2 rounded-lg border border-slate-300 shadow-sm group-hover:scale-105 transition-transform">
+                               <Heart size={14} className={(client.health_score || 0) >= 80 ? 'text-emerald-500 fill-emerald-500' : 'text-rose-500 fill-rose-500'} />
+                               <span className="text-sm font-black tracking-tighter">{client.health_score}%</span>
+                            </div>
+                        </td>
+                        <td className="px-8 py-8 text-center">
+                           <span className={`text-[9px] font-black px-5 py-2 rounded-md uppercase tracking-widest border transition-all ${
+                             client.status === 'Ativo' ? 'bg-emerald-50 text-emerald-600 border-emerald-300' : 'bg-slate-50 text-slate-400 border-slate-300'
+                           }`}>
+                             {client.status}
+                           </span>
+                        </td>
+                        <td className="px-10 py-8 text-right">
+                           <button className="p-3 text-slate-300 hover:text-slate-900 hover:bg-white rounded-lg transition-all active:scale-90">
+                              <MoreVertical size={20} />
+                           </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       <NewClientModal isOpen={isNewClientModalOpen} onClose={() => { setIsNewClientModalOpen(false); fetchClients(); }} user={user} />

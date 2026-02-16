@@ -239,7 +239,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
                     <div className="flex flex-col items-end gap-2">
                       <button 
                         onClick={handleConnectGoogle}
-                        className="bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-indigo-900/20 active:scale-95 flex items-center gap-2"
+                        className="bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black shadow-xl shadow-indigo-900/20 active:scale-95 flex items-center gap-2"
                       >
                         <Globe size={14} className="text-[#b4a183]" /> Ativar Link
                       </button>
@@ -287,7 +287,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
                         <div className="space-y-3 text-[11px] font-medium text-slate-600">
                           <div className="flex gap-3">
                              <div className="w-5 h-5 bg-slate-100 rounded flex items-center justify-center shrink-0 font-black text-[9px]">A</div>
-                             <p>Acesse o menu <span className="text-slate-900 font-bold italic">APIs e Serviços > Credenciais</span>.</p>
+                             <p>Acesse o menu <span className="text-slate-900 font-bold italic">APIs e Serviços &gt; Credenciais</span>.</p>
                           </div>
                           <div className="flex gap-3">
                              <div className="w-5 h-5 bg-slate-100 rounded flex items-center justify-center shrink-0 font-black text-[9px]">B</div>
@@ -309,7 +309,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
                       href="https://console.cloud.google.com/apis/credentials" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-3 w-full py-4 bg-[#203267] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-indigo-900/20"
+                      className="flex items-center justify-center gap-3 w-full py-4 bg-[#203267] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black shadow-xl shadow-indigo-900/20"
                     >
                       Ir para Google Cloud Console <ExternalLink size={14} />
                     </a>

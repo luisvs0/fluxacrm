@@ -24,43 +24,52 @@ class GoogleCalendarService {
     this.accessToken = localStorage.getItem('google_access_token');
   }
 
-  private initTokenClient(callback: (token: string) => void) {
+  private initTokenClient(callback: (token: string) => void, onError?: (err: any) => void) {
     if (typeof window === 'undefined' || !(window as any).google) {
       console.error('Google SDK não carregado. Verifique se o script do Google está no index.html');
+      if (onError) onError('SDK_NOT_LOADED');
       return;
     }
 
-    // Google Identity Services Token Client
-    this.tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      ux_mode: 'popup', // Garante que não tente redirecionar a página inteira
-      callback: (response: any) => {
-        if (response.access_token) {
-          this.accessToken = response.access_token;
-          localStorage.setItem('google_access_token', response.access_token);
-          callback(response.access_token);
-        }
-        if (response.error) {
-          console.error('Erro OAuth Google:', response.error, response.error_description);
-          alert(`Erro na autenticação: ${response.error_description || response.error}`);
-        }
-      },
-    });
+    try {
+      this.tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        ux_mode: 'popup',
+        callback: (response: any) => {
+          if (response.access_token) {
+            this.accessToken = response.access_token;
+            localStorage.setItem('google_access_token', response.access_token);
+            callback(response.access_token);
+          }
+          if (response.error) {
+            console.error('Erro OAuth Google:', response.error, response.error_description);
+            // GIS Errors: redirect_uri_mismatch etc
+            if (onError) onError(response);
+          }
+        },
+      });
+    } catch (err) {
+      console.error('Falha ao inicializar TokenClient:', err);
+      if (onError) onError(err);
+    }
   }
 
   connect(): Promise<string> {
     return new Promise((resolve, reject) => {
-      try {
-        this.initTokenClient((token) => resolve(token));
-        if (this.tokenClient) {
-          // Solicita o token. O prompt 'consent' garante que o usuário veja a tela de permissão.
+      this.initTokenClient(
+        (token) => resolve(token),
+        (err) => reject(err)
+      );
+      
+      if (this.tokenClient) {
+        try {
           this.tokenClient.requestAccessToken({ prompt: 'consent' });
-        } else {
-          reject('SDK do Google não inicializado');
+        } catch (err) {
+          reject(err);
         }
-      } catch (err) {
-        reject(err);
+      } else {
+        reject('TOKEN_CLIENT_NOT_READY');
       }
     });
   }
@@ -68,9 +77,8 @@ class GoogleCalendarService {
   disconnect() {
     this.accessToken = null;
     localStorage.removeItem('google_access_token');
-    if (typeof window !== 'undefined' && (window as any).google) {
-      // Opcional: revogar o token no servidor do Google
-      (window as any).google.accounts.oauth2.revoke(this.accessToken || '', () => {});
+    if (typeof window !== 'undefined' && (window as any).google && this.accessToken) {
+      (window as any).google.accounts.oauth2.revoke(this.accessToken, () => {});
     }
   }
 
@@ -80,7 +88,7 @@ class GoogleCalendarService {
 
   async createEvent(event: GoogleCalendarEvent) {
     if (!this.accessToken) {
-      console.warn('Google Calendar não conectado. Tentando conectar...');
+      console.warn('Google Calendar não conectado.');
       return null;
     }
 
@@ -95,7 +103,6 @@ class GoogleCalendarService {
       });
 
       if (response.status === 401) {
-        // Token expirado ou inválido
         this.disconnect();
         return null;
       }

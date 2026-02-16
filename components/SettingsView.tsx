@@ -14,7 +14,11 @@ import {
   CheckCircle2,
   Share2,
   Unlink,
-  ChevronRight
+  ChevronRight,
+  AlertCircle,
+  Copy,
+  ExternalLink,
+  Check
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { googleCalendar } from '../lib/googleCalendar';
@@ -30,6 +34,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isGoogleConnected, setIsGoogleConnected] = useState(googleCalendar.isConnected());
+  const [showGCalHelp, setShowGCalHelp] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+
   const [companyData, setCompanyData] = useState({
     id: '',
     name: '',
@@ -38,6 +45,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
     currency: 'BRL - Real Brasileiro',
     address: ''
   });
+
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
 
   const fetchSettings = async () => {
     if (!user) return;
@@ -101,13 +110,23 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
   };
 
   const handleConnectGoogle = async () => {
-    await googleCalendar.connect();
-    setIsGoogleConnected(googleCalendar.isConnected());
+    try {
+      await googleCalendar.connect();
+      setIsGoogleConnected(googleCalendar.isConnected());
+    } catch (err) {
+      setShowGCalHelp(true);
+    }
   };
 
   const handleDisconnectGoogle = () => {
     googleCalendar.disconnect();
     setIsGoogleConnected(false);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedUrl(text);
+    setTimeout(() => setCopiedUrl(null), 2000);
   };
 
   const menuItems = [
@@ -190,36 +209,95 @@ const SettingsView: React.FC<SettingsViewProps> = ({ user }) => {
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Conectividade externa e automação SQL</p>
              </div>
 
-             <div className="bg-white border border-slate-200 rounded-xl p-10 flex flex-col md:flex-row items-center justify-between gap-10 group hover:border-[#b4a183] transition-all shadow-sm">
-                <div className="flex items-center gap-8">
-                   <div className="w-20 h-20 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 shadow-inner">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" className="w-12 h-12" alt="Google Calendar" />
-                   </div>
-                   <div>
-                      <h4 className="text-base font-black text-slate-900 uppercase italic">Google Agenda</h4>
-                      <p className="text-xs text-slate-400 font-bold leading-relaxed mt-2 max-w-xs">Sincronize tours, visitas e compromissos táticos com sua conta Google Workspace.</p>
-                   </div>
-                </div>
-                {isGoogleConnected ? (
-                  <div className="flex items-center gap-3">
-                    <div className="px-6 py-2.5 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 border border-emerald-100 shadow-sm">
-                       <CheckCircle2 size={14} /> Conectado
-                    </div>
-                    <button 
-                      onClick={handleDisconnectGoogle}
-                      className="p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent hover:border-rose-100"
-                      title="Desconectar"
-                    >
-                      <Unlink size={20} />
-                    </button>
+             <div className="bg-white border border-slate-200 rounded-xl p-8 flex flex-col gap-6 group hover:border-[#b4a183] transition-all shadow-sm">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-8">
+                     <div className="w-20 h-20 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 shadow-inner">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" className="w-12 h-12" alt="Google Calendar" />
+                     </div>
+                     <div>
+                        <h4 className="text-base font-black text-slate-900 uppercase italic">Google Agenda</h4>
+                        <p className="text-xs text-slate-400 font-bold leading-relaxed mt-2 max-w-xs">Sincronize tours, visitas e compromissos táticos com sua conta Google Workspace.</p>
+                     </div>
                   </div>
-                ) : (
-                  <button 
-                    onClick={handleConnectGoogle}
-                    className="bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-indigo-900/20 active:scale-95"
-                  >
-                    Ativar Link
-                  </button>
+                  {isGoogleConnected ? (
+                    <div className="flex items-center gap-3">
+                      <div className="px-6 py-2.5 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 border border-emerald-100 shadow-sm">
+                         <CheckCircle2 size={14} /> Conectado
+                      </div>
+                      <button 
+                        onClick={handleDisconnectGoogle}
+                        className="p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent hover:border-rose-100"
+                        title="Desconectar"
+                      >
+                        <Unlink size={20} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-end gap-2">
+                      <button 
+                        onClick={handleConnectGoogle}
+                        className="bg-[#203267] text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-indigo-900/20 active:scale-95"
+                      >
+                        Ativar Link
+                      </button>
+                      <button 
+                        onClick={() => setShowGCalHelp(!showGCalHelp)}
+                        className="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-[#203267] underline decoration-2 underline-offset-4"
+                      >
+                        {showGCalHelp ? 'Ocultar Ajuda' : 'Problemas com Login?'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Painel de Resolução de Erro 400 */}
+                {showGCalHelp && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center gap-3 text-rose-600">
+                      <AlertCircle size={18} />
+                      <h5 className="text-[11px] font-black uppercase tracking-widest">Como corrigir o Erro 400: redirect_uri_mismatch</h5>
+                    </div>
+                    
+                    <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                      Este erro acontece quando o Google não reconhece o endereço do seu dashboard como seguro. Siga estes passos no seu console do Google Cloud:
+                    </p>
+
+                    <div className="space-y-4">
+                      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-sm">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">1. Origem JavaScript Autorizada</p>
+                        <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                          <code className="text-xs font-mono font-bold text-blue-600">{currentOrigin}</code>
+                          <button 
+                            onClick={() => copyToClipboard(currentOrigin)}
+                            className="p-1.5 hover:bg-white rounded-md text-slate-400 transition-all"
+                            title="Copiar URL"
+                          >
+                            {copiedUrl === currentOrigin ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3 shadow-sm">
+                        <p className="text-[10px] font-black text-slate-400 uppercase">2. Configuração no Painel</p>
+                        <ul className="text-[10px] space-y-2 font-bold text-slate-500">
+                          <li className="flex items-start gap-2">• Acesse <span className="text-[#203267]">APIs e Serviços > Credenciais</span></li>
+                          <li className="flex items-start gap-2">• Clique no nome do seu ID de Cliente OAuth 2.0</li>
+                          <li className="flex items-start gap-2">• Adicione a URL acima em <span className="text-slate-900">"Origens JavaScript autorizadas"</span></li>
+                          <li className="flex items-start gap-2">• Salve e aguarde 5 minutos para propagação.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <a 
+                      href="https://console.cloud.google.com/apis/credentials" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase text-[#203267] hover:bg-slate-100 transition-all shadow-sm"
+                    >
+                      Abrir Google Cloud Console <ExternalLink size={14} />
+                    </a>
+                  </div>
                 )}
              </div>
 

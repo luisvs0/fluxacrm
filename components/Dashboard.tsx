@@ -30,7 +30,7 @@ interface DashboardProps {
   user: any;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+const Dashboard = ({ user }: DashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activePeriod, setActivePeriod] = useState('Este Mês');
   

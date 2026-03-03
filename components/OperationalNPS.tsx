@@ -17,7 +17,11 @@ import {
 import NewNPSModal from './NewNPSModal';
 import { supabase } from '../lib/supabase';
 
-const OperationalNPS: React.FC = () => {
+interface OperationalNPSProps {
+  user: any;
+}
+
+const OperationalNPS: React.FC<OperationalNPSProps> = ({ user }) => {
   const [activeSegment, setActiveSegment] = useState<'Clientes' | 'Equipe'>('Clientes');
   const [isNewNPSModalOpen, setIsNewNPSModalOpen] = useState(false);
   const [responses, setResponses] = useState<any[]>([]);

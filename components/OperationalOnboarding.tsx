@@ -100,7 +100,7 @@ const OperationalOnboarding: React.FC<OperationalOnboardingProps> = ({ user }) =
           {stats.map((stat, i) => (
             <div key={i} className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm min-w-[200px] md:min-w-0 group hover:border-blue-100 transition-all">
               <div className="space-y-0.5"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p><p className="text-lg font-black text-slate-900 tracking-tighter">{stat.value}</p><p className="text-[8px] font-bold text-blue-500 uppercase">{stat.trend}</p></div>
-              <div className={`p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:scale-110 transition-transform`}>{React.cloneElement(stat.icon as React.ReactElement, { size: 18 })}</div>
+              <div className={`p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:scale-110 transition-transform`}>{React.cloneElement(stat.icon as React.ReactElement<any>, { size: 18 })}</div>
             </div>
           ))}
         </div>
